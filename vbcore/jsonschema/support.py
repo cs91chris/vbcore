@@ -8,7 +8,7 @@ from vbcore.http.client import HTTPClient
 try:
     import jsonschema as json_schema
 except ImportError:
-    json_schema = ObjectDict
+    json_schema = ObjectDict  # pylint: disable=invalid-name
 
 
 class JSONSchema:
@@ -31,16 +31,17 @@ class JSONSchema:
         return res.body
 
     @classmethod
-    def load_from_file(cls, file):
+    def load_from_file(cls, file, encoding="utf-8"):
         """
 
         :param file:
+        :param encoding:
         :return:
         """
         if file.startswith("file://"):
             file = file[7:]
 
-        with open(file) as f:
+        with open(file, encoding=encoding) as f:
             return cls.loader(f.read())
 
     @classmethod
@@ -66,7 +67,7 @@ class JSONSchema:
             cls.service.validate(data, schema, format_checker=checker)
         except cls.schema_error as exc:
             if raise_exc is True:
-                raise ValueError(cls.error_report(exc, data))
+                raise ValueError(cls.error_report(exc, data)) from exc
             return False
         return True
 
@@ -113,6 +114,7 @@ class JSONSchema:
         json_error = cls.dumper(json_object)
 
         for lineno, text in enumerate(io.StringIO(json_error)):
+            # pylint: disable=consider-using-f-string
             line_text = "{:4}: {}".format(
                 lineno + 1, ">" * 3 if lineno == err_line else " " * 3
             )
