@@ -1,0 +1,7 @@
+coverage
+pytest
+pytest-cov
+
+types-python-dateutil
+types-setuptools
+types-toml
