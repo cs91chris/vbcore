@@ -1,3 +1,6 @@
+-c requirements-all.txt
+
+responses
 coverage
 pytest
 pytest-cov
@@ -5,3 +8,4 @@ pytest-cov
 types-python-dateutil
 types-setuptools
 types-toml
+types-requests

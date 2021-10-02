@@ -31,7 +31,11 @@ REQUIRES = [
     "pyyaml",
 ]
 
-REQUIRES_TEST = [
+REQUIRES_ALL = REQUIRES + [
+    "requests",
+]
+
+REQUIRES_TEST = REQUIRES_ALL + [
     "coverage",
     "pytest",
     "pytest-cov",
@@ -135,6 +139,7 @@ setup(
     install_requires=REQUIRES,
     extras_require={
         "test": REQUIRES_TEST,
+        "all": REQUIRES_ALL,
     },
     cmdclass=dict(test=PyTest),
     classifiers=[],

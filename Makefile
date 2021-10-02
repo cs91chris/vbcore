@@ -11,16 +11,19 @@ all: clean lint clean-install-deps test
 
 compile-deps:
 	pip-compile ${COMPILE_OPTS} -o ${REQ_PATH}/requirements.txt ${REQ_PATH}/requirements.in
+	pip-compile ${COMPILE_OPTS} -o ${REQ_PATH}/requirements-all.txt ${REQ_PATH}/requirements-all.in
 	pip-compile ${COMPILE_OPTS} -o ${REQ_PATH}/requirements-test.txt ${REQ_PATH}/requirements-test.in
 	pip-compile ${COMPILE_OPTS} -o ${REQ_PATH}/requirements-dev.txt ${REQ_PATH}/requirements-dev.in
 
 upgrade-deps:
 	pip-compile --upgrade ${COMPILE_OPTS} -o ${REQ_PATH}/requirements.txt ${REQ_PATH}/requirements.in
+	pip-compile --upgrade ${COMPILE_OPTS} -o ${REQ_PATH}/requirements-all.txt ${REQ_PATH}/requirements-all.in
 	pip-compile --upgrade ${COMPILE_OPTS} -o ${REQ_PATH}/requirements-test.txt ${REQ_PATH}/requirements-test.in
 	pip-compile --upgrade ${COMPILE_OPTS} -o ${REQ_PATH}/requirements-dev.txt ${REQ_PATH}/requirements-dev.in
 
 install-deps:
 	pip install -r ${REQ_PATH}/requirements.txt
+	pip install -r ${REQ_PATH}/requirements-all.txt
 	pip install -r ${REQ_PATH}/requirements-test.txt
 	pip install -r ${REQ_PATH}/requirements-dev.txt
 
