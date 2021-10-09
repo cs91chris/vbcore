@@ -1,8 +1,29 @@
 import signal
 import string
 import sys
+import typing as t
 from random import SystemRandom
-from typing import Callable
+from threading import Lock
+
+
+class Printer:
+    function = print
+    thread_lock = Lock()
+
+    @classmethod
+    def safe(cls, *args, **kwargs):
+        with cls.thread_lock:
+            cls.function(*args, **kwargs)
+
+    @classmethod
+    def error(cls, *args, **kwargs):
+        kwargs.setdefault("file", sys.stderr)
+        cls.function(*args, **kwargs)
+
+    @classmethod
+    def safe_error(cls, *args, **kwargs):
+        kwargs.setdefault("file", sys.stderr)
+        cls.error(*args, **kwargs)
 
 
 def parse_value(v):
@@ -19,7 +40,7 @@ def parse_value(v):
     return v
 
 
-def get_from_dict(d, k, default=None):
+def get_from_dict(d: dict, k, default=None):
     """
     get a value from dict without raising exceptions
 
@@ -33,7 +54,7 @@ def get_from_dict(d, k, default=None):
     return default
 
 
-def to_int(n):
+def to_int(n) -> t.Optional[int]:
     """
     cast input to int if an error occurred returns None
 
@@ -46,7 +67,7 @@ def to_int(n):
         return None
 
 
-def to_float(n):
+def to_float(n) -> t.Optional[float]:
     """
     cast input to float if an error occurred returns None
 
@@ -59,7 +80,7 @@ def to_float(n):
         return None
 
 
-def random_string(length, alphabet=string.printable):
+def random_string(length: int, alphabet: str = string.printable) -> str:
     """
 
     :param length:
@@ -69,20 +90,23 @@ def random_string(length, alphabet=string.printable):
     return "".join(SystemRandom().choice(alphabet) for _ in range(length))
 
 
-def eprint(*args):
-    print(*args, file=sys.stderr)
+class Signal:
+    @classmethod
+    def handle_terminate(cls, signum, frame, callback: t.Callable = lambda: None):
+        Printer.error(f"received signal: {signum} at frame: {frame}")
+        callback()
+        sys.exit(signum)
 
+    @classmethod
+    def register(cls, handler: t.Callable, *signals):
+        """
 
-def handle_terminate(signum, frame, callback: Callable = lambda: None):
-    eprint(f"received signal: {signum} at frame: {frame}")
-    callback()
-    sys.exit(signum)
-
-
-def register_signals(func: Callable, *signals):
-    for s in signals:
-        sig = getattr(signal, s, None)
-        if sig:
-            signal.signal(sig, func)
-        else:
-            eprint(f"unable to register signal {s}")
+        :param handler:
+        :param signals:
+        """
+        for s in signals:
+            try:
+                sig = getattr(signal, s)
+                signal.signal(sig, handler)
+            except Exception as exc:  # pylint: disable=broad-except
+                Printer.error(f"unable to register signal {s}: {exc}")
