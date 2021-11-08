@@ -1,5 +1,5 @@
 -c requirements.txt
--c requirements-dev.txt
+-c requirements-all.txt
 
 responses
 coverage
