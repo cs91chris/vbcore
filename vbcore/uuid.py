@@ -1,7 +1,10 @@
 import uuid
+import typing as t
 
 
-def get_uuid(ver=4, hexify=True, ns=None, name=None):
+def get_uuid(
+    ver: int = 4, hexify: bool = True, ns=None, name=None
+) -> t.Union[str, uuid.UUID]:
     """
 
     :param ver:
@@ -24,7 +27,7 @@ def get_uuid(ver=4, hexify=True, ns=None, name=None):
     return _uuid.hex if hexify else _uuid
 
 
-def check_uuid(u: str, ver=4, exc=False):
+def check_uuid(u: str, ver: int = 4, exc: bool = False) -> bool:
     """
 
     :param u:

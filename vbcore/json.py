@@ -139,23 +139,59 @@ class JsonEncoder(
         return super().default(o)
 
 
-class JsonDecoder(json.JSONDecoder):
+class JsonObjectDecoderMixin:
+    @classmethod
+    def custom_object_hook(cls, data: dict) -> dict:
+        return data
+
+    @classmethod
+    def custom_field_hook(cls, value):
+        return value
+
+
+class JsonISODateDecoder(JsonObjectDecoderMixin):
+    ISO_FORMAT = "%Y-%m-%dT%H:%M:%S"
+
+    @classmethod
+    def custom_field_hook(cls, value):
+        if isinstance(value, str):
+            try:
+                return datetime.datetime.strptime(value, cls.ISO_FORMAT)
+            except (TypeError, ValueError):
+                pass
+
+        return value
+
+
+class JsonObjectIdDecoder(JsonObjectDecoderMixin):
+    @classmethod
+    def custom_object_hook(cls, data: dict):
+        if "$oid" in data:
+            try:
+                return ObjectId(data["$oid"])
+            except (TypeError, InvalidId):
+                return data
+
+        return super().custom_object_hook(data)
+
+
+class JsonDecoder(
+    json.JSONDecoder,
+    JsonObjectIdDecoder,
+    JsonISODateDecoder,
+):
+    """
+    Extends all decoders provided with this module
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(object_hook=self.custom_object_hook, *args, **kwargs)
 
-    @staticmethod
-    def custom_object_hook(dct):
-        if "$oid" in dct:
-            try:
-                return ObjectId(dct["$oid"])
-            except (TypeError, InvalidId):
-                pass
-        for k, v in dct.items():
-            try:
-                dct[k] = datetime.datetime.strptime(v, "%Y-%m-%dT%H:%M:%S")
-            except (TypeError, ValueError):
-                pass
-        return dct
+    @classmethod
+    def custom_object_hook(cls, data: dict) -> dict:
+        data = super().custom_object_hook(data)
+        data = {k: super().custom_field_hook(v) for k, v in data.items()}
+        return data
 
 
 def dumps(data, *args, **kwargs):

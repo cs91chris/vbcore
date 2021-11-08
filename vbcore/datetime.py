@@ -10,29 +10,29 @@ from dateutil.parser import parse as date_parse
 
 
 class Millis:
-    seconds = 1000
-    minute = seconds * 60
-    hour = minute * 60
-    day = hour * 24
+    seconds: int = 1000
+    minute: int = seconds * 60
+    hour: int = minute * 60
+    day: int = hour * 24
 
 
 class Seconds:
-    millis = 1000
-    minute = 60
-    hour = minute * 60
-    day = hour * 24
+    millis: int = 1000
+    minute: int = 60
+    hour: int = minute * 60
+    day: int = hour * 24
 
 
 class Minutes:
-    seconds = 60
-    hour = 60
-    day = hour * 24
+    seconds: int = 60
+    hour: int = 60
+    day: int = hour * 24
 
 
 class Day:
-    hours = 24
-    minutes = hours * 60
-    seconds = minutes * 60
+    hours: int = 24
+    minutes: int = hours * 60
+    seconds: int = minutes * 60
 
 
 DateType = t.Union[datetime_date, datetime]
@@ -45,7 +45,7 @@ class DateHelper:
 
     def __init__(self, *args, **kwargs):
         assert holidays is not None, "you must install holidays"
-        self._holidays = holidays.CountryHoliday(*args, **kwargs)
+        self._holidays = self.country_holidays(*args, **kwargs)
 
     @property
     def holidays(self):

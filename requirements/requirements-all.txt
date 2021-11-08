@@ -4,8 +4,13 @@
 #
 #    pip-compile --no-emit-index-url --no-emit-trusted-host --output-file=requirements/requirements-all.txt requirements/requirements-all.in
 #
-certifi==2021.5.30        # via requests
-charset-normalizer==2.0.6  # via requests
-idna==3.2                 # via requests
+attrs==21.2.0             # via jsonschema
+certifi==2021.10.8        # via requests
+charset-normalizer==2.0.7  # via requests
+idna==3.3                 # via requests
+importlib-resources==5.4.0  # via jsonschema
+jsonschema==4.2.1         # via -r requirements/requirements-all.in
+pyrsistent==0.18.0        # via jsonschema
 requests==2.26.0          # via -r requirements/requirements-all.in
 urllib3==1.26.7           # via requests
+zipp==3.6.0               # via importlib-resources

@@ -1,5 +1,6 @@
 import asyncio
 import threading
+import typing as t
 
 try:
     import nest_asyncio
@@ -8,7 +9,7 @@ except ImportError:
 
 
 class BatchExecutor:
-    def __init__(self, tasks=None, **__):
+    def __init__(self, tasks: t.Optional[list] = None, **__):
         """
 
         :param tasks:
@@ -16,20 +17,21 @@ class BatchExecutor:
         self._tasks = tasks or []
 
     @staticmethod
-    def prepare_task(task):
+    def prepare_task(task: t.Union[t.Tuple, t.Callable]) -> t.Tuple[t.Callable, dict]:
         """
 
         :param task:
         :return:
         """
-        try:
-            if len(task) > 1:
-                return task[0], task[1] or {}
-            return task[0], {}
-        except TypeError:
+        if callable(task):
             return task, {}
 
-    def run(self):
+        if len(task) > 1:
+            return task[0], task[1] or {}
+
+        return task[0], {}
+
+    def run(self) -> t.List:
         responses = []
         for task in self._tasks:
             func, args = self.prepare_task(task)
@@ -38,7 +40,7 @@ class BatchExecutor:
 
 
 class AsyncBatchExecutor(BatchExecutor):
-    def __init__(self, return_exceptions=False, **kwargs):
+    def __init__(self, return_exceptions: bool = False, **kwargs):
         """
 
         :param tasks:
@@ -48,11 +50,11 @@ class AsyncBatchExecutor(BatchExecutor):
         self._return_exceptions = return_exceptions
 
     @staticmethod
-    async def _executor(fun, **kwargs):
+    async def _executor(fun: t.Callable, **kwargs):
         return fun(**kwargs)  # pragma: no cover
 
     @staticmethod
-    def is_async(fun):
+    def is_async(fun: t.Callable):
         return asyncio.iscoroutinefunction(fun)
 
     async def batch(self):
@@ -66,10 +68,11 @@ class AsyncBatchExecutor(BatchExecutor):
 
         return await asyncio.gather(*tasks, return_exceptions=self._return_exceptions)
 
-    def run(self):
+    def run(self) -> t.List:
         try:
             asyncio.get_running_loop()
             if nest_asyncio is not None:
+                # noinspection PyUnresolvedReferences
                 nest_asyncio.apply()  # pragma: no cover
         except RuntimeError:
             asyncio.set_event_loop(asyncio.new_event_loop())
@@ -79,12 +82,14 @@ class AsyncBatchExecutor(BatchExecutor):
 
 
 class Thread(threading.Thread):
-    def __init__(self, runnable, *args, params=None, daemon=False, **kwargs):
-        """
-
-        :param fun:
-        :param params:
-        """
+    def __init__(
+        self,
+        runnable: t.Callable,
+        *args,
+        params: t.Optional[dict] = None,
+        daemon: bool = False,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
         self._runnable = runnable
         self._args = args
@@ -96,29 +101,21 @@ class Thread(threading.Thread):
         self.response = self._runnable(*self._args, **self._params)
 
 
-class DaemonThread(threading.Thread):
-    def __init__(self, runnable, *args, params=None, **kwargs):
-        """
-
-        :param runnable:
-        :param params:
-        """
-        super().__init__(**kwargs)
-        self.daemon = True
-        self._runnable = runnable
-        self._args = args
-        self._params = params or {}
+class DaemonThread(Thread):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, daemon=True, **kwargs)
 
     def run(self):
         self._runnable(*self._args, **self._params)
 
 
 class ThreadBatchExecutor(BatchExecutor):
-    def __init__(self, thread_class=None, single_thread=False, **kwargs):
-        """
-
-        :param thread_class:
-        """
+    def __init__(
+        self,
+        thread_class: t.Optional[t.Type[Thread]] = None,
+        single_thread: bool = False,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
         self._single_thread = single_thread
         self._thread_class = thread_class or Thread
@@ -127,25 +124,25 @@ class ThreadBatchExecutor(BatchExecutor):
             self._tasks[0] = self._thread_class(super().run)
             return
 
-        for i, t in enumerate(self._tasks):
-            if isinstance(t, dict):
-                thread = self._thread_class(**t)
+        for i, task in enumerate(self._tasks):
+            if isinstance(task, dict):
+                thread = self._thread_class(**task)
             else:
-                func, args = self.prepare_task(t)
+                func, args = self.prepare_task(task)
                 thread = self._thread_class(func, params=args)
             self._tasks[i] = thread
 
-    def run(self):
-        for t in self._tasks:
-            t.start()
+    def run(self) -> t.Optional[t.List]:
+        for task in self._tasks:
+            task.start()
 
-        for t in self._tasks:
-            if t.daemon is False:
-                t.join()
+        for task in self._tasks:
+            if task.daemon is False:
+                task.join()
             else:
                 return None
 
         if self._single_thread:
             return self._tasks[0].response
 
-        return [t.response for t in self._tasks]
+        return [task.response for task in self._tasks]

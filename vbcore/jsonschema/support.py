@@ -1,4 +1,5 @@
 import io
+import typing as t
 from functools import partial
 
 from vbcore import json
@@ -7,13 +8,15 @@ from vbcore.http.client import HTTPClient
 
 try:
     import jsonschema as json_schema
-except ImportError:
-    json_schema = ObjectDict  # pylint: disable=invalid-name
+except ImportError as _exc:
+    raise ImportError("you must install 'jsonschema'") from _exc
+
+SchemaError = (json_schema.ValidationError, json_schema.SchemaError)
 
 
 class JSONSchema:
     service = json_schema
-    schema_error = (service.ValidationError, service.SchemaError)
+    schema_error = SchemaError
 
     loader = partial(json.loads)
     dumper = partial(json.dumps, indent=4)
@@ -21,7 +24,7 @@ class JSONSchema:
     message_format = "{message}\nError in line {line}:\n{report}\n{message}"
 
     @classmethod
-    def load_from_url(cls, url):
+    def load_from_url(cls, url: str) -> dict:
         """
 
         :param url:
@@ -31,7 +34,7 @@ class JSONSchema:
         return res.body
 
     @classmethod
-    def load_from_file(cls, file, encoding="utf-8"):
+    def load_from_file(cls, file: str, encoding: str = "utf-8", **kwargs) -> dict:
         """
 
         :param file:
@@ -41,11 +44,17 @@ class JSONSchema:
         if file.startswith("file://"):
             file = file[7:]
 
-        with open(file, encoding=encoding) as f:
+        with open(file, encoding=encoding, **kwargs) as f:
             return cls.loader(f.read())
 
     @classmethod
-    def validate(cls, data, schema, raise_exc=False, checker=None):
+    def validate(
+        cls,
+        data: dict,
+        schema: t.Union[dict, str],
+        raise_exc: bool = False,
+        checker=None,
+    ) -> bool:
         """
 
         :param data:
@@ -59,7 +68,7 @@ class JSONSchema:
         if isinstance(schema, str):
             if schema.startswith("https://") or schema.startswith("http://"):
                 schema = cls.load_from_url(schema)
-            if schema.startswith("file://"):
+            elif schema.startswith("file://"):
                 schema = cls.load_from_file(schema)
 
         try:
@@ -72,7 +81,9 @@ class JSONSchema:
         return True
 
     @classmethod
-    def error_report(cls, e, json_object, lines_before=8, lines_after=8):
+    def error_report(
+        cls, e, json_object: dict, lines_before: int = 8, lines_after: int = 8
+    ):
         """
         From: https://github.com/ccpgames/jsonschema-errorprinter/blob/master/jsonschemaerror.py
 
@@ -91,7 +102,7 @@ class JSONSchema:
         if not e.path:
             return e.message or str(e)
 
-        # Find the object that is erroring, and replace it with the marker.
+        # Find the object that ha errors, and replace it with the marker.
         for entry in list(e.path)[:-1]:
             json_object = json_object[entry]
 
@@ -155,7 +166,7 @@ class Fields:
         return ObjectDict(anyOf=args if len(args) > 1 else (*args, cls.null), **kwargs)
 
     @classmethod
-    def ref(cls, path, **kwargs):
+    def ref(cls, path: str, **kwargs):
         return ObjectDict(**{"$ref": f"#{path}", **kwargs})
 
     @classmethod
@@ -189,9 +200,9 @@ class Fields:
         )
 
     @classmethod
-    def array(cls, items, min_items=0, **kwargs):
+    def array(cls, items: dict, min_items: int = 0, **kwargs):
         return ObjectDict(type="array", minItems=min_items, items=items, **kwargs)
 
     @classmethod
-    def array_object(cls, min_items=0, **kwargs):
+    def array_object(cls, min_items: int = 0, **kwargs):
         return ObjectDict(type="array", minItems=min_items, items=cls.object(**kwargs))

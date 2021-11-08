@@ -1,5 +1,5 @@
 -c requirements.txt
--c requirements-test.txt
+-c requirements-all.txt
 
 twine
 wheel

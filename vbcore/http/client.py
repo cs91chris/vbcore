@@ -1,13 +1,17 @@
 import logging
-from requests import auth
-from requests import exceptions as http_exc
-from requests import request as send_request
 
 from vbcore.datastruct import ObjectDict
 from vbcore.uuid import get_uuid
 from . import httpcode
 from .httpdumper import LazyHTTPDumper
 from .methods import HttpMethod
+
+try:
+    from requests import auth
+    from requests import exceptions as http_exc
+    from requests import request as send_request
+except (ImportError, ModuleNotFoundError) as _exc:
+    raise ImportError("you must install 'requests'") from _exc
 
 HTTPStatusError = (http_exc.HTTPError,)
 NetworkError = (http_exc.ConnectionError, http_exc.Timeout)
@@ -21,7 +25,7 @@ class HTTPTokenAuth(auth.AuthBase):
         :param token:
         """
         self.token = token
-        self.token_type = "Bearer" if token_type is None else token_type
+        self.token_type = token_type or "Bearer"
 
     def __eq__(self, other):
         """

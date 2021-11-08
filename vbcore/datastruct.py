@@ -4,6 +4,8 @@ import typing as t
 from collections import OrderedDict
 from dataclasses import asdict, fields
 
+BytesType = t.Union[bytes, bytearray, memoryview]
+
 
 class HashableDict(dict):
     def __hash__(self):
@@ -17,14 +19,12 @@ class ObjectDict(dict):
             self[k] = self.normalize(v)
 
     def __dict__(self):
-        data = {}
+        data: t.Dict = {}
         for k, v in self.items():
             if isinstance(v, ObjectDict):
                 data[k] = v.__dict__()
             elif isinstance(v, list):
-                data[k] = []
-                for i in v:
-                    data[k].append(i.__dict__() if hasattr(i, "__dict__") else i)
+                data[k] = [i.__dict__() if hasattr(i, "__dict__") else i for i in v]
             else:
                 data[k] = v
 
@@ -60,20 +60,24 @@ class ObjectDict(dict):
         return self
 
     @staticmethod
-    def normalize(data):
+    def normalize(
+        data: t.Union[t.Iterable, t.Dict]
+    ) -> t.Union["ObjectDict", t.Iterable, t.Dict]:
         """
 
         :param data:
         :return:
         """
         try:
-            if isinstance(data, (list, tuple, set)):
-                return [ObjectDict(**r) if isinstance(r, dict) else r for r in data]
-            return ObjectDict(**data)
+            if isinstance(data, dict):
+                return ObjectDict(**data)
+            return [ObjectDict(**r) if isinstance(r, dict) else r for r in data]
         except (TypeError, ValueError, AttributeError):
             return data
 
-    def get_namespace(self, prefix, lowercase=True, trim=True):
+    def get_namespace(
+        self, prefix: str, lowercase: bool = True, trim: bool = True
+    ) -> t.Dict:
         """
         Returns a dictionary containing a subset of configuration options
         that match the specified prefix.
@@ -109,7 +113,7 @@ class IntEnum(enum.IntEnum):
 
 
 class Dumper:
-    def __init__(self, data, *args, callback=None, **kwargs):
+    def __init__(self, data, *args, callback: t.Optional[t.Callable] = None, **kwargs):
         """
 
         :param data:
@@ -131,9 +135,26 @@ class Dumper:
         return self.dump()
 
 
-class BDict(t.Dict):
+class BytesWrap(bytes):
+    encoding = "utf-8"
+
+    def __init__(self, data: BytesType, **kwargs):
+        kwargs.setdefault("encoding", self.encoding)
+        super().__init__(data, **kwargs)  # type: ignore
+        self.data = data
+
+    def __str__(self) -> str:
+        if isinstance(self.data, memoryview):
+            return self.data.hex()
+        return self.data.decode(encoding=self.encoding)
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+
+class BDict(dict):
     @classmethod
-    def from_dict(cls, data: dict) -> "BDict":
+    def from_dict(cls, data: t.Dict) -> "BDict":
         return cls(**data)
 
     def __init__(self, *args, **kwargs):
@@ -147,20 +168,6 @@ class BDict(t.Dict):
     def __delitem__(self, key):
         super().__delitem__(key)
         del self.inverse[self[key]]
-
-
-class BytesWrap(bytes):
-    def __init__(self, data: bytes):
-        super().__init__()
-        self.data = data
-
-    def __str__(self) -> str:
-        if hasattr(self.data, "hex"):
-            return self.data.hex()
-        return self.data.decode()
-
-    def __repr__(self) -> str:
-        return self.__str__()
 
 
 class LRUCache(OrderedDict):
