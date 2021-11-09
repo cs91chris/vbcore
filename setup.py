@@ -27,13 +27,16 @@ BASE_PATH = os.path.dirname(__file__)
 VERSION_FILE = os.path.join(PKG_NAME, "version.py")
 
 REQUIRES = [
+    "python-dateutil",
     "python-decouple",
     "python-dotenv",
     "pyyaml",
 ]
 
 REQUIRES_ALL = REQUIRES + [
+    "holidays",
     "requests",
+    "jsonschema",
 ]
 
 REQUIRES_TEST = REQUIRES_ALL + [

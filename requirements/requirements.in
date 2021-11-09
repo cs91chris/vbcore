@@ -1,5 +1,4 @@
-decouple
-holidays
 python-dateutil
+python-decouple
 python-dotenv
 pyyaml

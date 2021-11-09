@@ -1,11 +1,11 @@
 -c requirements.txt
 -c requirements-all.txt
 
-responses
 coverage
 pytest
 pytest-cov
-
+responses
+safety
 types-python-dateutil
 types-setuptools
 types-toml

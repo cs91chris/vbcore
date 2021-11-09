@@ -7,10 +7,18 @@
 attrs==21.2.0             # via jsonschema
 certifi==2021.10.8        # via requests
 charset-normalizer==2.0.7  # via requests
+convertdate==2.3.2        # via holidays
+hijri-converter==2.2.2    # via holidays
+holidays==0.11.3.1        # via -r requirements/requirements-all.in
 idna==3.3                 # via requests
 importlib-resources==5.4.0  # via jsonschema
 jsonschema==4.2.1         # via -r requirements/requirements-all.in
+korean-lunar-calendar==0.2.1  # via holidays
+pymeeus==0.5.11           # via convertdate
 pyrsistent==0.18.0        # via jsonschema
+python-dateutil==2.8.2    # via -c requirements/requirements.txt, holidays
+pytz==2021.3              # via convertdate
 requests==2.26.0          # via -r requirements/requirements-all.in
+six==1.16.0               # via -c requirements/requirements.txt, python-dateutil
 urllib3==1.26.7           # via requests
 zipp==3.6.0               # via importlib-resources

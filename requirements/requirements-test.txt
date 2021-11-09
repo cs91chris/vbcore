@@ -7,22 +7,29 @@
 attrs==21.2.0             # via -c requirements/requirements-all.txt, pytest
 certifi==2021.10.8        # via -c requirements/requirements-all.txt, requests
 charset-normalizer==2.0.7  # via -c requirements/requirements-all.txt, requests
+click==8.0.3              # via safety
 coverage[toml]==6.1.1     # via -r requirements/requirements-test.in, pytest-cov
+dparse==0.5.1             # via safety
 idna==3.3                 # via -c requirements/requirements-all.txt, requests
 iniconfig==1.1.1          # via pytest
-packaging==21.2           # via pytest
+packaging==21.2           # via dparse, pytest, safety
 pluggy==1.0.0             # via pytest
 py==1.11.0                # via pytest
 pyparsing==2.4.7          # via packaging
 pytest-cov==3.0.0         # via -r requirements/requirements-test.in
 pytest==6.2.5             # via -r requirements/requirements-test.in, pytest-cov
-requests==2.26.0          # via -c requirements/requirements-all.txt, responses
+pyyaml==6.0               # via -c requirements/requirements.txt, dparse
+requests==2.26.0          # via -c requirements/requirements-all.txt, responses, safety
 responses==0.15.0         # via -r requirements/requirements-test.in
-six==1.16.0               # via -c requirements/requirements.txt, responses
-toml==0.10.2              # via pytest
+safety==1.10.3            # via -r requirements/requirements-test.in
+six==1.16.0               # via -c requirements/requirements-all.txt, -c requirements/requirements.txt, responses
+toml==0.10.2              # via dparse, pytest
 tomli==1.2.2              # via coverage
 types-python-dateutil==2.8.2  # via -r requirements/requirements-test.in
 types-requests==2.25.11   # via -r requirements/requirements-test.in
 types-setuptools==57.4.2  # via -r requirements/requirements-test.in
 types-toml==0.10.1        # via -r requirements/requirements-test.in
 urllib3==1.26.7           # via -c requirements/requirements-all.txt, requests, responses
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools
