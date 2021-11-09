@@ -27,6 +27,7 @@ BASE_PATH = os.path.dirname(__file__)
 VERSION_FILE = os.path.join(PKG_NAME, "version.py")
 
 REQUIRES = [
+    "python-decouple",
     "python-dotenv",
     "pyyaml",
 ]

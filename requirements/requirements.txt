@@ -5,6 +5,7 @@
 #    pip-compile --no-emit-index-url --no-emit-trusted-host --output-file=requirements/requirements.txt requirements/requirements.in
 #
 convertdate==2.3.2        # via holidays
+decouple==0.0.7           # via -r requirements/requirements.in
 hijri-converter==2.2.2    # via holidays
 holidays==0.11.3.1        # via -r requirements/requirements.in
 korean-lunar-calendar==0.2.1  # via holidays

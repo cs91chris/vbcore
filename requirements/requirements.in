@@ -1,4 +1,5 @@
-python-dotenv
-pyyaml
+decouple
 holidays
 python-dateutil
+python-dotenv
+pyyaml
