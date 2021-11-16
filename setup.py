@@ -7,11 +7,11 @@ from pkg_resources import parse_requirements
 from setuptools import find_packages as base_find_packages, setup
 from setuptools.command.test import test
 
-LICENSE = ""
-URL = ""
+LICENSE = "MIT"
+URL = "https://github.com/cs91chris/vbcore"
 PLATFORMS = "any"
 PYTHON_VERSION = ">=3.8"
-DESCRIPTION = ""
+DESCRIPTION = "VBCore common helpers and components"
 PACKAGE_DATA = True
 
 PKG_NAME = "vbcore"
