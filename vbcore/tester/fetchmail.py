@@ -26,7 +26,7 @@ class FetchMail(HTTPClient):
         self.retry = retry
         self.wait = wait
 
-    def get(self, recipient, subject=None, **__):
+    def get(self, recipient, subject=None, **__):  # pylint: disable=arguments-differ
         """
 
         :param recipient:

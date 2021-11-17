@@ -2,7 +2,7 @@ import enum
 
 import typing as t
 from collections import OrderedDict
-from dataclasses import asdict, fields
+from dataclasses import asdict, fields, dataclass
 
 BytesType = t.Union[bytes, bytearray, memoryview]
 
@@ -71,6 +71,8 @@ class ObjectDict(dict):
         try:
             if isinstance(data, dict):
                 return ObjectDict(**data)
+            if isinstance(data, str):
+                return data
             return [ObjectDict(**r) if isinstance(r, dict) else r for r in data]
         except (TypeError, ValueError, AttributeError):
             return data
@@ -135,12 +137,10 @@ class Dumper:
         return self.dump()
 
 
-class BytesWrap(bytes):
+class BytesWrap:
     encoding = "utf-8"
 
-    def __init__(self, data: BytesType, **kwargs):
-        kwargs.setdefault("encoding", self.encoding)
-        super().__init__(data, **kwargs)  # type: ignore
+    def __init__(self, data: BytesType, **__):
         self.data = data
 
     def __str__(self) -> str:
@@ -204,3 +204,13 @@ class DataClassDictable:
     def field_types(cls) -> dict:
         # noinspection PyDataclass
         return {item.name: item.type.__name__ for item in fields(cls)}
+
+
+@dataclass
+class GeoJsonPoint(DataClassDictable):
+    coordinates: t.List[float]
+    type: str
+
+    def __init__(self, lat=0.0, lon=0.0):
+        self.type = "Point"
+        self.coordinates = [lon, lat]

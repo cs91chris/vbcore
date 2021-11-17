@@ -189,8 +189,12 @@ class JsonDecoder(
 
     @classmethod
     def custom_object_hook(cls, data: dict) -> dict:
-        data = super().custom_object_hook(data)
-        data = {k: super().custom_field_hook(v) for k, v in data.items()}
+        # noinspection PyBroadException
+        try:
+            data = super().custom_object_hook(data)
+            data = {k: super().custom_field_hook(v) for k, v in data.items()}
+        except Exception:  # pylint: disable=broad-except
+            return data
         return data
 
 

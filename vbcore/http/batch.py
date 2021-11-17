@@ -86,7 +86,7 @@ class HTTPBatch(HTTPBase, AsyncBatchExecutor):
                 body={}, status=httpcode.SERVICE_UNAVAILABLE, headers={}, exception=exc
             )
 
-    def request(self, requests, **kwargs):
+    def request(self, requests, **kwargs):  # pylint: disable=arguments-differ
         """
 
         :param requests:

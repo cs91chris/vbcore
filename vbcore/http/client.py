@@ -134,7 +134,7 @@ class HTTPClient(HTTPBase):
         chunk_size=None,
         decode_unicode=False,
         **kwargs,
-    ):
+    ):  # pylint: disable=arguments-differ
         """
 
         :param uri:
@@ -233,7 +233,9 @@ class JsonRPCClient(HTTPClient):
         """
         return self._request_id
 
-    def request(self, method, request_id=None, **kwargs):
+    def request(
+        self, method, request_id=None, **kwargs
+    ):  # pylint: disable=arguments-differ
         """
 
         :param method:
