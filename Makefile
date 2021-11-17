@@ -62,6 +62,10 @@ safety:
 		-r ${REQ_PATH}/requirements.txt \
 		-r ${REQ_PATH}/requirements-all.txt
 
+image-publish:
+	docker build --target ${PACKAGE}-38 -t voidbrain/${PACKAGE}-38:$${VERSION:-latest} .
+	docker push voidbrain/${PACKAGE}-38:$${VERSION:-latest}
+
 build-cython:
 	python setup.py bdist_wheel --cythonize
 
