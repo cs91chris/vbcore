@@ -49,31 +49,16 @@ class ObjectDict(dict):
         if name in self:
             del self[name]
 
-    def patch(self, m, **kwargs):
-        """
-
-        :param m:
-        :param kwargs:
-        :return:
-        """
-        super().update(m, **kwargs)
+    def patch(self, __dict, **kwargs):
+        super().update(__dict, **kwargs)
         return self
 
     @staticmethod
-    def normalize(
-        data: t.Union[t.Iterable, t.Dict]
-    ) -> t.Union["ObjectDict", t.Iterable, t.Dict]:
-        """
-
-        :param data:
-        :return:
-        """
+    def normalize(data):
         try:
-            if isinstance(data, dict):
-                return ObjectDict(**data)
-            if isinstance(data, str):
-                return data
-            return [ObjectDict(**r) if isinstance(r, dict) else r for r in data]
+            if isinstance(data, (list, tuple, set)):
+                return [ObjectDict(**r) if isinstance(r, dict) else r for r in data]
+            return ObjectDict(**data)
         except (TypeError, ValueError, AttributeError):
             return data
 
