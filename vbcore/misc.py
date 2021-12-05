@@ -1,6 +1,8 @@
+import os
 import signal
 import string
 import sys
+import tempfile
 import typing as t
 from random import SystemRandom
 from threading import Lock
@@ -110,3 +112,18 @@ class Signal:
                 signal.signal(sig, handler)
             except Exception as exc:  # pylint: disable=broad-except
                 Printer.error(f"unable to register signal {s}: {exc}")
+
+
+class TempFile:
+    def __init__(self, data):
+        self.data = data
+        # pylint: disable=consider-using-with
+        self.file = tempfile.NamedTemporaryFile(delete=False)
+
+    def __enter__(self):
+        self.file.write(self.data)
+        self.file.close()
+        return self.file
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        os.unlink(self.file.name)

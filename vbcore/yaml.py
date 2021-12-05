@@ -4,7 +4,6 @@
 import os
 import re
 import sys
-from functools import partial
 
 import yaml
 
@@ -32,16 +31,19 @@ IMPLICIT_ENV_VAR_MATCHER = re.compile(
 )
 
 
-def loads(data, loader=None):
-    return ObjectDict.normalize(yaml.load(data, Loader=loader or yaml.Loader))
+def loads(data, loader=None, as_object: bool = True):
+    data = yaml.load(data, Loader=loader or yaml.Loader)
+    if as_object:
+        return ObjectDict.normalize(data)
+    return data
 
 
-def load_yaml_file(filename, encoding="utf-8", **kwargs):
+def load_yaml_file(filename: str, encoding="utf-8", **kwargs):
     with open(filename, encoding=encoding) as f:
         return loads(f, **kwargs)
 
 
-def load_optional_yaml_file(filename, default=None, debug=False, **kwargs):
+def load_optional_yaml_file(filename: str, default=None, debug: bool = False, **kwargs):
     try:
         return load_yaml_file(filename, **kwargs)
     except OSError as exc:
@@ -55,7 +57,8 @@ def _replace_env_var(match):
     value = os.environ.get(env_var, None)
     if value is None:
         if default is None:
-            # regex module return None instead of '' if engine didn't entered default capture group
+            # regex module return None instead of ''
+            # if engine didn't entered default capture group
             default = ""
 
         value = default
@@ -64,22 +67,26 @@ def _replace_env_var(match):
     return value
 
 
-def env_var_constructor(loader, node, raw=False):
+def _constructor_env_var(loader, node, raw: bool = False):
     raw_value = loader.construct_scalar(node)
     value = ENV_VAR_MATCHER.sub(_replace_env_var, raw_value)
-    return value if raw else yaml.safe_load(value)
+    return value if raw else loads(value, loader.__class__, as_object=False)
 
 
-def include_constructor(loader, node):
+def _constructor_raw_env_var(loader, node):
+    return _constructor_env_var(loader, node, raw=True)
+
+
+def _constructor_include(loader, node):
     return load_yaml_file(node.value, loader=loader.__class__)
 
 
-def optional_include_constructor(loader, node):
+def _constructor_optional_include(loader, node):
     return load_optional_yaml_file(node.value, loader=loader.__class__)
 
 
-yaml.add_constructor("!include", include_constructor)
-yaml.add_constructor("!opt_include", optional_include_constructor)
-yaml.add_constructor("!env_var", env_var_constructor)
-yaml.add_constructor("!raw_env_var", partial(env_var_constructor, raw=True))
+yaml.add_constructor("!include", _constructor_include)
+yaml.add_constructor("!opt_include", _constructor_optional_include)
+yaml.add_constructor("!env_var", _constructor_env_var)
+yaml.add_constructor("!raw_env_var", _constructor_raw_env_var)
 yaml.add_implicit_resolver("!env_var", IMPLICIT_ENV_VAR_MATCHER)
