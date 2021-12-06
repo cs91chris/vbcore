@@ -21,7 +21,7 @@ class ObjectDict(dict):
     def __dict__(self):
         data: t.Dict = {}
         for k, v in self.items():
-            if isinstance(v, ObjectDict):
+            if hasattr(v, "__dict__"):
                 data[k] = v.__dict__()
             elif isinstance(v, list):
                 data[k] = [i.__dict__() if hasattr(i, "__dict__") else i for i in v]
@@ -122,13 +122,10 @@ class Dumper:
         return self.dump()
 
 
-class BytesWrap:
+class BytesWrap(Dumper):
     encoding = "utf-8"
 
-    def __init__(self, data: BytesType, **__):
-        self.data = data
-
-    def __str__(self) -> str:
+    def dump(self) -> str:
         if isinstance(self.data, memoryview):
             return self.data.hex()
         return self.data.decode(encoding=self.encoding)
@@ -196,6 +193,8 @@ class GeoJsonPoint(DataClassDictable):
     coordinates: t.List[float]
     type: str
 
-    def __init__(self, lat=0.0, lon=0.0):
+    def __init__(self, lat: float = 0.0, lon: float = 0.0):
         self.type = "Point"
         self.coordinates = [lon, lat]
+        self.lat = lat
+        self.lon = lon
