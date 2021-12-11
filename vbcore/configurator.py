@@ -1,4 +1,5 @@
 import os
+import typing as t
 from collections import OrderedDict
 from functools import partial
 
@@ -11,14 +12,22 @@ _conf_file_encoding = os.environ.get("ENV_FILE_ENCODING") or "UTF-8"
 
 
 class AutoConfig(decouple.AutoConfig):
-    encoding = _conf_file_encoding
+    encoding: str = _conf_file_encoding
 
-    SUPPORTED = OrderedDict(
+    SUPPORTED: t.OrderedDict = OrderedDict(
         [
             (_conf_file_name or "settings.ini", decouple.RepositoryIni),
             (_conf_file_name or ".env", decouple.RepositoryEnv),
         ]
     )
+
+    @classmethod
+    def from_environ(cls, key: str, default=None, cast: t.Callable[[str], t.Any] = str):
+        env_var = os.environ.get(key)
+        if env_var:
+            return cast(env_var)
+
+        return default
 
 
 config = AutoConfig(search_path=_conf_search_path or os.getcwd())
