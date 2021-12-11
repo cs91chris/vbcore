@@ -1,6 +1,9 @@
 import re
 
-from vbcore.jsonschema.support import JSONSchema
+try:
+    from vbcore.jsonschema.support import JSONSchema
+except ImportError:
+    JSONSchema = object  # type: ignore
 
 
 class BaseAssert:
@@ -148,6 +151,7 @@ class JSONValidatorMixin(BaseAssert, JSONSchema):
         :param strict:
         :return:
         """
+        cls.assert_different(JSONSchema, object, error="you must install jsonschema")
         if strict and not schema:
             cls.assert_that(
                 lambda a, e: a is not None, actual=schema, error="Missing schema"
