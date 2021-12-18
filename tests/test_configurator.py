@@ -25,4 +25,31 @@ def test_load_dot_env():
     ids=["envvar_exists", "cast_envvar", "no_envvar_use_default", "envvar_bool"],
 )
 def test_from_environ(envvar, default, cast, expected):
-    Asserter.assert_equals(config.from_environ(envvar, default, cast), expected)
+    Asserter.assert_equals(config.from_environ(envvar, default, cast=cast), expected)
+
+
+@pytest.mark.parametrize(
+    "envvar, required, cast, expected_exc, error_message",
+    [
+        (
+            "NOT_FOUND",
+            True,
+            str,
+            EnvironmentError,
+            "envvar 'NOT_FOUND' required or provide a default",
+        ),
+        (
+            "USER",
+            False,
+            int,
+            ValueError,
+            "unable to cast config key 'USER' to type: <class 'int'>",
+        ),
+    ],
+    ids=["envvar_required", "envvar_cast_failed"],
+)
+def test_from_environ_exceptions(envvar, required, cast, expected_exc, error_message):
+    with pytest.raises(expected_exc) as error:
+        config.from_environ(envvar, required=required, cast=cast)
+
+    Asserter.assert_equals(str(error.value), error_message)

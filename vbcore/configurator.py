@@ -22,10 +22,24 @@ class AutoConfig(decouple.AutoConfig):
     )
 
     @classmethod
-    def from_environ(cls, key: str, default=None, cast: t.Callable[[str], t.Any] = str):
+    def from_environ(
+        cls,
+        key: str,
+        default=None,
+        required=True,
+        cast: t.Callable[[str], t.Any] = str,
+    ):
         env_var = os.environ.get(key)
         if env_var:
-            return cast(env_var)
+            try:
+                return cast(env_var)
+            except Exception as exc:
+                raise ValueError(
+                    f"unable to cast config key '{key}' to type: {cast}"
+                ) from exc
+
+        if required and not default:
+            raise EnvironmentError(f"envvar '{key}' required or provide a default")
 
         return default
 
