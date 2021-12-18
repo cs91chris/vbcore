@@ -1,14 +1,81 @@
 import atexit
-
-from logging import config as logging_config
+import json
+import logging.config
+import socket
+import struct
+import timeit
+import typing as t
+from contextlib import contextmanager
 from logging.handlers import QueueHandler, QueueListener
 from queue import Queue
 
-valid_ident = logging_config.valid_ident
+DEFAULT_LISTENER_PORT = logging.config.DEFAULT_LOGGING_CONFIG_PORT
+
+
+class LoggingSettings(t.NamedTuple):
+    config_file: t.Optional[str] = None
+    logger_name: t.Optional[str] = None
+    listen_for_reload: bool = False
+    listener_daemon: bool = True
+    listener_port: int = DEFAULT_LISTENER_PORT
+
+
+class Loggers:
+    def __call__(self, name=None):
+        return logging.getLogger(name)
+
+    def __init__(self, config: t.Optional[LoggingSettings] = None):
+        self.config = config or LoggingSettings()
+        if self.config.config_file:
+            with open(self.config.config_file, encoding="utf-8") as file:
+                logging.config.dictConfig(json.load(file))
+        else:
+            logging.basicConfig()
+
+        if self.config.listen_for_reload:
+            listener = logging.config.listen(self.config.listener_port)
+            listener.setDaemon(self.config.listener_daemon)
+            listener.start()
+
+    @contextmanager
+    def execution_time(
+        self,
+        message: t.Optional[str] = None,
+        logger_name: str = "performance",
+        log_header: t.Optional[dict] = None,
+    ):
+        start_time = timeit.default_timer()
+        yield
+
+        logger = logging.getLogger(logger_name)
+        logger.info(
+            message or "execution time: %.3fs",
+            timeit.default_timer() - start_time,
+            extra=log_header,
+        )
+
+    @classmethod
+    def reload(
+        cls,
+        config_file: str,
+        host: str = "localhost",
+        port: int = DEFAULT_LISTENER_PORT,
+    ):
+        with open(config_file, "rb") as file:
+            configuration = file.read()
+
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((host, port))
+        sock.send(bytes(struct.pack(">L", len(configuration))))
+        sock.send(configuration)
+        sock.close()
+
+
+valid_ident = logging.config.valid_ident
 # noinspection PyUnresolvedReferences
-ConvertingDict = logging_config.ConvertingDict  # type: ignore
+ConvertingDict = logging.config.ConvertingDict  # type: ignore
 # noinspection PyUnresolvedReferences
-ConvertingList = logging_config.ConvertingList  # type: ignore
+ConvertingList = logging.config.ConvertingList  # type: ignore
 
 
 class QueueListenerHandler(QueueHandler):

@@ -55,7 +55,12 @@ lint:
 	mypy --install-types --non-interactive --no-strict-optional ${PACKAGE} tests
 
 test:
-	pytest -v --cov=${PACKAGE} --cov-report=html --cov-config .coveragerc tests
+	PYTHONPATH=. pytest -v -rf --strict-markers \
+		-p ${PACKAGE}.tester.plugins.fixtures \
+		-p ${PACKAGE}.tester.plugins.startup \
+		--cov=${PACKAGE} --cov-report=html \
+		--cov-config .coveragerc \
+		tests
 
 safety:
 	safety check \
