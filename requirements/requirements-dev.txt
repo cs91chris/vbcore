@@ -49,7 +49,7 @@ requests-toolbelt==0.9.1  # via twine
 requests==2.26.0          # via -c requirements/requirements-all.txt, -c requirements/requirements-test.txt, requests-toolbelt, twine
 rfc3986==1.5.0            # via twine
 secretstorage==3.3.1      # via keyring
-six==1.16.0               # via -c requirements/requirements-all.txt, -c requirements/requirements-test.txt, -c requirements/requirements.txt, bleach, pip-tools, tox, virtualenv
+six==1.16.0               # via -c requirements/requirements-test.txt, -c requirements/requirements.txt, bleach, pip-tools, tox, virtualenv
 toml==0.10.2              # via -c requirements/requirements-test.txt, pylint, tox
 tomli==1.2.3              # via -c requirements/requirements-test.txt, black, mypy
 tox==3.24.4               # via -r requirements/requirements-dev.in

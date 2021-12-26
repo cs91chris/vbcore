@@ -1,5 +1,4 @@
 -c requirements.txt
 
-holidays
 jsonschema
 requests

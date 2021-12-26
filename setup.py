@@ -34,7 +34,6 @@ REQUIRES = [
 ]
 
 REQUIRES_ALL = REQUIRES + [
-    "holidays",
     "requests",
     "jsonschema",
 ]

@@ -1,8 +1,3 @@
-try:  # pragma: no cover
-    import holidays
-except ImportError:  # pragma: no cover
-    holidays = None
-
 import typing as t
 from datetime import datetime, date as datetime_date
 
@@ -42,21 +37,6 @@ AnyDateType = t.Union[DateType, str]
 class DateHelper:
     DATE_PRETTY_FORMAT = "%d %B %Y %I:%M %p"
     DATE_ISO_FORMAT = "%Y-%m-%dT%H:%M:%S"
-
-    def __init__(self, *args, **kwargs):
-        assert holidays is not None, "you must install holidays"
-        self._holidays = self.country_holidays(*args, **kwargs)
-
-    @property
-    def holidays(self):
-        return self._holidays  # pragma: no cover
-
-    def all_holidays(self) -> list:
-        return list(self._holidays.items())
-
-    @classmethod
-    def country_holidays(cls, *args, **kwargs):
-        return holidays.CountryHoliday(*args, **kwargs)
 
     @classmethod
     def is_weekend(cls, curr_date: AnyDateType, **kwargs) -> bool:
@@ -111,11 +91,23 @@ class DateHelper:
     def str_to_date(
         cls, date: str, fmt: t.Optional[str] = None, is_iso: bool = False, **kwargs
     ) -> datetime:
+        """
+
+        :param date: input string date
+        :param fmt: format input date (optional: could be detected from string)
+        :param is_iso: flag for implicit iso format
+        :param kwargs: passed to date_parse
+        :return: return parsed date
+        """
         if is_iso is True:
             fmt = cls.DATE_ISO_FORMAT
-        if fmt is not None:
-            return datetime.strptime(date, fmt)
-        return date_parse(date, **kwargs)
+        if fmt is None:
+            return date_parse(date, **kwargs)
+
+        date_obj = datetime.strptime(date, fmt)
+        if date != cls.date_to_str(date_obj, fmt):
+            raise ValueError(f"invalid date: {date}. Allowed format is {fmt}")
+        return date_obj
 
     @classmethod
     def pretty_date(cls, date: AnyDateType):
@@ -126,14 +118,12 @@ class DateHelper:
         return cls.date_to_str(date, fmt=cls.DATE_PRETTY_FORMAT)
 
 
-# for backwards compatibility
 def from_iso_format(str_date, fmt, exc=True):
     return DateHelper.change_format(
         str_date, in_fmt=DateHelper.DATE_ISO_FORMAT, out_fmt=fmt, raise_exc=exc
     )
 
 
-# for backwards compatibility
 def to_iso_format(str_date, fmt=None, exc=True):
     return DateHelper.change_format(
         str_date, in_fmt=fmt, out_fmt=DateHelper.DATE_ISO_FORMAT, raise_exc=exc
