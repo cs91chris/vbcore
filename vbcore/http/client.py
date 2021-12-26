@@ -10,7 +10,7 @@ try:
     from requests import auth
     from requests import exceptions as http_exc
     from requests import request as send_request
-except (ImportError, ModuleNotFoundError) as _exc:
+except ImportError as _exc:
     raise ImportError("you must install 'requests'") from _exc
 
 HTTPStatusError = (http_exc.HTTPError,)

@@ -194,7 +194,7 @@ class JsonDecoder(
             data = super().custom_object_hook(data)
             data = {k: super().custom_field_hook(v) for k, v in data.items()}
         except Exception:  # pylint: disable=broad-except
-            return data
+            pass
         return data
 
 
