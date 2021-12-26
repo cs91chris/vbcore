@@ -5,9 +5,16 @@ import pytest
 from vbcore.configurator import load_dotenv, config
 from vbcore.tester.mixins import Asserter
 
-SAMPLE_ENVVAR = os.environ["USER"].lower()
 TEST_ENV_BOOL = "TEST_ENV_BOOL"
-os.environ[TEST_ENV_BOOL] = "1"
+TEST_ENV_FLOAT = "TEST_ENV_FLOAT"
+SAMPLE_ENVVAR = "sample-env"
+
+
+@pytest.fixture(scope="function")
+def mock_envvar(monkeypatch):
+    monkeypatch.setitem(os.environ, TEST_ENV_BOOL, "1")
+    monkeypatch.setitem(os.environ, TEST_ENV_FLOAT, "1.234")
+    monkeypatch.setitem(os.environ, "SAMPLE", SAMPLE_ENVVAR)
 
 
 def test_load_dot_env():
@@ -17,15 +24,24 @@ def test_load_dot_env():
 @pytest.mark.parametrize(
     "envvar, default, cast, expected",
     [
-        ("USER", None, str, SAMPLE_ENVVAR),
-        ("USER", None, lambda x: x.upper(), SAMPLE_ENVVAR.upper()),
+        ("SAMPLE", None, str, SAMPLE_ENVVAR),
+        ("SAMPLE", None, lambda x: x.upper(), SAMPLE_ENVVAR.upper()),
         ("NOENV", "none", str, "none"),
         (TEST_ENV_BOOL, None, bool, True),
+        (TEST_ENV_FLOAT, None, float, 1.234),
     ],
-    ids=["envvar_exists", "cast_envvar", "no_envvar_use_default", "envvar_bool"],
+    ids=[
+        "envvar_exists",
+        "cast_envvar",
+        "no_envvar_use_default",
+        "envvar_bool",
+        "envvar_float",
+    ],
 )
-def test_from_environ(envvar, default, cast, expected):
-    Asserter.assert_equals(config.from_environ(envvar, default, cast=cast), expected)
+def test_from_environ_ok(
+    envvar, default, cast, expected, mock_envvar
+):  # pylint: disable=redefined-outer-name,unused-argument
+    assert config.from_environ(envvar, default, cast=cast) == expected
 
 
 @pytest.mark.parametrize(
@@ -39,17 +55,19 @@ def test_from_environ(envvar, default, cast, expected):
             "envvar 'NOT_FOUND' required or provide a default",
         ),
         (
-            "USER",
+            "SAMPLE",
             False,
             int,
             ValueError,
-            "unable to cast config key 'USER' to type: <class 'int'>",
+            "unable to cast config key 'SAMPLE' to type: <class 'int'>",
         ),
     ],
     ids=["envvar_required", "envvar_cast_failed"],
 )
-def test_from_environ_exceptions(envvar, required, cast, expected_exc, error_message):
+def test_from_environ_exceptions(
+    envvar, required, cast, expected_exc, error_message, mock_envvar
+):  # pylint: disable=redefined-outer-name,too-many-arguments,unused-argument
     with pytest.raises(expected_exc) as error:
         config.from_environ(envvar, required=required, cast=cast)
 
-    Asserter.assert_equals(str(error.value), error_message)
+    assert str(error.value) == error_message
