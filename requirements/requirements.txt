@@ -6,6 +6,6 @@
 #
 python-dateutil==2.8.2    # via -r requirements/requirements.in
 python-decouple==3.5      # via -r requirements/requirements.in
-python-dotenv==0.19.1     # via -r requirements/requirements.in
+python-dotenv==0.19.2     # via -r requirements/requirements.in
 pyyaml==6.0               # via -r requirements/requirements.in
 six==1.16.0               # via python-dateutil
