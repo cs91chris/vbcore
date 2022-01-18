@@ -1,6 +1,11 @@
+import abc
 import asyncio
+import dataclasses
+import logging
 import threading
 import typing as t
+from enum import Enum
+from queue import Queue
 
 try:
     import nest_asyncio
@@ -146,3 +151,158 @@ class ThreadBatchExecutor(BatchExecutor):
             return self._tasks[0].response
 
         return [task.response for task in self._tasks]
+
+
+class WorkersType(Enum):
+    PRODUCER = "producer"
+    CONSUMER = "consumer"
+
+
+@dataclasses.dataclass
+class BatchSize:
+    pool_workers: int = 5
+    producer_queue: int = 0
+    consumer_queue: int = 0
+    worker_type: WorkersType = WorkersType.PRODUCER
+
+
+class PCTask(abc.ABC):
+    def __init__(self, *args, **kwargs):
+        self._args = args
+        self._kwargs = kwargs
+
+    @abc.abstractmethod
+    def perform(self, item):
+        pass  # pragma: no cover
+
+
+class IProducerConsumerBatchExecutor(abc.ABC):
+    def __init__(
+        self,
+        producer: PCTask,
+        consumer: PCTask,
+        *_,
+        **__,
+    ):
+        self._producer = producer
+        self._consumer = consumer
+        self._log = logging.getLogger(self.__module__)
+
+    @abc.abstractmethod
+    def startup(self):
+        pass  # pragma: no cover
+
+    @abc.abstractmethod
+    def consumer(self):
+        pass  # pragma: no cover
+
+    @abc.abstractmethod
+    def producer(self):
+        pass  # pragma: no cover
+
+    @abc.abstractmethod
+    def barrier(self):
+        pass  # pragma: no cover
+
+    @abc.abstractmethod
+    def load(self, item):
+        pass  # pragma: no cover
+
+    def run(self, items: t.Iterable):
+        for item in items:
+            self.load(item)
+
+
+class LinearExecutor(IProducerConsumerBatchExecutor):
+    def startup(self):
+        """No startup required"""
+
+    def consumer(self):
+        """No consumer required"""
+
+    def producer(self):
+        """No producer required"""
+
+    def barrier(self):
+        """No barrier required"""
+
+    def load(self, item):
+        item = self._producer.perform(item)
+        self._consumer.perform(item)
+
+
+class ProducerConsumerBatchExecutor(IProducerConsumerBatchExecutor):
+    def __init__(
+        self,
+        *args,
+        daemonize: bool = True,
+        batch_size: t.Optional[BatchSize] = None,
+        thread_class: t.Type[Thread] = Thread,
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        self._daemonize = daemonize
+        self.is_running: bool = False
+        self._thread_class = thread_class
+        self.size: BatchSize = batch_size or BatchSize()
+        self._consumer_queue: Queue = Queue(self.size.consumer_queue)
+        self._producer_queue: Queue = Queue(self.size.producer_queue)
+
+    def startup(self):
+        workers = (
+            self.producer,
+            WorkersType.PRODUCER.value
+            if self.size.worker_type == WorkersType.PRODUCER
+            else self.consumer,
+            WorkersType.CONSUMER.value,
+        )
+        single = (
+            self.consumer,
+            WorkersType.CONSUMER.value
+            if self.size.worker_type == WorkersType.PRODUCER
+            else self.producer,
+            WorkersType.PRODUCER.value,
+        )
+
+        self._thread_class(single[0], daemon=self._daemonize, name=single[1])
+        for i in range(0, self.size.pool_workers):
+            self._thread_class(
+                workers[0], daemon=self._daemonize, name=f"{workers[1]}-{i}"
+            )
+        self.is_running = True
+
+    def consumer(self):
+        while True:
+            item = self._consumer_queue.get()
+            try:
+                self._consumer.perform(item)
+            except Exception as exc:  # pylint: disable=broad-except
+                self._log.exception(exc)
+            finally:
+                self._consumer_queue.task_done()
+
+    def producer(self):
+        while True:
+            item = self._producer_queue.get()
+            try:
+                item = self._producer.perform(item)
+                self._consumer_queue.put(item)
+            except Exception as exc:  # pylint: disable=broad-except
+                self._log.exception(exc)
+            finally:
+                self._producer_queue.task_done()
+
+    def barrier(self):
+        self._producer_queue.join()
+        self._consumer_queue.join()
+        self.is_running = False
+
+    def load(self, item):
+        self._producer_queue.put(item)
+
+    def run(self, items: t.Iterable):
+        if not self.is_running:
+            self.startup()
+
+        super().run(items)
+        self.barrier()
