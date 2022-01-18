@@ -1,3 +1,4 @@
+import math
 import os
 import signal
 import string
@@ -127,3 +128,40 @@ class TempFile:
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
         os.unlink(self.file.name)
+
+
+class MemoryUsage:
+    @classmethod
+    def sizeof_fmt(cls, num: float) -> str:
+        for unit in ("B", "KB", "MB", "GB"):
+            if abs(num) < 1000.0:
+                return f"{num:.2f} {unit}"
+            num /= 1000.0
+        return f"{num:.2f} TB"
+
+    @classmethod
+    def sizeof(cls, value: float) -> float:
+        return sys.int_info.bits_per_digit * math.ceil(
+            sys.getsizeof(value) / sys.int_info.sizeof_digit
+        )
+
+    @classmethod
+    def get_variables(cls) -> t.Dict[str, t.Any]:
+        return {**locals(), **globals()}
+
+    @classmethod
+    def view(cls, max_items: int = 10) -> t.Generator[t.Tuple[str, float], None, None]:
+        items = sorted(
+            ((n, cls.sizeof(v)) for n, v in cls.get_variables().items()),
+            key=lambda x: -x[1],
+        )
+        return (item for item in items[:max_items])
+
+    @classmethod
+    def dump(cls, max_items: int = 10):
+        for name, size in cls.view(max_items):
+            print(f"{name:>30}: {cls.sizeof_fmt(size):>8}")
+
+
+if __name__ == "__main__":
+    MemoryUsage.dump()
