@@ -4,9 +4,9 @@
 #
 #    pip-compile --no-emit-index-url --no-emit-trusted-host --output-file=requirements/requirements-test.txt requirements/requirements-test.in
 #
-attrs==21.2.0             # via -c requirements/requirements-all.txt, pytest
+attrs==21.4.0             # via -c requirements/requirements-all.txt, pytest
 certifi==2021.10.8        # via -c requirements/requirements-all.txt, requests
-charset-normalizer==2.0.9  # via -c requirements/requirements-all.txt, requests
+charset-normalizer==2.0.10  # via -c requirements/requirements-all.txt, requests
 click==8.0.3              # via safety
 coverage[toml]==6.2       # via -r requirements/requirements-test.in, pytest-cov
 dparse==0.5.1             # via safety
@@ -15,21 +15,22 @@ iniconfig==1.1.1          # via pytest
 packaging==21.3           # via dparse, pytest, safety
 pluggy==1.0.0             # via pytest
 py==1.11.0                # via pytest
-pyparsing==3.0.6          # via packaging
+pyparsing==3.0.7          # via packaging
 pytest-cov==3.0.0         # via -r requirements/requirements-test.in
 pytest==6.2.5             # via -r requirements/requirements-test.in, pytest-cov
 pyyaml==6.0               # via -c requirements/requirements.txt, dparse
-requests==2.26.0          # via -c requirements/requirements-all.txt, responses, safety
-responses==0.16.0         # via -r requirements/requirements-test.in
+requests==2.27.1          # via -c requirements/requirements-all.txt, responses, safety
+responses==0.17.0         # via -r requirements/requirements-test.in
 safety==1.10.3            # via -r requirements/requirements-test.in
 six==1.16.0               # via -c requirements/requirements.txt, responses
 toml==0.10.2              # via dparse, pytest
 tomli==1.2.3              # via -r requirements/requirements-test.in, coverage
-types-python-dateutil==2.8.4  # via -r requirements/requirements-test.in
-types-requests==2.26.2    # via -r requirements/requirements-test.in
-types-setuptools==57.4.4  # via -r requirements/requirements-test.in
-types-toml==0.10.1        # via -r requirements/requirements-test.in
-urllib3==1.26.7           # via -c requirements/requirements-all.txt, requests, responses
+types-python-dateutil==2.8.8  # via -r requirements/requirements-test.in
+types-requests==2.27.7    # via -r requirements/requirements-test.in
+types-setuptools==57.4.7  # via -r requirements/requirements-test.in
+types-toml==0.10.3        # via -r requirements/requirements-test.in
+types-urllib3==1.26.7     # via types-requests
+urllib3==1.26.8           # via -c requirements/requirements-all.txt, requests, responses
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

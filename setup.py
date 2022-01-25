@@ -36,9 +36,12 @@ REQUIRES = [
 REQUIRES_ALL = REQUIRES + [
     "requests",
     "jsonschema",
+    "user_agents",
+    "pysocks",
 ]
 
 REQUIRES_TEST = REQUIRES_ALL + [
+    "responses",
     "coverage",
     "pytest",
     "pytest-cov",
