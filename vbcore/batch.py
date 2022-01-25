@@ -264,11 +264,11 @@ class ProducerConsumerBatchExecutor(IProducerConsumerBatchExecutor):
             WorkersType.PRODUCER.value,
         )
 
-        self._thread_class(single[0], daemon=self._daemonize, name=single[1])
+        self._thread_class(single[0], daemon=self._daemonize, name=single[1]).start()
         for i in range(0, self.size.pool_workers):
             self._thread_class(
                 workers[0], daemon=self._daemonize, name=f"{workers[1]}-{i}"
-            )
+            ).start()
         self.is_running = True
 
     def consumer(self):

@@ -84,13 +84,16 @@ def to_float(n) -> t.Optional[float]:
 
 
 def random_string(length: int, alphabet: str = string.printable) -> str:
-    """
-
-    :param length:
-    :param alphabet:
-    :return:
-    """
     return "".join(SystemRandom().choice(alphabet) for _ in range(length))
+
+
+def read_text_file(filename: t.Optional[str], **kwargs) -> t.Optional[str]:
+    if not filename:
+        return None
+
+    encoding = kwargs.pop("encoding", "utf-8")
+    with open(filename, encoding=encoding, **kwargs) as file:
+        return file.read()
 
 
 class Signal:
@@ -102,11 +105,6 @@ class Signal:
 
     @classmethod
     def register(cls, handler: t.Callable, *signals):
-        """
-
-        :param handler:
-        :param signals:
-        """
         for s in signals:
             try:
                 sig = getattr(signal, s)
