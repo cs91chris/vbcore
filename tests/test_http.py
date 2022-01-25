@@ -3,7 +3,7 @@ import responses
 
 from vbcore.datastruct import ObjectDict
 
-from vbcore.http import httpcode
+from vbcore.http import httpcode, useragent
 from vbcore.http.client import HTTPClient
 from vbcore.tester.mixins import Asserter
 
@@ -56,3 +56,18 @@ def test_http_client(method, match_method):
     Asserter.assert_status_code(response, httpcode.BAD_REQUEST)
     Asserter.assert_equals(response.body, {})
     Asserter.assert_header(response, "hdr", "value")
+
+
+def test_user_agent_parser():
+    ua_string = """
+        Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)
+        Chrome/70.0.3538.77 Safari/537.36
+    """
+    res = useragent.UserAgentParser().parse(ua_string)
+    Asserter.assert_equals(res.raw, ua_string)
+    Asserter.assert_equals(res.browser.family, "Chrome")
+    Asserter.assert_equals(res.browser.version.string, "70.0.3538")
+    Asserter.assert_equals(res.os.family, "Windows")
+    Asserter.assert_equals(res.os.version.string, "10")
+    Asserter.assert_true(res.device.type.pc)
+    Asserter.assert_false(res.device.type.mobile)
