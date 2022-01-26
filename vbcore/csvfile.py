@@ -1,3 +1,4 @@
+import contextlib
 import csv
 import typing as t
 
@@ -17,12 +18,12 @@ csv.register_dialect("custom-unix", CustomUnixDialect)
 class CSVHandler:
     def __init__(
         self,
-        fields: t.Set[str] = None,
         filename: OptStr = None,
+        fields: t.Optional[t.List[str]] = None,
         encoding: str = "utf-8",
         dialect: str = "custom-unix",
     ):
-        self.fields = fields or set()
+        self.fields = fields or []
         self.filename = filename
         self.encoding = encoding
         self.dialect = dialect
@@ -36,7 +37,7 @@ class CSVHandler:
 
     # noinspection PyMethodMayBeStatic
     def pre_write_hook(self, record: dict) -> dict:
-        return record
+        return {k: v for k, v in record.items() if k in self.fields}
 
     def readlines(self, filename: OptStr = None) -> t.Generator[dict, None, None]:
         with self.open_file(filename) as file:
@@ -49,18 +50,21 @@ class CSVHandler:
             writer = csv.DictWriter(file, self.fields, dialect=self.dialect)
             writer.writeheader()
             while True:
-                records: RecordType = yield
+                records: RecordType = (yield)
                 _records = [records] if isinstance(records, dict) else records
                 for r in _records:
                     writer.writerow(self.pre_write_hook(r))
 
-    def open_writer(self, filename: OptStr = None) -> WriterCoroutineType:
+    @contextlib.contextmanager
+    def open_writer(
+        self, filename: OptStr = None
+    ) -> t.Generator[WriterCoroutineType, None, None]:
         # pylint: disable=assignment-from-no-return
         writer = self.coroutine_writer(filename)
         writer.__next__()
-        return writer
+        yield writer
+        writer.close()
 
     def write_all(self, records: RecordType, filename: OptStr = None):
-        writer = self.open_writer(filename)
-        writer.send(records)
-        writer.close()
+        with self.open_writer(filename) as writer:
+            writer.send(records)
