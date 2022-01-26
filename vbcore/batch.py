@@ -170,6 +170,7 @@ class PCTask(abc.ABC):
     def __init__(self, *args, **kwargs):
         self._args = args
         self._kwargs = kwargs
+        self._log = logging.getLogger(self.__module__)
 
     @abc.abstractmethod
     def perform(self, item):

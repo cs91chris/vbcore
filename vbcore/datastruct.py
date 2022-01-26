@@ -198,3 +198,26 @@ class GeoJsonPoint(DataClassDictable):
         self.coordinates = [lon, lat]
         self.lat = lat
         self.lon = lon
+
+
+class BufferManager:
+    def __init__(self, max_size: int = 0):
+        self._max_size = max_size
+        self._buffer: list = []
+
+    @property
+    def buffer(self) -> list:
+        return self._buffer
+
+    def buffer_flush_hook(self):
+        """Derived class can hook at flush time, so it can handle buffered data"""
+
+    def buffer_load(self, record):
+        self._buffer.append(record)
+        if self._max_size and len(self._buffer) >= self._max_size:
+            self.buffer_flush()
+
+    def buffer_flush(self):
+        if self._buffer:
+            self.buffer_flush_hook()
+            self._buffer.clear()
