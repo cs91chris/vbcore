@@ -6,6 +6,7 @@ import struct
 import timeit
 import typing as t
 from contextlib import contextmanager
+from datetime import timedelta
 from logging.handlers import QueueHandler, QueueListener
 from queue import Queue
 
@@ -13,6 +14,7 @@ DEFAULT_LISTENER_PORT = logging.config.DEFAULT_LOGGING_CONFIG_PORT
 
 
 class LoggingSettings(t.NamedTuple):
+    level: str = "WARNING"
     config_file: t.Optional[str] = None
     logger_name: t.Optional[str] = None
     listen_for_reload: bool = False
@@ -21,37 +23,39 @@ class LoggingSettings(t.NamedTuple):
 
 
 class Loggers:
-    def __call__(self, name=None):
+    def __call__(self, name: t.Optional[str] = None):
         return logging.getLogger(name)
 
-    def __init__(self, config: t.Optional[LoggingSettings] = None):
+    def __init__(self, config: t.Optional[LoggingSettings] = None, **kwargs):
         self.config = config or LoggingSettings()
         if self.config.config_file:
             with open(self.config.config_file, encoding="utf-8") as file:
                 logging.config.dictConfig(json.load(file))
         else:
-            logging.basicConfig()
+            kwargs.setdefault("level", self.config.level)
+            logging.basicConfig(**kwargs)
 
         if self.config.listen_for_reload:
             listener = logging.config.listen(self.config.listener_port)
             listener.setDaemon(self.config.listener_daemon)
             listener.start()
 
+    @staticmethod
     @contextmanager
     def execution_time(
-        self,
         message: t.Optional[str] = None,
-        logger_name: str = "performance",
-        log_header: t.Optional[dict] = None,
+        logger_name: str = __name__,
+        **kwargs,
     ):
         start_time = timeit.default_timer()
         yield
 
         logger = logging.getLogger(logger_name)
         logger.info(
-            message or "execution time: %.3fs",
-            timeit.default_timer() - start_time,
-            extra=log_header,
+            "%s%s",
+            message or "execution time: ",
+            timedelta(seconds=timeit.default_timer() - start_time),
+            extra=kwargs,
         )
 
     @classmethod
