@@ -1,4 +1,5 @@
 import dataclasses
+import logging
 import smtplib
 import typing as t
 from email.mime.multipart import MIMEMultipart
@@ -6,11 +7,14 @@ from email.mime.text import MIMEText
 from email.utils import make_msgid, formatdate, parseaddr
 from smtplib import SMTP
 
+from email_validator import caching_resolver, validate_email, ValidatedEmail
+
+from vbcore.misc import CommonRegex
+
 RespType = t.Dict[str, t.Tuple[int, bytes]]
 AddressType = t.Union[str, t.Tuple[str, ...]]
 
 
-# pylint: disable=too-many-instance-attributes
 @dataclasses.dataclass
 class SMTPParams:
     host: str
@@ -22,13 +26,21 @@ class SMTPParams:
     user: t.Optional[str] = None
     password: t.Optional[str] = None
     sender: t.Optional[t.Union[str, t.Tuple[str, str]]] = None
-    smtp_class: t.Optional[t.Type[SMTP]] = None
-    smtp_extra_args: dict = dataclasses.field(default_factory=dict)
 
 
 class SendMail:
-    def __init__(self, params: SMTPParams):
+    smtp_class: t.Type[smtplib.SMTP] = smtplib.SMTP
+
+    def __init__(self, params: SMTPParams, **kwargs):
         self.params = params
+        self._smtp_args = kwargs
+        self._log = logging.getLogger(self.__module__)
+
+    @staticmethod
+    def validate_email(email: str, restricted: bool = True) -> ValidatedEmail:
+        if restricted and not CommonRegex.is_valid_email(email):
+            raise ValueError(f"invalid email: {email}")
+        return validate_email(email, dns_resolver=caching_resolver())
 
     # pylint: disable=too-many-locals
     @staticmethod
@@ -74,25 +86,9 @@ class SendMail:
 
     def get_instance(self, **kwargs) -> SMTP:
         params = self.params
-        smtp_class: t.Type[smtplib.SMTP] = smtplib.SMTP
-        if params.smtp_class is not None:
-            smtp_class = params.smtp_class
-        elif params.is_ssl:
-            smtp_class = smtplib.SMTP_SSL
-
-        smtp_options = {**params.smtp_extra_args, **kwargs}
-        return smtp_class(params.host, params.port, **smtp_options)
-
-    def check_recipient(self, email: str, **kwargs) -> bool:
-        with self.get_instance(**kwargs) as server:
-            server.helo()
-            server.mail(str(self.params.sender) or self.params.user)
-            response = server.rcpt(email)
-            if response[0] == 250:
-                return True
-            if response[0] == 550:
-                return False
-            raise smtplib.SMTPException(response)
+        smtp_class = smtplib.SMTP_SSL if params.is_ssl else self.smtp_class
+        smtp_options = {**self._smtp_args, **kwargs}
+        return smtp_class(params.host, params.port, **smtp_options)  # type: ignore
 
     def send(self, message: MIMEMultipart, **kwargs) -> RespType:
         params = self.params

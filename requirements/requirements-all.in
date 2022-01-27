@@ -4,3 +4,4 @@ jsonschema
 requests
 user_agents
 pysocks
+email_validator

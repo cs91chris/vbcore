@@ -1,5 +1,6 @@
 import math
 import os
+import re
 import signal
 import string
 import sys
@@ -161,5 +162,9 @@ class MemoryUsage:
             print(f"{name:>30}: {cls.sizeof_fmt(size):>8}")
 
 
-if __name__ == "__main__":
-    MemoryUsage.dump()
+class CommonRegex:
+    EMAIL_REGEX = re.compile(r"(^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
+
+    @classmethod
+    def is_valid_email(cls, email: str) -> bool:
+        return bool(re.fullmatch(cls.EMAIL_REGEX, email))

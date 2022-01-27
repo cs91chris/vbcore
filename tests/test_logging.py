@@ -5,7 +5,7 @@ from unittest import TestCase
 
 from vbcore.logging import Loggers, LoggingSettings
 
-LOGGER_NAME = "performance"
+LOGGER_NAME = "vbcore"
 
 log_config = {
     "version": 1,
@@ -41,13 +41,13 @@ class TestLoggers(TestCase):
         with tempfile.NamedTemporaryFile(delete=False) as file:
             file.write(json.dumps(log_config).encode())
 
-        loggers = Loggers(LoggingSettings(config_file=file.name))
+        loggers = Loggers(LoggingSettings(config_file=file.name, level="INFO"))
         with self.assertLogs(LOGGER_NAME, "INFO") as captured:
-            with loggers.execution_time("TIME: %.3fs"):
+            with loggers.execution_time("TIME: "):
                 time.sleep(0.01)
 
         self.assertEqual(len(captured.records), 1)
-        self.assertEqual(captured.records[0].message, "TIME: 0.010s")
+        self.assertTrue(captured.records[0].message.startswith("TIME: 0:00:00.01"))
 
     def test_reload(self):
         loggers = Loggers(LoggingSettings(listen_for_reload=True))
