@@ -35,6 +35,8 @@ REQUIRES = [
 ]
 
 REQUIRES_ALL = REQUIRES + [
+    "sqlalchemy",
+    "sqlalchemy_schemadisplay",
     "argon2-cffi",
     "requests",
     "jsonschema",

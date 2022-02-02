@@ -190,7 +190,7 @@ def _default_dupe_key_error(integrity_error, match, engine_name, is_disconnect):
         columns = columns[len(unique_base) :].split("0")[1:]
 
     value = match.groupdict().get("value")
-    raise exceptions.DBDuplicateEntry(columns, integrity_error, value)
+    raise exceptions.DBDuplicateEntry(columns, value, integrity_error)
 
 
 @filters(
@@ -238,7 +238,7 @@ def _sqlite_dupe_key_error(integrity_error, match, engine_name, is_disconnect):
     except IndexError:
         pass
 
-    raise exceptions.DBDuplicateEntry(columns, integrity_error)
+    raise exceptions.DBDuplicateEntry(columns, inner_exception=integrity_error)
 
 
 @filters(
@@ -509,7 +509,7 @@ def _raise_operational_errors_directly_filter(
         raise exceptions.DBConnectionError(operational_error)
     # NOTE(comstud): A lot of code is checking for OperationalError
     # so let's not wrap it for now.
-    raise operational_error
+    raise exceptions.DBError(operational_error)
 
 
 @filters(

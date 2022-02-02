@@ -37,6 +37,11 @@ class DBError(SQLAlchemyError):
     def as_dict(self):
         return {
             "error": self.error_type,
+            "message": (
+                ", ".join(self.inner_exception.args)
+                if isinstance(self.inner_exception, Exception)
+                else self.inner_exception
+            ),
         }
 
 
@@ -60,7 +65,7 @@ class DBDuplicateEntry(DBError):
         MySQL and PostgreSQL 9.x are supported right now.
     """
 
-    def __init__(self, columns=None, inner_exception=None, value=None):
+    def __init__(self, columns=None, value=None, inner_exception=None):
         self.value = value
         self.columns = columns or []
         super().__init__(inner_exception)
@@ -199,7 +204,7 @@ class DBDeadlock(DBError):
     """
 
 
-class DBInvalidUnicodeParameter(Exception):
+class DBInvalidUnicodeParameter(DBError):
     """
     Database unicode error.
     Raised when unicode parameter is passed to a database

@@ -42,7 +42,9 @@ pluggy==1.0.0
 py==1.11.0
     # via pytest
 pyparsing==3.0.7
-    # via packaging
+    # via
+    #   -c requirements/requirements-all.txt
+    #   packaging
 pytest==6.2.5
     # via
     #   -r requirements/requirements-test.in

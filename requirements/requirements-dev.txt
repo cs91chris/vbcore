@@ -121,6 +121,7 @@ pylint==2.12.2
     # via -r requirements/requirements-dev.in
 pyparsing==3.0.7
     # via
+    #   -c requirements/requirements-all.txt
     #   -c requirements/requirements-test.txt
     #   packaging
 readme-renderer==32.0

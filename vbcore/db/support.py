@@ -53,7 +53,7 @@ class SQLASupport:
                 self.session.flush()
             except IntegrityError:
                 self.session.rollback()
-                query = self.session.query(self.model).filter_by(**lookup)
+                query = self.fetch(**lookup)
                 if lock:
                     query = query.with_for_update()
                     obj = query.one()
@@ -71,7 +71,7 @@ class SQLASupport:
         :return:
         """
         try:
-            return self.session.query(self.model).filter_by(**kwargs).one(), False
+            return self.fetch(**kwargs).one(), False
         except NoResultError:
             params = self._prepare_params(defaults, **kwargs)
             return self._create_object(kwargs, params)
@@ -88,7 +88,7 @@ class SQLASupport:
         defaults = defaults or {}
         with self.session.begin_nested():
             try:
-                query = self.session.query(self.model).with_for_update()
+                query = self.fetch().with_for_update()
                 obj = query.filter_by(**kwargs).one()
             except NoResultError:
                 params = self._prepare_params(defaults, **kwargs)
@@ -104,12 +104,12 @@ class SQLASupport:
 
         return obj, False
 
-    def retrieve(self, *args, fields: tuple = (), **kwargs) -> Query:
+    def fetch(self, *args, fields: tuple = (), **kwargs) -> Query:
         columns = fields or (self.model,)
         return self.session.query(*columns).filter(*args).filter_by(**kwargs)
 
-    def delete(self, *args, **kwargs) -> int:
-        row_count = self.retrieve(*args, **kwargs).delete()
+    def delete(self, *args, synchronize_session: str = "evaluate", **kwargs) -> int:
+        row_count = self.fetch(*args, **kwargs).delete(synchronize_session)
         if self._commit:
             self.session.commit()
         return row_count
@@ -119,17 +119,22 @@ class SQLASupport:
         if self._commit:
             self.session.commit()
 
-    def build_primary_key(self, entity: t.Union[Model, t.Type[Model]]) -> t.Tuple:
-        primary_key = inspect(self.model).primary_key
-        return tuple(getattr(entity, pk_item.name) for pk_item in primary_key)
+    def get_primary_key(self, record: t.Optional[Model] = None) -> t.Tuple:
+        return tuple(
+            getattr(record or self.model, pk_item.name)
+            for pk_item in inspect(self.model).primary_key
+        )
 
     def bulk_upsert(self, records: t.Iterable[Model]):
         db_objects = {}
         for record in records:
-            db_objects[self.build_primary_key(record)] = record
+            db_objects[self.get_primary_key(record)] = record
 
-        cond = tuple_(*self.build_primary_key(self.model)).in_(list(db_objects.keys()))
-        self.retrieve(cond).delete(synchronize_session="fetch")
+        self.delete(
+            tuple_(*self.get_primary_key()).in_(list(db_objects.keys())),
+            synchronize_session="fetch",
+        )
+
         self.session.flush()
         self.session.add_all(list(db_objects.values()))
         if self._commit:
