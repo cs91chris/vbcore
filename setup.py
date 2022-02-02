@@ -122,7 +122,13 @@ def cythonize(paths):
 def find_packages():
     if base_cythonize is not None:
         return [PKG_SCRIPTS]
-    return base_find_packages(exclude=(PKG_TEST, f"{PKG_TEST}.*"))
+    return base_find_packages(
+        exclude=(
+            "sandbox",
+            PKG_TEST,
+            f"{PKG_TEST}.*",
+        )
+    )
 
 
 setup(

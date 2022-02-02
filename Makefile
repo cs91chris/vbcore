@@ -49,10 +49,10 @@ clean:
 	find ${PACKAGE} -name ".mypy_cache" -prune -exec rm -rf {} \;
 
 lint:
-	black -t py38 ${PACKAGE} tests setup.py
-	flake8 --config=.flake8 ${PACKAGE} tests setup.py
-	pylint --rcfile=.pylintrc ${PACKAGE} tests setup.py
-	mypy --install-types --non-interactive --no-strict-optional ${PACKAGE} tests
+	black -t py38 ${PACKAGE} sandbox tests setup.py
+	flake8 --config=.flake8 ${PACKAGE} sandbox tests setup.py --statistics
+	pylint --rcfile=.pylintrc ${PACKAGE} sandbox tests setup.py
+	mypy --install-types --non-interactive --no-strict-optional ${PACKAGE} sandbox tests
 
 test:
 	PYTHONPATH=. pytest -v -rf --strict-markers \
