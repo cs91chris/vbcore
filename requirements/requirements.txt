@@ -4,6 +4,7 @@
 #
 #    pip-compile --no-emit-index-url --no-emit-trusted-host --output-file=requirements/requirements.txt requirements/requirements.in
 #
+click==8.0.3              # via -r requirements/requirements.in
 python-dateutil==2.8.2    # via -r requirements/requirements.in
 python-decouple==3.5      # via -r requirements/requirements.in
 python-dotenv==0.19.2     # via -r requirements/requirements.in

@@ -5,3 +5,4 @@ requests
 user_agents
 pysocks
 email_validator
+argon2-cffi

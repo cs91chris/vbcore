@@ -27,6 +27,7 @@ BASE_PATH = os.path.dirname(__file__)
 VERSION_FILE = os.path.join(PKG_NAME, "version.py")
 
 REQUIRES = [
+    "click",
     "python-dateutil",
     "python-decouple",
     "python-dotenv",
@@ -34,6 +35,7 @@ REQUIRES = [
 ]
 
 REQUIRES_ALL = REQUIRES + [
+    "argon2-cffi",
     "requests",
     "jsonschema",
     "user_agents",
