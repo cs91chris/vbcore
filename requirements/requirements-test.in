@@ -1,8 +1,6 @@
 -c requirements.txt
 -c requirements-all.txt
 
-tomli<2
-
 coverage
 pytest
 pytest-cov
