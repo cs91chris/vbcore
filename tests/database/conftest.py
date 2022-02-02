@@ -5,7 +5,7 @@ from vbcore.db.sqla import Model, SQLAConnector
 from vbcore.db.support import SQLASupport
 
 
-class User(Model):
+class SampleUser(Model):
     __tablename__ = "users"
 
     id = sa.Column(sa.Integer, primary_key=True)
@@ -22,7 +22,7 @@ def db_session(conn):
 
 @pytest.fixture(scope="function")
 def sample_model():
-    return User
+    return SampleUser
 
 
 @pytest.fixture()

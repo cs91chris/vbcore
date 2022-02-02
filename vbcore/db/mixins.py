@@ -31,29 +31,13 @@ class StandardMixin(BaseMixin):
 class CatalogMixin(BaseMixin):
     @declared_attr
     def __table_args__(self):
-        return (sa.UniqueConstraint("label", "type_id"),)
-
-    id = sa.Column(sa.Integer, primary_key=True)
-    label = sa.Column(sa.String(100))
-    type_id = sa.Column(sa.Integer)
-    description = sa.Column(sa.String(250))
-
-    def __str__(self):
-        return str(self.label)
-
-
-class CatalogXMixin(CatalogMixin):
-    @declared_attr
-    def __table_args__(self):
         return (sa.UniqueConstraint("code", "type_id"),)
 
-    code = sa.Column(sa.String(20))
+    id = sa.Column(sa.Integer, primary_key=True)
+    type_id = sa.Column(sa.Integer)
+    code = sa.Column(sa.String(100))
+    description = sa.Column(sa.Text())
     order_id = sa.Column(sa.Integer, index=True)
-
-    order_by = sa.asc(order_id)
-
-    def __str__(self):
-        return f"<{self.code} - {self.label}>"
 
 
 class LoaderMixin(BaseMixin):
@@ -91,7 +75,7 @@ class ExtraMixin(BaseMixin):
     _json_class = json
     _extra = sa.Column(sa.Text())
 
-    @hybrid_property
+    @property
     def extra(self) -> t.Dict[str, t.Any]:
         return self._json_class.loads(self._extra) if self._extra else {}
 
