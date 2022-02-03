@@ -282,6 +282,6 @@ class CRC16:
                     topbit ^= 0x8000
                 reg <<= 1
                 if topbit:
-                    reg ^= 0x8005  # generator polinom (normal form)
+                    reg ^= 0x8005  # generator polynom (normal form)
             reg &= 0xFFFF
         return reg ^ 0x0000

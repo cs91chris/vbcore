@@ -1,64 +1,90 @@
+import dataclasses
+import typing as t
+
 from user_agents import parsers
 
-from vbcore.datastruct import ObjectDict
+from vbcore.datastruct import DataClassDictable
 
 
-class UserAgentParser(parsers.UserAgent):
-    # noinspection PyMissingConstructor
-    def __init__(self, ua_string=None):  # pylint: disable=W0231
-        self._parsed = False
-        self._cached = None
-        self.os = None
-        self.device = None
-        self.browser = None
-        self.ua_string = ua_string
+@dataclasses.dataclass(frozen=True)
+class Version(DataClassDictable):
+    string: str
+    number: int
 
-    def parse(self, ua_string=None):
-        if ua_string:
-            self._cached = None
-            self._parsed = False
-            self.ua_string = ua_string
+    def __str__(self):
+        return f"{self.string}"
 
-        if not self._parsed and self.ua_string:
-            parsed = parsers.user_agent_parser.Parse(self.ua_string)
-            self.os = parsers.parse_operating_system(**parsed["os"])
-            self.browser = parsers.parse_browser(**parsed["user_agent"])
-            self.device = parsers.parse_device(**parsed["device"])
 
-        return self.to_dict()
+@dataclasses.dataclass(frozen=True)
+class Client(DataClassDictable):
+    family: str
+    version: Version
 
-    def to_dict(self):
-        """
+    def __str__(self):
+        return f"{self.family} {self.version}"
 
-        :return:
-        """
-        if self._cached:
-            return self._cached  # pragma: no cover
 
-        self._cached = ObjectDict(
-            raw=self.ua_string,
-            browser=dict(
-                family=self.browser.family,
-                version=dict(
-                    number=self.browser.version, string=self.browser.version_string
+@dataclasses.dataclass(frozen=True)
+class DeviceType(DataClassDictable):
+    computer: bool
+    bot: bool
+    mobile: bool
+    tablet: bool
+    email_client: bool
+    touch_capable: bool
+
+
+@dataclasses.dataclass(frozen=True)
+class Device(DataClassDictable):
+    family: str
+    brand: str
+    model: str
+    type: DeviceType
+
+
+@dataclasses.dataclass(frozen=True)
+class UserAgent(DataClassDictable):
+    parser_class: t.ClassVar[t.Type[parsers.UserAgent]] = parsers.UserAgent
+
+    raw: str
+    operating_system: Client
+    browser: Client
+    device: Device
+
+    def __str__(self):
+        return f"{self.device} / {self.operating_system} / {self.browser}"
+
+    @classmethod
+    def parse(cls, user_agent: str):
+        parsed = cls.parser_class(user_agent)
+
+        return cls(
+            raw=parsed.ua_string,
+            browser=Client(
+                family=parsed.browser.family,
+                version=Version(
+                    number=parsed.browser.version,
+                    string=parsed.browser.version_string,
                 ),
             ),
-            os=dict(
-                family=self.os.family,
-                version=dict(number=self.os.version, string=self.os.version_string),
+            operating_system=Client(
+                family=parsed.os.family,
+                version=Version(
+                    number=parsed.os.version,
+                    string=parsed.os.version_string,
+                ),
             ),
-            device=dict(
-                family=self.device.family,
-                brand=self.device.brand,
-                model=self.device.model,
-                type=dict(
-                    mobile=self.is_mobile,
-                    tablet=self.is_tablet,
-                    pc=self.is_pc,
-                    bot=self.is_bot,
-                    email_client=self.is_email_client,
-                    touch_capable=self.is_touch_capable,
+            device=Device(
+                family=parsed.device.family,
+                brand=parsed.device.brand,
+                model=parsed.device.model,
+                type=DeviceType(
+                    mobile=parsed.is_mobile,
+                    tablet=parsed.is_tablet,
+                    computer=parsed.is_pc,
+                    bot=parsed.is_bot,
+                    email_client=parsed.is_email_client,
+                    touch_capable=parsed.is_touch_capable,
                 ),
             ),
         )
-        return self._cached

@@ -45,8 +45,10 @@ class CSVHandler:
             for record in reader:
                 yield self.after_read_hook(record)
 
-    def coroutine_writer(self, filename: OptStr = None) -> WriterCoroutineType:
-        with self.open_file(filename, mode="w") as file:
+    def coroutine_writer(
+        self, filename: OptStr = None, **kwargs
+    ) -> WriterCoroutineType:
+        with self.open_file(filename, mode="w", **kwargs) as file:
             writer = csv.DictWriter(file, self.fields, dialect=self.dialect)
             writer.writeheader()
             while True:
@@ -57,14 +59,14 @@ class CSVHandler:
 
     @contextlib.contextmanager
     def open_writer(
-        self, filename: OptStr = None
+        self, filename: OptStr = None, **kwargs
     ) -> t.Generator[WriterCoroutineType, None, None]:
         # pylint: disable=assignment-from-no-return
-        writer = self.coroutine_writer(filename)
+        writer = self.coroutine_writer(filename, **kwargs)
         writer.__next__()
         yield writer
         writer.close()
 
-    def write_all(self, records: RecordType, filename: OptStr = None):
-        with self.open_writer(filename) as writer:
+    def write_all(self, records: RecordType, filename: OptStr = None, **kwargs):
+        with self.open_writer(filename, **kwargs) as writer:
             writer.send(records)
