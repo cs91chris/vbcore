@@ -25,7 +25,7 @@ def sample_model():
     return SampleUser
 
 
-@pytest.fixture()
+@pytest.fixture(scope="function")
 def connector():
     return SQLAConnector("sqlite://", echo=True)
 
@@ -35,7 +35,7 @@ def local_session(connector):  # pylint: disable=redefined-outer-name
     return db_session(connector)
 
 
-@pytest.fixture()
+@pytest.fixture(scope="function")
 def session_save(local_session):  # pylint: disable=redefined-outer-name
     def _save(items):
         for i in items:
@@ -45,6 +45,6 @@ def session_save(local_session):  # pylint: disable=redefined-outer-name
     return _save
 
 
-@pytest.fixture()
+@pytest.fixture(scope="function")
 def support(sample_model, local_session):  # pylint: disable=redefined-outer-name
     return SQLASupport(model=sample_model, session=local_session)

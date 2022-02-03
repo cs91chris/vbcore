@@ -25,16 +25,18 @@ def test_extra_mixin(local_session, session_save):
     Asserter.assert_equals(record.extra, extra_info)
 
 
-def test_catalog_mixin_constraint(connector, support, session_save):
+def test_catalog_mixin_constraint(connector, support):
     support.register_events(connector.engine)
     with pytest.raises(DBDuplicateEntry) as error:
-        session_save(
+        support.bulk_insert(
             [
                 SampleCatalogModel(id=1, type_id=1, code="001"),
                 SampleCatalogModel(id=2, type_id=2, code="001"),
                 SampleCatalogModel(id=3, type_id=1, code="001"),
             ]
         )
+    support.session.rollback()
+
     Asserter.assert_equals(
         error.value.as_dict(),
         {"error": "DBDuplicateEntry", "columns": ["code", "type_id"], "value": None},

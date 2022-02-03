@@ -1,12 +1,16 @@
 import typing as t
 from contextlib import contextmanager
+from functools import partial
 
 import sqlalchemy as sa
+import sqlalchemy.exc
+from sqlalchemy import event
 from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker, Session
 
 from vbcore.datastruct import ObjectDict
 
 SessionType = t.Union[scoped_session, Session]
+LoadersType = t.Tuple[t.Type["LoaderModel"], ...]
 
 
 class BaseModel:
@@ -39,7 +43,24 @@ class SQLAConnector:
         self._session_options = session_options or {}
         self._factory: t.Optional[sessionmaker] = None
 
-    def create_all(self):
+    @staticmethod
+    def register_loaders(session: SessionType, loaders: LoadersType):
+        def _load_values(loader_class: "LoaderModel", *_, **__):
+            try:
+                # noinspection PyCallingNonCallable
+                session.add_all(loader_class(**d) for d in loader_class.values)
+                session.commit()
+            except sqlalchemy.exc.SQLAlchemyError:
+                session.rollback()
+
+        for loader in loaders:
+            callback = partial(_load_values, loader)
+            event.listen(loader.__table__, "after_create", callback)
+
+    def create_all(self, loaders: LoadersType = ()):
+        if loaders:
+            with self.connection() as session:
+                self.register_loaders(session, loaders)
         self.metadata.create_all(self.engine)
 
     def get_session(self, **options) -> SessionType:
@@ -61,3 +82,9 @@ Model = declarative_base(
     cls=BaseModel,
     name=BaseModel.__name__,
 )
+
+
+class LoaderModel(Model):  # type: ignore
+    __abstract__ = True
+
+    values: t.Tuple[t.Dict[str, t.Any], ...] = ()

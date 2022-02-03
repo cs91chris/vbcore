@@ -1,3 +1,6 @@
+import sqlalchemy as sa
+
+from vbcore.db.sqla import LoaderModel
 from vbcore.tester.mixins import Asserter
 
 
@@ -15,3 +18,21 @@ def test_model(local_session, session_save, sample_model):
         )
     )
     Asserter.assert_equals(len(local_session.query(sample_model).all()), 3)
+
+
+def test_loaders(connector):
+    class SampleLoader(LoaderModel):
+        __tablename__ = "sample_loader"
+
+        id = sa.Column(sa.Integer, primary_key=True)
+        name = sa.Column(sa.String(200), unique=True)
+
+        values = (
+            dict(id=1, name="name-1"),
+            dict(id=2, name="name-2"),
+            dict(id=3, name="name-3"),
+        )
+
+    connector.create_all(loaders=(SampleLoader,))
+    with connector.connection() as session:
+        Asserter.assert_equals(len(session.query(SampleLoader).all()), 3)

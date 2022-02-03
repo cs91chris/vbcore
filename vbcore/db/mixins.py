@@ -1,8 +1,6 @@
 import typing as t
-from functools import partial
 
 import sqlalchemy as sa
-from sqlalchemy import event
 from sqlalchemy.ext.declarative import declared_attr
 
 from vbcore import json
@@ -38,19 +36,6 @@ class CatalogMixin(BaseMixin):
     code = sa.Column(sa.String(100))
     description = sa.Column(sa.Text())
     order_id = sa.Column(sa.Integer, index=True)
-
-
-class LoaderMixin(BaseMixin):
-    values: t.Tuple[t.Dict[str, t.Any], ...] = ()
-
-    @classmethod
-    def load_values(cls, session):
-        session.add_all(cls(**d) for d in cls.values)
-        session.commit()
-
-    @classmethod
-    def register_loader(cls, session):
-        event.listen(cls.__table__, "after_create", partial(cls.load_values, session))
 
 
 class UserMixin(StandardMixin):
