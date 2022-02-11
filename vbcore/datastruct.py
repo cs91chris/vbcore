@@ -99,6 +99,32 @@ class IntEnum(enum.IntEnum):
         return self.name
 
 
+class StrEnum(str, enum.Enum):
+    """
+    StrEnum is at the same time ``enum.Enum`` and ``str``.
+    The ``auto()`` behavior uses the member name as its value.
+
+        >>> import enum
+
+        >>> class MyEnum(StrEnum):
+        >>>    example = enum.auto()
+
+        >>> assert MyEnum.example == "example"
+        >>> assert MyEnum.example.upper() == "EXAMPLE"
+    """
+
+    def __str__(self):
+        return self.value
+
+    def _generate_next_value_(self, *_):
+        return self
+
+
+class IStrEnum(StrEnum):
+    def _generate_next_value_(self, *_):
+        return self.lower()
+
+
 class Dumper:
     def __init__(self, data, *args, callback: t.Optional[t.Callable] = None, **kwargs):
         """

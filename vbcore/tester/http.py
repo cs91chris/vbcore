@@ -1,11 +1,12 @@
 import json
 import logging
 
+from vbcore.datastruct import ObjectDict
 from vbcore.http import httpcode, HttpMethod
 from vbcore.http.httpdumper import BaseHTTPDumper as HTTPDumper
+from vbcore.jsonschema.schemas.jsonrpc import JSONRPC
 from .helpers import basic_auth_header
 from .mixins import JSONValidatorMixin, RegexMixin
-from ..jsonschema.schemas.jsonrpc import JSONRPC
 
 
 class TestHttpCall(HTTPDumper, JSONValidatorMixin, RegexMixin):
@@ -30,20 +31,12 @@ class TestHttpCall(HTTPDumper, JSONValidatorMixin, RegexMixin):
             self.set_auth(auth)
 
     def set_url(self, url):
-        """
-
-        :param url:
-        """
         if not url.startswith("http"):
             self.endpoint = "/".join([self.endpoint.rstrip("/"), url.lstrip("/")])
         else:
             self.endpoint = url
 
     def set_auth(self, config):
-        """
-
-        :param config:
-        """
         config = config or {}
         auth_type = config.get("type")
         if auth_type == "basic" and config.get("username"):
@@ -83,10 +76,6 @@ class TestHttpCall(HTTPDumper, JSONValidatorMixin, RegexMixin):
             self.assert_equals(header, value)
 
     def assert_response(self, **kwargs):
-        """
-
-        :param kwargs:
-        """
         code = kwargs.get("status") or {
             "code": self.default_status_code,
             "in_range": True,
@@ -119,8 +108,10 @@ class TestHttpCall(HTTPDumper, JSONValidatorMixin, RegexMixin):
         if self.auth is not None:
             kwargs["auth"] = self.auth
 
+        request = ObjectDict(method=method, url=url, **kwargs)
         self.response = self.test_client.open(method=method, path=url, **kwargs)
-        self.dump_response(self.response, dump_body=True)
+        print(self.dump_request(request, dump_body=True))
+        print(self.dump_response(self.response, dump_body=True))
 
     def perform(self, request, response=None, **__):
         """
@@ -147,10 +138,6 @@ class TestHttpApi(TestHttpCall):
         return None
 
     def assert_response(self, **kwargs):
-        """
-
-        :param kwargs:
-        """
         super().assert_response(**kwargs)
         if kwargs.get("schema") is not None:
             self.assert_schema(self.json, kwargs.get("schema"))

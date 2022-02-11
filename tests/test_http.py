@@ -4,6 +4,7 @@ import responses
 from vbcore.datastruct import ObjectDict
 from vbcore.http import httpcode, useragent
 from vbcore.http.client import HTTPClient
+from vbcore.http.content_types import ContentType
 from vbcore.tester.mixins import Asserter
 
 
@@ -93,3 +94,10 @@ def test_user_agent_parser(device_type, operating_system, browser, user_agent):
     Asserter.assert_equals(res.browser.family, browser)
     if device_type:
         Asserter.assert_true(getattr(res.device.type, device_type))
+
+
+def test_content_types():
+    Asserter.assert_equals(ContentType.JSON, "application/json")
+    Asserter.assert_equals(ContentType.HTML, "text/html")
+    Asserter.assert_equals(ContentType.PLAIN, "text/plain")
+    Asserter.assert_equals(ContentType.PNG, "image/png")
