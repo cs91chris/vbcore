@@ -44,6 +44,28 @@ class BaseHTTPDumper:
         return None
 
     @classmethod
+    def dump_body(cls, resp):
+        """
+
+        :param resp: Response instance
+        :return:
+        """
+        return (
+            getattr(resp, "text", None)
+            or getattr(resp, "data", None)
+            or getattr(resp, "body", None)
+        )
+
+    @classmethod
+    def dump_status(cls, resp):
+        """
+
+        :param resp: Response instance
+        :return:
+        """
+        return getattr(resp, "status_code", None) or getattr(resp, "status", None)
+
+    @classmethod
     def dump_request(cls, req, dump_body=None, only_hdr=()):
         """
         dump http request: useful for logging
@@ -80,20 +102,17 @@ class BaseHTTPDumper:
         """
         body = ""
         if dump_body is True:
-            body = cls.response_filename(resp.headers) or resp.text
+            body = cls.response_filename(resp.headers) or cls.dump_body(resp)
             body = f"\nbody:\n{body}" if body else ""
 
         try:
             seconds = resp.elapsed.total_seconds()
-        except AttributeError:  # because aiohttp.ClientResponse has not elapsed attribute
+        except AttributeError:
             seconds = "N/A"
 
         headers = cls.dump_headers(resp.headers, only=only_hdr)
         headers = f"\nheaders:\n\t{headers}" if headers else ""
-        try:
-            status = resp.status_code
-        except AttributeError:
-            status = getattr(resp, "status", None)
+        status = cls.dump_status(resp)
 
         return f"response time: {seconds} - status code: {status}{headers}{body}"
 

@@ -1,5 +1,8 @@
 [run]
-omit = vbcore/version.py
+omit =
+    vbcore/version.py
+    vbcore/__main__.py
+    vbcore/tools/*
 
 [report]
 exclude_lines =
