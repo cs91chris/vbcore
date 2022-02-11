@@ -107,22 +107,48 @@ class StrEnum(str, enum.Enum):
         >>> import enum
 
         >>> class MyEnum(StrEnum):
-        >>>    example = enum.auto()
+        >>>    EXAMPLE = enum.auto()
 
-        >>> assert MyEnum.example == "example"
-        >>> assert MyEnum.example.upper() == "EXAMPLE"
+        >>> assert MyEnum.EXAMPLE == "example"
+        >>> assert MyEnum.EXAMPLE.upper() == "EXAMPLE"
     """
 
     def __str__(self):
         return self.value
 
+    @classmethod
+    def _missing_(cls, value):
+        return cls(cls.__members__.get(str(value).upper()))
+
     def _generate_next_value_(self, *_):
         return self
 
 
-class IStrEnum(StrEnum):
+class LStrEnum(StrEnum):
+    """StrEnum with lower values"""
+
     def _generate_next_value_(self, *_):
         return self.lower()
+
+
+class IStrEnum(LStrEnum):
+    """StrEnum with lower values and case insensitive"""
+
+    def _comparable_values(self, other) -> t.Tuple[str, str]:
+        other_value = other if isinstance(other, str) else other.value
+        return self.value.lower(), other_value.lower()
+
+    def __eq__(self, other):
+        value, other = self._comparable_values(other)
+        return value == other
+
+    def __ne__(self, other):
+        value, other = self._comparable_values(other)
+        return value != other
+
+    def __gt__(self, other):
+        value, other = self._comparable_values(other)
+        return value > other
 
 
 class Dumper:

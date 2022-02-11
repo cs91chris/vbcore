@@ -2,9 +2,9 @@ import pytest
 import responses
 
 from vbcore.datastruct import ObjectDict
-from vbcore.http import httpcode, useragent
+from vbcore.http import httpcode, useragent, HttpMethod, WebDavMethod
 from vbcore.http.client import HTTPClient
-from vbcore.http.content_types import ContentType
+from vbcore.http.headers import ContentTypeEnum, HeaderEnum
 from vbcore.tester.mixins import Asserter
 
 
@@ -96,8 +96,28 @@ def test_user_agent_parser(device_type, operating_system, browser, user_agent):
         Asserter.assert_true(getattr(res.device.type, device_type))
 
 
-def test_content_types():
-    Asserter.assert_equals(ContentType.JSON, "application/json")
-    Asserter.assert_equals(ContentType.HTML, "text/html")
-    Asserter.assert_equals(ContentType.PLAIN, "text/plain")
-    Asserter.assert_equals(ContentType.PNG, "image/png")
+def test_method_enum():
+    Asserter.assert_equals(HttpMethod.GET, "GET")
+    Asserter.assert_different(HttpMethod.GET, "get")
+    Asserter.assert_equals(HttpMethod("get"), "GET")
+    Asserter.assert_equals(WebDavMethod.COPY, "COPY")
+    Asserter.assert_different(WebDavMethod.COPY, "copy")
+    Asserter.assert_equals(WebDavMethod("copy"), "COPY")
+
+
+def test_content_type_enum():
+    Asserter.assert_equals(ContentTypeEnum.JSON, "application/json")
+    Asserter.assert_equals(ContentTypeEnum.HTML, "text/html")
+    Asserter.assert_equals(ContentTypeEnum.PLAIN, "text/plain")
+    Asserter.assert_equals(ContentTypeEnum.PNG, "image/png")
+    Asserter.assert_equals(ContentTypeEnum("JSON"), "application/json")
+    Asserter.assert_equals(ContentTypeEnum("json"), "application/json")
+
+
+def test_header_enum():
+    Asserter.assert_equals(HeaderEnum.CONTENT_TYPE.value, "content-type")
+    Asserter.assert_equals(HeaderEnum.CONTENT_TYPE, "Content-Type")
+    Asserter.assert_equals(HeaderEnum.CONTENT_TYPE, "content-type")
+    Asserter.assert_equals(HeaderEnum.CONTENT_TYPE, "CONTENT-TYPE")
+    Asserter.assert_equals(HeaderEnum("CONTENT_TYPE"), "Content-Type")
+    Asserter.assert_equals(HeaderEnum("content_type"), "Content-Type")

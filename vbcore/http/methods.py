@@ -1,18 +1,23 @@
-class HttpMethod:
-    POST: str = "POST"
-    PUT: str = "PUT"
-    GET: str = "GET"
-    DELETE: str = "DELETE"
-    PATCH: str = "PATCH"
-    FETCH: str = "FETCH"
-    HEAD: str = "HEAD"
-    OPTIONS: str = "OPTIONS"
+import enum
+
+from vbcore.datastruct import StrEnum
 
 
-class WebDavMethod:
-    COPY: str = "COPY"
-    LOCK: str = "LOCK"
-    MKCOL: str = "MKCOL"
-    PROPFIND: str = "PROPFIND"
-    PROPPATCH: str = "PROPPATCH"
-    UNLOCK: str = "UNLOCK"
+class HttpMethod(StrEnum):
+    POST = enum.auto()
+    PUT = enum.auto()
+    GET = enum.auto()
+    DELETE = enum.auto()
+    PATCH = enum.auto()
+    FETCH = enum.auto()
+    HEAD = enum.auto()
+    OPTIONS = enum.auto()
+
+
+class WebDavMethod(StrEnum):
+    COPY = enum.auto()
+    LOCK = enum.auto()
+    MKCOL = enum.auto()
+    PROPFIND = enum.auto()
+    PROPPATCH = enum.auto()
+    UNLOCK = enum.auto()

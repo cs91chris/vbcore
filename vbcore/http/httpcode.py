@@ -1,3 +1,4 @@
+import typing as t
 import enum
 
 CONTINUE = 100
@@ -66,6 +67,8 @@ NOT_EXTENDED = 510
 NETWORK_AUTHENTICATION_REQUIRED = 511
 UNKNOWN_ERROR = 520  # cloudflare
 
+IntStatusType = t.Union[int, "StatusType"]
+
 
 class StatusType(enum.IntEnum):
     INFORMATIONAL = 1
@@ -74,38 +77,40 @@ class StatusType(enum.IntEnum):
     CLIENT_ERROR = 4
     SERVER_ERROR = 5
 
-
-def status_type(s):
-    return int(s / 100)
-
-
-def is_informational(s):
-    return status_type(s) == StatusType.INFORMATIONAL
+    @classmethod
+    def _missing_(cls, value) -> "StatusType":
+        if isinstance(value, int):
+            return cls(value // 100)
+        return cls(value)
 
 
-def is_success(s):
-    return status_type(s) == StatusType.SUCCESS
+def is_informational(s: IntStatusType) -> bool:
+    return StatusType(s) == StatusType.INFORMATIONAL
 
 
-def is_redirection(s):
-    return status_type(s) == StatusType.REDIRECTION
+def is_success(s: IntStatusType) -> bool:
+    return StatusType(s) == StatusType.SUCCESS
 
 
-def is_client_error(s):
-    return status_type(s) == StatusType.CLIENT_ERROR
+def is_redirection(s: IntStatusType) -> bool:
+    return StatusType(s) == StatusType.REDIRECTION
 
 
-def is_server_error(s):
-    return status_type(s) == StatusType.SERVER_ERROR
+def is_client_error(s: IntStatusType) -> bool:
+    return StatusType(s) == StatusType.CLIENT_ERROR
 
 
-def is_ok(s):
-    return status_type(s) in (
+def is_server_error(s: IntStatusType) -> bool:
+    return StatusType(s) == StatusType.SERVER_ERROR
+
+
+def is_ok(s: IntStatusType) -> bool:
+    return StatusType(s) in (
         StatusType.INFORMATIONAL,
         StatusType.SUCCESS,
         StatusType.REDIRECTION,
     )
 
 
-def is_ko(s):
+def is_ko(s: IntStatusType) -> bool:
     return not is_ok(s)

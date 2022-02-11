@@ -16,8 +16,10 @@ class MockSmtp(SendMail):
 
 class ModuleTest(unittest.TestCase):
     def setUp(self):
-        self.message_id_regex = r"^<[0-9]*\.[0-9]*\.[0-9]*\.[a-z0-9]{32}@mail.com>$"
         self.client = MockSmtp(SMTPParams(host="127.0.0.1", port=25))
+        self.message_id_regex = re.compile(
+            r"^<[0-9]*\.[0-9]*\.[0-9]*\.[a-z0-9]{32}@mail.com>$"
+        )
 
     def test_prepare_message(self):
         message = self.client.message(
@@ -36,7 +38,7 @@ class ModuleTest(unittest.TestCase):
 
         self.assertTrue(message.is_multipart())
         self.assertTrue(self.client.is_valid_rfc_2822_date(message["Date"]))
-        self.assertTrue(re.match(self.message_id_regex, message["Message-Id"]))
+        self.assertTrue(self.message_id_regex.match(message["Message-Id"]))
         self.assertEqual(message["From"], "sender@mail.com")
         self.assertEqual(message["Subject"], "TEST MAIL")
         self.assertEqual(message["Reply-To"], "reply@mail.com")
@@ -63,4 +65,4 @@ class ModuleTest(unittest.TestCase):
                 "X-Custom-Header": "value",
             },
         )
-        self.assertTrue(re.match(self.message_id_regex, response.message_id))
+        self.assertTrue(self.message_id_regex.match(response.message_id))
