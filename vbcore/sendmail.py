@@ -10,9 +10,15 @@ from smtplib import SMTP
 from email_validator import caching_resolver, validate_email, ValidatedEmail
 
 from vbcore.misc import CommonRegex
+from vbcore.uuid import get_uuid
 
-RespType = t.Dict[str, t.Tuple[int, bytes]]
 AddressType = t.Union[str, t.Tuple[str, ...]]
+
+
+@dataclasses.dataclass
+class SMTPResponse:
+    message_id: str
+    response: t.Dict[str, t.Tuple[int, bytes]]
 
 
 @dataclasses.dataclass
@@ -36,15 +42,20 @@ class SendMail:
         self._smtp_args = kwargs
         self._log = logging.getLogger(self.__module__)
 
-    @staticmethod
-    def validate_email(email: str, restricted: bool = True) -> ValidatedEmail:
+    @classmethod
+    def validate_email(cls, email: str, restricted: bool = True) -> ValidatedEmail:
         if restricted and not CommonRegex.is_valid_email(email):
             raise ValueError(f"invalid email: {email}")
         return validate_email(email, dns_resolver=caching_resolver())
 
-    # pylint: disable=too-many-locals
-    @staticmethod
+    @classmethod
+    def prepare_addresses(cls, addr: AddressType):
+        return ",".join(addr) if isinstance(addr, tuple) else addr
+
+    # pylint: disable=too-many-arguments
+    @classmethod
     def message(
+        cls,
         sender: str,
         to: AddressType,
         subject: str,
@@ -55,23 +66,24 @@ class SendMail:
         cc: t.Optional[AddressType] = (),
         bcc: t.Optional[AddressType] = (),
         headers: t.Optional[t.Dict[str, str]] = None,
+        message_id: t.Optional[str] = None,
     ) -> MIMEMultipart:
         message = MIMEMultipart("alternative")
         message["From"] = sender
         message["Subject"] = subject
         message["X-Priority"] = str(priority)
         message["Reply-To"] = reply_to or sender
-        message["To"] = ",".join(to) if isinstance(to, tuple) else to
-
-        _, email = parseaddr(sender)
-        sender_domain = email.split("@")[1]
-        message["Message-Id"] = make_msgid(domain=sender_domain)
+        message["To"] = cls.prepare_addresses(to)
         message["Date"] = formatdate(localtime=True)
+        message["Message-Id"] = make_msgid(
+            idstring=str(message_id or get_uuid()),
+            domain=parseaddr(sender)[1].split("@")[1],
+        )
 
         if cc:
-            message["Cc"] = ",".join(cc) if isinstance(cc, tuple) else cc
+            message["Cc"] = cls.prepare_addresses(cc)
         if bcc:
-            message["Bcc"] = ",".join(bcc) if isinstance(bcc, tuple) else bcc
+            message["Bcc"] = cls.prepare_addresses(bcc)
 
         if headers:
             for k, v in headers.items():
@@ -90,7 +102,7 @@ class SendMail:
         smtp_options = {**self._smtp_args, **kwargs}
         return smtp_class(params.host, params.port, **smtp_options)  # type: ignore
 
-    def send(self, message: MIMEMultipart, **kwargs) -> RespType:
+    def send(self, message: MIMEMultipart, **kwargs) -> SMTPResponse:
         params = self.params
         with self.get_instance(**kwargs) as server:
             if params.is_tls:
@@ -99,14 +111,38 @@ class SendMail:
                 server.login(params.user, params.password)
 
             server.set_debuglevel(params.debug)
-            return server.send_message(message)
+            return SMTPResponse(
+                message_id=message["Message-Id"], response=server.send_message(message)
+            )
 
+    # pylint: disable=too-many-arguments
     def send_message(
         self,
         subject: str,
-        recipients: AddressType,
+        to: AddressType,
         sender: t.Optional[str] = None,
+        priority: int = 3,
+        html: t.Optional[str] = None,
+        text: t.Optional[str] = None,
+        reply_to: t.Optional[str] = None,
+        cc: t.Optional[AddressType] = (),
+        bcc: t.Optional[AddressType] = (),
+        headers: t.Optional[t.Dict[str, str]] = None,
+        message_id: t.Optional[str] = None,
         **kwargs,
-    ) -> RespType:
+    ) -> SMTPResponse:
         _sender = sender or str(self.params.sender) or self.params.user
-        return self.send(self.message(_sender, recipients, subject, **kwargs))
+        message = self.message(
+            subject=subject,
+            to=to,
+            sender=_sender,
+            priority=priority,
+            html=html,
+            text=text,
+            reply_to=reply_to,
+            cc=cc,
+            bcc=bcc,
+            headers=headers,
+            message_id=message_id,
+        )
+        return self.send(message, **kwargs)
