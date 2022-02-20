@@ -1,10 +1,24 @@
-from vbcore.date_helper import DateHelper, from_iso_format, to_iso_format
+import datetime
 
+from hypothesis import given, strategies as st
+
+from vbcore.date_helper import DateHelper, from_iso_format, to_iso_format
 from vbcore.tester.mixins import Asserter
 
 SAMPLE_FMT = "%d %B %Y %I:%M %p"
 ISO_DATE = "2020-12-28T19:53:00"
 NOT_ISO_DATE = "28 December 2020 07:53 PM"
+
+
+@given(
+    st.dates(min_value=datetime.date(year=1000, month=1, day=1)).map(
+        lambda d: d.strftime(SAMPLE_FMT)
+    )
+)
+def test_iso_format_converter(str_date):
+    Asserter.assert_equals(
+        from_iso_format(to_iso_format(str_date, SAMPLE_FMT), SAMPLE_FMT), str_date
+    )
 
 
 def test_from_iso_format():

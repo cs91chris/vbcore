@@ -7,6 +7,7 @@
 attrs==21.4.0
     # via
     #   -c requirements/requirements-all.txt
+    #   hypothesis
     #   pytest
 certifi==2021.10.8
     # via
@@ -26,6 +27,8 @@ coverage[toml]==6.3.1
     #   pytest-cov
 dparse==0.5.1
     # via safety
+hypothesis==6.37.0
+    # via -r requirements/requirements-test.in
 idna==3.3
     # via
     #   -c requirements/requirements-all.txt
@@ -68,6 +71,8 @@ six==1.16.0
     # via
     #   -c requirements/requirements.txt
     #   responses
+sortedcontainers==2.4.0
+    # via hypothesis
 toml==0.10.2
     # via
     #   dparse

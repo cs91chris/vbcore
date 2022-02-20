@@ -67,6 +67,10 @@ safety:
 		-r ${REQ_PATH}/requirements.txt \
 		-r ${REQ_PATH}/requirements-all.txt
 
+package-publish:
+	python setup.py sdist bdist_wheel
+	twine upload --verbose --skip-existing -u voidbrain dist/${PACKAGE}-*
+
 image-publish:
 	docker build --target ${PACKAGE}-38 -t voidbrain/${PACKAGE}-38:$${VERSION:-latest} .
 	docker push voidbrain/${PACKAGE}-38:$${VERSION:-latest}

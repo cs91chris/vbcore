@@ -117,14 +117,24 @@ class DateHelper:
             )
         return cls.date_to_str(date, fmt=cls.DATE_PRETTY_FORMAT)
 
+    @classmethod
+    def from_iso_format(cls, str_date: str, fmt: str, exc: bool = True):
+        return DateHelper.change_format(
+            str_date, in_fmt=DateHelper.DATE_ISO_FORMAT, out_fmt=fmt, raise_exc=exc
+        )
 
-def from_iso_format(str_date, fmt, exc=True):
-    return DateHelper.change_format(
-        str_date, in_fmt=DateHelper.DATE_ISO_FORMAT, out_fmt=fmt, raise_exc=exc
-    )
+    @classmethod
+    def to_iso_format(
+        cls, str_date: str, fmt: t.Optional[str] = None, exc: bool = True
+    ):
+        return DateHelper.change_format(
+            str_date, in_fmt=fmt, out_fmt=DateHelper.DATE_ISO_FORMAT, raise_exc=exc
+        )
 
 
-def to_iso_format(str_date, fmt=None, exc=True):
-    return DateHelper.change_format(
-        str_date, in_fmt=fmt, out_fmt=DateHelper.DATE_ISO_FORMAT, raise_exc=exc
-    )
+def from_iso_format(str_date: str, fmt: str, exc: bool = True):
+    return DateHelper.from_iso_format(str_date, fmt, exc)
+
+
+def to_iso_format(str_date: str, fmt: t.Optional[str] = None, exc: bool = True):
+    return DateHelper.to_iso_format(str_date, fmt, exc)

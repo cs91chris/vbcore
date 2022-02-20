@@ -6,6 +6,7 @@ pytest
 pytest-cov
 responses
 safety
+hypothesis
 types-python-dateutil
 types-setuptools
 types-toml
