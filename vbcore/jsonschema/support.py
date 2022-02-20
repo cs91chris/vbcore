@@ -25,22 +25,11 @@ class JSONSchema:
 
     @classmethod
     def load_from_url(cls, url: str) -> dict:
-        """
-
-        :param url:
-        :return:
-        """
         res = HTTPClient(url, raise_on_exc=True).get(url)
         return res.body
 
     @classmethod
     def load_from_file(cls, file: str, encoding: str = "utf-8", **kwargs) -> dict:
-        """
-
-        :param file:
-        :param encoding:
-        :return:
-        """
         if file.startswith("file://"):
             file = file[7:]
 
@@ -53,18 +42,9 @@ class JSONSchema:
         data: dict,
         schema: t.Union[dict, str],
         raise_exc: bool = False,
+        pretty_error: bool = False,
         checker=None,
     ) -> bool:
-        """
-
-        :param data:
-        :param schema:
-        :param raise_exc:
-        :param checker:
-        :return:
-        """
-        assert cls.service != ObjectDict, "you must install 'jsonschema'"
-
         if isinstance(schema, str):
             if schema.startswith("https://") or schema.startswith("http://"):
                 schema = cls.load_from_url(schema)
@@ -75,15 +55,17 @@ class JSONSchema:
             checker = checker or cls.service.FormatChecker()
             cls.service.validate(data, schema, format_checker=checker)
         except cls.schema_error as exc:
-            if raise_exc is True:
+            if not raise_exc:
+                return False
+            if pretty_error:
                 raise ValueError(cls.error_report(exc, data)) from exc
-            return False
+            raise
         return True
 
     @classmethod
     def error_report(
         cls, e, json_object: dict, lines_before: int = 8, lines_after: int = 8
-    ):
+    ) -> str:
         """
         From: https://github.com/ccpgames/jsonschema-errorprinter/blob/master/jsonschemaerror.py
 
@@ -161,35 +143,35 @@ class Fields:
         boolean = ObjectDict(type=["boolean", "null"])
 
     @classmethod
-    def oneof(cls, *args, **kwargs):
+    def oneof(cls, *args, **kwargs) -> ObjectDict:
         return ObjectDict(oneOf=args if len(args) > 1 else (*args, cls.null), **kwargs)
 
     @classmethod
-    def anyof(cls, *args, **kwargs):
+    def anyof(cls, *args, **kwargs) -> ObjectDict:
         return ObjectDict(anyOf=args if len(args) > 1 else (*args, cls.null), **kwargs)
 
     @classmethod
-    def ref(cls, path: str, **kwargs):
+    def ref(cls, path: str, **kwargs) -> ObjectDict:
         return ObjectDict(**{"$ref": f"#{path}", **kwargs})
 
     @classmethod
-    def enum(cls, *args, **kwargs):
-        return {"enum": args, **kwargs}
+    def enum(cls, *args, **kwargs) -> ObjectDict:
+        return ObjectDict(enum=args, **kwargs)
 
     @classmethod
-    def type(cls, *args, **kwargs):
-        return {"type": args, **kwargs}
+    def type(cls, *args, **kwargs) -> ObjectDict:
+        return ObjectDict(type=args, **kwargs)
 
     @classmethod
     def object(
         cls,
-        required=(),
-        not_required=(),
-        properties=None,
-        all_required=True,
-        additional=False,
+        required: t.Union[t.List[str], t.Tuple[str, ...]] = (),
+        not_required: t.Union[t.List[str], t.Tuple[str, ...]] = (),
+        properties: t.Dict[str, t.Any] = None,
+        all_required: bool = True,
+        additional: bool = False,
         **kwargs,
-    ):
+    ) -> ObjectDict:
         properties = properties or {}
         if not required and all_required is True:
             required = [i for i in properties.keys() if i not in not_required]
@@ -203,9 +185,9 @@ class Fields:
         )
 
     @classmethod
-    def array(cls, items: dict, min_items: int = 0, **kwargs):
+    def array(cls, items: dict, min_items: int = 0, **kwargs) -> ObjectDict:
         return ObjectDict(type="array", minItems=min_items, items=items, **kwargs)
 
     @classmethod
-    def array_object(cls, min_items: int = 0, **kwargs):
+    def array_object(cls, min_items: int = 0, **kwargs) -> ObjectDict:
         return ObjectDict(type="array", minItems=min_items, items=cls.object(**kwargs))
