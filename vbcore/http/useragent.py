@@ -1,4 +1,4 @@
-import dataclasses
+from dataclasses import dataclass
 import typing as t
 
 from user_agents import parsers
@@ -6,7 +6,7 @@ from user_agents import parsers
 from vbcore.datastruct import DataClassDictable
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclass(frozen=True)
 class Version(DataClassDictable):
     string: str
     number: int
@@ -15,7 +15,7 @@ class Version(DataClassDictable):
         return f"{self.string}"
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclass(frozen=True)
 class Client(DataClassDictable):
     family: str
     version: Version
@@ -24,7 +24,7 @@ class Client(DataClassDictable):
         return f"{self.family} {self.version}"
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclass(frozen=True)
 class DeviceType(DataClassDictable):
     computer: bool
     bot: bool
@@ -34,7 +34,7 @@ class DeviceType(DataClassDictable):
     touch_capable: bool
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclass(frozen=True)
 class Device(DataClassDictable):
     family: str
     brand: str
@@ -42,7 +42,7 @@ class Device(DataClassDictable):
     type: DeviceType
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclass(frozen=True)
 class UserAgent(DataClassDictable):
     parser_class: t.ClassVar[t.Type[parsers.UserAgent]] = parsers.UserAgent
 
@@ -52,7 +52,7 @@ class UserAgent(DataClassDictable):
     device: Device
 
     def __str__(self):
-        return f"{self.device} / {self.operating_system} / {self.browser}"
+        return self.raw
 
     @classmethod
     def parse(cls, user_agent: str):

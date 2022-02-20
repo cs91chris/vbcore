@@ -92,6 +92,7 @@ def test_user_agent_parser(device_type, operating_system, browser, user_agent):
     Asserter.assert_equals(res.raw, user_agent)
     Asserter.assert_equals(res.operating_system.family, operating_system)
     Asserter.assert_equals(res.browser.family, browser)
+    Asserter.assert_equals(str(res), user_agent)
     if device_type:
         Asserter.assert_true(getattr(res.device.type, device_type))
 
