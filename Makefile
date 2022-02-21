@@ -19,7 +19,11 @@ define req_compile
 endef
 
 
-all: clean lint clean-install-deps test safety
+all: clean lint security run-tox
+build-publish: build-dist pypi-publish
+lint: black flake pylint mypy
+security: safety liccheck
+
 
 compile-deps:
 	$(call req_compile,requirements)
@@ -48,11 +52,20 @@ clean:
 	find . -name '.pytest_cache' -prune -exec rm -rf {} \;
 	find ${PACKAGE} -name ".mypy_cache" -prune -exec rm -rf {} \;
 
-lint:
+black:
 	black -t py38 ${PACKAGE} sandbox tests setup.py
+
+flake:
 	flake8 --config=.flake8 ${PACKAGE} sandbox tests setup.py --statistics
+
+pylint:
 	pylint --rcfile=.pylintrc ${PACKAGE} sandbox tests setup.py
+
+mypy:
 	mypy --install-types --non-interactive --no-strict-optional ${PACKAGE} sandbox tests
+
+run-tox:
+	tox --verbose -p all
 
 test:
 	PYTHONPATH=. pytest -v -rf --strict-markers \
@@ -67,8 +80,16 @@ safety:
 		-r ${REQ_PATH}/requirements.txt \
 		-r ${REQ_PATH}/requirements-all.txt
 
-package-publish:
+liccheck:
+	liccheck \
+		--level CAUTIOUS \
+		-r ${REQ_PATH}/requirements.txt \
+		-r ${REQ_PATH}/requirements-all.txt
+
+build-dist:
 	python setup.py sdist bdist_wheel
+
+pypi-publish:
 	twine upload --verbose --skip-existing -u voidbrain dist/${PACKAGE}-*
 
 image-publish:
