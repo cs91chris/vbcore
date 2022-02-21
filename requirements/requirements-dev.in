@@ -13,4 +13,11 @@ bump2version
 pipdeptree
 mypy
 coloredlogs
+
 types-PyYAML
+types-python-dateutil
+types-setuptools
+types-toml
+types-requests
+types-backports
+types-pytz
