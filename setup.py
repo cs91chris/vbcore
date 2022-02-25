@@ -32,6 +32,7 @@ REQUIRES = [
     "python-decouple",
     "python-dotenv",
     "pyyaml",
+    "psutil",
 ]
 
 REQUIRES_ALL = REQUIRES + [
