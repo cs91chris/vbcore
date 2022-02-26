@@ -29,6 +29,9 @@ class ContentTypeEnum(StrEnum):
     SVG = f"{TypeEnum.IMAGE}/svg+xml"
     WEBP = f"{TypeEnum.IMAGE}/webp"
     WAV = f"{TypeEnum.AUDIO}/wav"
+    JSON_PROBLEM = f"{TypeEnum.APPLICATION}/problem+json"
+    XML_PROBLEM = f"{TypeEnum.APPLICATION}/problem+xml"
+    JSON_HEALTH = f"{TypeEnum.APPLICATION}/health+json"
 
 
 class HeaderEnum(IStrEnum):
@@ -76,3 +79,9 @@ class HeaderEnum(IStrEnum):
     TRANSFER_ENCODING = enum.auto()
     USER_AGENT = enum.auto()
     WWW_AUTHENTICATE = enum.auto()
+    X_REQUEST_ID = enum.auto()
+    X_ACCEL_REDIRECT = enum.auto()
+    X_ACCEL_CHARSET = enum.auto()
+    X_ACCEL_BUFFERING = enum.auto()
+    X_ACCEL_EXPIRES = enum.auto()
+    X_ACCEL_LIMIT_RATE = enum.auto()
