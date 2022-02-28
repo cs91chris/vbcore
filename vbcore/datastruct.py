@@ -116,6 +116,9 @@ class StrEnum(str, enum.Enum):
     def __str__(self):
         return self.value
 
+    def __hash__(self):
+        return hash(self._name_)  # pylint: disable=no-member
+
     @classmethod
     def _missing_(cls, value):
         return cls(cls.__members__.get(str(value).upper()))
@@ -130,6 +133,12 @@ class LStrEnum(StrEnum):
     def _generate_next_value_(self, *_):
         return self.lower()
 
+    def __str__(self):
+        return self.value.lower()
+
+    def __hash__(self):
+        return hash(self._name_)  # pylint: disable=no-member
+
 
 class IStrEnum(LStrEnum):
     """StrEnum with lower values and case insensitive"""
@@ -137,6 +146,9 @@ class IStrEnum(LStrEnum):
     def _comparable_values(self, other) -> t.Tuple[str, str]:
         other_value = other if isinstance(other, str) else other.value
         return self.value.lower(), other_value.lower()
+
+    def __hash__(self):
+        return hash(self._name_)  # pylint: disable=no-member
 
     def __eq__(self, other):
         value, other = self._comparable_values(other)
@@ -166,9 +178,10 @@ class Dumper:
         self._callback = callback
 
     def dump(self):
-        if self._callback is not None:
-            return self._callback(self.data, *self._args, **self._kwargs)
-        return str(self.data)
+        data = self.data
+        if callable(self._callback):
+            data = self._callback(data, *self._args, **self._kwargs)
+        return str(data)
 
     def __str__(self):
         return self.dump()
