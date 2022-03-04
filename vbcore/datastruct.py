@@ -5,6 +5,7 @@ from collections import OrderedDict
 from dataclasses import asdict, fields, dataclass
 
 BytesType = t.Union[bytes, bytearray, memoryview]
+CallableDictType = t.Callable[[t.List[t.Tuple[str, t.Any]]], t.Any]
 
 
 class HashableDict(dict):
@@ -13,10 +14,9 @@ class HashableDict(dict):
 
 
 class ObjectDict(dict):
-    def __init__(self, **kwargs):
+    def __init__(self, seq=None, **kwargs):
         super().__init__()
-        for k, v in kwargs.items():
-            self[k] = self.normalize(v)
+        self.__setstate__(kwargs if seq is None else dict(seq))
 
     def __dict__(self):
         data: t.Dict = {}
@@ -49,22 +49,24 @@ class ObjectDict(dict):
         if name in self:
             del self[name]
 
-    def patch(self, __dict, **kwargs):
+    def patch(self, __dict, **kwargs) -> "ObjectDict":
         super().update(__dict, **kwargs)
         return self
 
     @staticmethod
-    def normalize(data):
+    def normalize(data: t.Any, raise_exc: bool = False):
         try:
             if isinstance(data, (list, tuple, set)):
                 return [ObjectDict(**r) if isinstance(r, dict) else r for r in data]
             return ObjectDict(**data)
         except (TypeError, ValueError, AttributeError):
+            if raise_exc is True:
+                raise
             return data
 
     def get_namespace(
         self, prefix: str, lowercase: bool = True, trim: bool = True
-    ) -> t.Dict:
+    ) -> "ObjectDict":
         """
         Returns a dictionary containing a subset of configuration options
         that match the specified prefix.
@@ -73,12 +75,12 @@ class ObjectDict(dict):
         :param lowercase: a flag indicating if the keys should be lowercase
         :param trim: a flag indicating if the keys should include the namespace
         """
-        res = {}
+        data = ObjectDict()
         for k, v in self.items():
             if k.startswith(prefix):
                 key = k[len(prefix) :] if trim else k
-                res[key.lower() if lowercase else key] = v
-        return res
+                data[key.lower() if lowercase else key] = v
+        return data
 
 
 class IntEnum(enum.IntEnum):
@@ -164,20 +166,15 @@ class IStrEnum(LStrEnum):
 
 
 class Dumper:
-    def __init__(self, data, *args, callback: t.Optional[t.Callable] = None, **kwargs):
-        """
-
-        :param data:
-        :param callback:
-        :param args:
-        :param kwargs:
-        """
+    def __init__(
+        self, data: t.Any, *args, callback: t.Optional[t.Callable] = None, **kwargs
+    ):
         self.data = data
         self._args = args
         self._kwargs = kwargs
         self._callback = callback
 
-    def dump(self):
+    def dump(self) -> str:
         data = self.data
         if callable(self._callback):
             data = self._callback(data, *self._args, **self._kwargs)
@@ -188,7 +185,9 @@ class Dumper:
 
 
 class BytesWrap(Dumper):
-    encoding = "utf-8"
+    def __init__(self, data: BytesType, encoding: str = "utf-8"):
+        super().__init__(data)
+        self.encoding = encoding
 
     def dump(self) -> str:
         if isinstance(self.data, memoryview):
@@ -243,9 +242,9 @@ class LRUCache(OrderedDict):
 
 
 class DataClassDictable:
-    def to_dict(self, **__) -> dict:
+    def to_dict(self, factory: CallableDictType = ObjectDict, **__) -> dict:
         # noinspection PyDataclass
-        return asdict(self)
+        return asdict(self, dict_factory=factory)
 
     @classmethod
     def field_types(cls) -> dict:

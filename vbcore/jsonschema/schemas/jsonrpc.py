@@ -1,9 +1,7 @@
-from typing import NamedTuple
-
 from vbcore.jsonschema.support import Fields
 
 
-class JSONRPC(NamedTuple):
+class JSONRPC:
     REQUEST: dict = Fields.oneof(
         Fields.ref("/definitions/request", description="An individual request"),
         Fields.array(

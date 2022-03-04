@@ -1,5 +1,6 @@
 import json
 import logging
+import typing as t
 
 from vbcore.datastruct import ObjectDict
 from vbcore.http import httpcode, HttpMethod
@@ -15,12 +16,6 @@ class TestHttpCall(HTTPDumper, JSONValidatorMixin, RegexMixin):
     default_content_type = "text/html"
 
     def __init__(self, test_client, endpoint=None, auth=None, **__):
-        """
-
-        :param endpoint:
-        :param auth:
-        :param kwargs:
-        """
         self.auth = None
         self.response = None
         self.endpoint = endpoint
@@ -43,13 +38,9 @@ class TestHttpCall(HTTPDumper, JSONValidatorMixin, RegexMixin):
             password = config.get("password") or config["username"]
             self.auth = basic_auth_header(config.get("username"), password)
 
-    def assert_status_code(self, code, in_range=False, is_in=False):
-        """
-
-        :param code:
-        :param in_range:
-        :param is_in:
-        """
+    def assert_status_code(
+        self, code: int, in_range: bool = False, is_in: bool = False
+    ):
         status_code = self.response.status_code
         if type(code) in (list, tuple):
             if in_range:
@@ -59,14 +50,9 @@ class TestHttpCall(HTTPDumper, JSONValidatorMixin, RegexMixin):
         else:
             self.assert_equals(status_code, code)
 
-    def assert_header(self, name, value, is_in=False, regex=False):
-        """
-
-        :param name:
-        :param value:
-        :param is_in:
-        :param regex:
-        """
+    def assert_header(
+        self, name: str, value: str, is_in: bool = False, regex: bool = False
+    ):
         header = self.response.headers.get(name)
         if is_in:
             self.assert_in(header, value)
@@ -93,13 +79,6 @@ class TestHttpCall(HTTPDumper, JSONValidatorMixin, RegexMixin):
                 self.assert_header(name=k, **v)
 
     def request(self, method=HttpMethod.GET, url=None, **kwargs):
-        """
-
-        :param method:
-        :param url:
-        :param kwargs:
-        :return:
-        """
         url = url or self.endpoint
         if not url.startswith("http"):
             url = f"{self.endpoint}{url}"
@@ -114,11 +93,6 @@ class TestHttpCall(HTTPDumper, JSONValidatorMixin, RegexMixin):
         print(self.dump_response(self.response, dump_body=True))
 
     def perform(self, request, response=None, **__):
-        """
-
-        :param request:
-        :param response:
-        """
         self.request(**request)
         self.assert_response(**(response or {}))
 
@@ -150,28 +124,21 @@ class TestJsonRPC(TestHttpApi):
     # noinspection PyShadowingBuiltins
     @classmethod
     def prepare_payload(
-        cls, id=False, method=None, params=None
-    ):  # pylint: disable=W0622
-        """
+        cls,
+        id=False,  # pylint: disable=redefined-builtin
+        method: t.Optional[str] = None,
+        params: t.Optional[t.Dict[str, t.Any]] = None,
+    ) -> t.Dict[str, t.Any]:
+        data: t.Dict[str, t.Any] = {"jsonrpc": cls.version, "method": method}
 
-        :param id:
-        :param method:
-        :param params:
-        :return:
-        """
-        data = dict(jsonrpc=cls.version, method=method)
         if id is not False:
             data["id"] = id
         if params:
             data["params"] = params
+
         return data
 
     def perform(self, request, response=None, **__):
-        """
-
-        :param request:
-        :param response:
-        """
         req = {"method": HttpMethod.POST}
         res = response or {}
         res.setdefault("schema", self.default_schema)
@@ -185,43 +152,35 @@ class TestJsonRPC(TestHttpApi):
 
 
 class TestRestApi(TestHttpApi):
-    def __init__(self, *args, resource=None, res_id=None, **kwargs):
-        """
-
-        :param resource:
-        :param res_id: resource id key
-        """
+    def __init__(
+        self,
+        *args,
+        resource: t.Optional[str] = None,
+        res_id: t.Optional[str] = None,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
         self.res_id = res_id or "id"
         self.set_resource(resource)
 
-    def set_resource(self, resource, res_id=None):
+    def set_resource(
+        self,
+        resource: t.Optional[str] = None,
+        res_id: t.Optional[str] = None,
+    ):
         """
 
-        :param resource:
-        :param res_id:
+        :param resource: resource name
+        :param res_id: resource id key
         """
         self.res_id = res_id or self.res_id
         if resource:
             self.endpoint = f"{self.endpoint}/{resource}"
 
-    def resource_url(self, res_id):
-        """
-
-        :param res_id:
-        :return:
-        """
+    def resource_url(self, res_id) -> str:
         return f"{self.endpoint}/{res_id}"
 
     def _normalize(self, request, response, method=HttpMethod.GET, url=None):
-        """
-
-        :param request:
-        :param response:
-        :param method:
-        :param url:
-        :return:
-        """
         request = request or {}
         response = response or {}
         request["method"] = method
