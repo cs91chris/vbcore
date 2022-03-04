@@ -37,7 +37,7 @@ class Loggers:
 
         if self.config.listen_for_reload:
             listener = logging.config.listen(self.config.listener_port)
-            listener.setDaemon(self.config.listener_daemon)
+            listener.daemon = self.config.listener_daemon
             listener.start()
 
     @staticmethod
