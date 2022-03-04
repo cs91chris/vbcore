@@ -13,21 +13,21 @@ certifi==2021.10.8
     # via
     #   -c requirements/requirements-all.txt
     #   requests
-charset-normalizer==2.0.11
+charset-normalizer==2.0.12
     # via
     #   -c requirements/requirements-all.txt
     #   requests
-click==8.0.3
+click==8.0.4
     # via
     #   -c requirements/requirements.txt
     #   safety
-coverage[toml]==6.3.1
+coverage[toml]==6.3.2
     # via
     #   -r requirements/requirements-test.in
     #   pytest-cov
 dparse==0.5.1
     # via safety
-hypothesis==6.37.0
+hypothesis==6.39.1
     # via -r requirements/requirements-test.in
 idna==3.3
     # via
@@ -48,7 +48,7 @@ pyparsing==3.0.7
     # via
     #   -c requirements/requirements-all.txt
     #   packaging
-pytest==6.2.5
+pytest==7.0.1
     # via
     #   -r requirements/requirements-test.in
     #   pytest-cov
@@ -63,22 +63,18 @@ requests==2.27.1
     #   -c requirements/requirements-all.txt
     #   responses
     #   safety
-responses==0.17.0
+responses==0.18.0
     # via -r requirements/requirements-test.in
 safety==1.10.3
     # via -r requirements/requirements-test.in
-six==1.16.0
-    # via
-    #   -c requirements/requirements.txt
-    #   responses
 sortedcontainers==2.4.0
     # via hypothesis
 toml==0.10.2
+    # via dparse
+tomli==2.0.1
     # via
-    #   dparse
+    #   coverage
     #   pytest
-tomli==2.0.0
-    # via coverage
 urllib3==1.26.8
     # via
     #   -c requirements/requirements-all.txt
