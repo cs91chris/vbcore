@@ -59,6 +59,12 @@ def test_http_client(method, match_method):
     Asserter.assert_header(response, "hdr", "value")
 
 
+def do_not_dump_long_string(x):
+    if x and len(x) < 20:
+        return x
+    return "None" if not x else ""
+
+
 @pytest.mark.parametrize(
     "device_type, operating_system, browser, user_agent",
     # fmt: off
@@ -85,7 +91,7 @@ def test_http_client(method, match_method):
         (None, "Other", "Other", "apache-httpclient/4.5.5 (java/12.0.1)"),  # noqa: E501 pylint: disable=line-too-long
     ],
     # fmt: on
-    ids=lambda x: x if (x and len(x) < 20) else ("None" if not x else ""),
+    ids=do_not_dump_long_string,
 )
 def test_user_agent_parser(device_type, operating_system, browser, user_agent):
     res = useragent.UserAgent.parse(user_agent)
@@ -107,12 +113,12 @@ def test_method_enum():
 
 
 def test_content_type_enum():
-    Asserter.assert_equals(ContentTypeEnum.JSON, "application/json")
-    Asserter.assert_equals(ContentTypeEnum.HTML, "text/html")
-    Asserter.assert_equals(ContentTypeEnum.PLAIN, "text/plain")
-    Asserter.assert_equals(ContentTypeEnum.PNG, "image/png")
     Asserter.assert_equals(ContentTypeEnum("JSON"), "application/json")
     Asserter.assert_equals(ContentTypeEnum("json"), "application/json")
+    Asserter.assert_equals(ContentTypeEnum.PNG, "image/png")
+    Asserter.assert_equals(ContentTypeEnum.HTML, "text/html")
+    Asserter.assert_equals(ContentTypeEnum.PLAIN, "text/plain")
+    Asserter.assert_equals(ContentTypeEnum.JSON_PROBLEM, "application/problem+json")
 
 
 def test_header_enum():

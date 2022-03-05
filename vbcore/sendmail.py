@@ -49,7 +49,7 @@ class SendMail:
         return validate_email(email, dns_resolver=caching_resolver())
 
     @classmethod
-    def prepare_addresses(cls, addr: AddressType):
+    def prepare_addresses(cls, addr: AddressType) -> str:
         return ",".join(addr) if isinstance(addr, tuple) else addr
 
     # pylint: disable=too-many-arguments
@@ -112,7 +112,8 @@ class SendMail:
 
             server.set_debuglevel(params.debug)
             return SMTPResponse(
-                message_id=message["Message-Id"], response=server.send_message(message)
+                message_id=message["Message-Id"],
+                response=server.send_message(message),
             )
 
     # pylint: disable=too-many-arguments
