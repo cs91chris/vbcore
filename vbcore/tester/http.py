@@ -8,12 +8,13 @@ from vbcore.http.httpdumper import BaseHTTPDumper as HTTPDumper
 from vbcore.jsonschema.schemas.jsonrpc import JSONRPC
 from .helpers import basic_auth_header
 from .mixins import JSONValidatorMixin, RegexMixin
+from ..http.headers import ContentTypeEnum, HeaderEnum
 
 
 class TestHttpCall(HTTPDumper, JSONValidatorMixin, RegexMixin):
     __test__ = False
     default_status_code = (httpcode.SUCCESS, 299)
-    default_content_type = "text/html"
+    default_content_type = ContentTypeEnum.HTML
 
     def __init__(self, test_client, endpoint=None, auth=None, **__):
         self.auth = None
@@ -67,8 +68,8 @@ class TestHttpCall(HTTPDumper, JSONValidatorMixin, RegexMixin):
             "in_range": True,
         }
         headers = kwargs.get("headers") or {}
-        if "Content-Type" not in headers:
-            headers["Content-Type"] = {
+        if HeaderEnum.CONTENT_TYPE not in headers:
+            headers[HeaderEnum.CONTENT_TYPE] = {
                 "value": rf"{self.default_content_type}*",
                 "regex": True,
             }
@@ -98,13 +99,13 @@ class TestHttpCall(HTTPDumper, JSONValidatorMixin, RegexMixin):
 
 
 class TestHttpApi(TestHttpCall):
-    default_content_type = "application/json"
+    default_content_type = ContentTypeEnum.JSON
 
     @property
     def json(self):
         try:
             if self.response.status_code != httpcode.NO_CONTENT and "json" in (
-                self.response.headers.get("Content-Type") or ""
+                self.response.headers.get(HeaderEnum.CONTENT_TYPE) or ""
             ):
                 return self.response.get_json()
         except json.decoder.JSONDecodeError as exc:
@@ -216,5 +217,5 @@ class TestRestApi(TestHttpApi):
         )
         res.setdefault("status", dict(code=httpcode.NO_CONTENT))
         res.setdefault("headers", {})
-        res["headers"]["Content-Type"] = None
+        res["headers"][HeaderEnum.CONTENT_TYPE] = None
         self.perform(req, res)

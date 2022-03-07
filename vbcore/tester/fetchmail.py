@@ -1,5 +1,7 @@
 import time
+import typing as t
 
+from vbcore.datastruct import ObjectDict
 from vbcore.http.client import HTTPClient
 
 
@@ -9,30 +11,21 @@ class FetchMail(HTTPClient):
     """
 
     def __init__(
-        self, endpoint, username=None, password=None, retry=3, wait=1, timeout=3
+        self,
+        endpoint: str,
+        username: t.Optional[str] = None,
+        password: t.Optional[str] = None,
+        retry: int = 3,
+        wait: int = 1,
+        timeout: int = 3,
     ):
-        """
-
-        :param endpoint:
-        :param username:
-        :param password:
-        :param retry:
-        :param wait:
-        :param timeout:
-        """
         super().__init__(
             endpoint, username=username, password=password, timeout=timeout
         )
         self.retry = retry
         self.wait = wait
 
-    def get(self, recipient, subject=None, **__):  # pylint: disable=arguments-differ
-        """
-
-        :param recipient:
-        :param subject:
-        :return:
-        """
+    def fetch(self, recipient: str, subject: str) -> t.List[ObjectDict]:
         response = []
         resp = self.request("/", raise_on_exc=True)
         for d in resp.body.data:
@@ -43,16 +36,11 @@ class FetchMail(HTTPClient):
 
         return response
 
-    def perform(self, recipient=None, subject=None, delete=True):
-        """
-
-        :param recipient:
-        :param subject:
-        :param delete:
-        :return:
-        """
+    def perform(
+        self, recipient: str, subject: str, delete: bool = True
+    ) -> t.List[ObjectDict]:
         for _ in range(0, self.retry):
-            res = self.get(recipient, subject)
+            res = self.fetch(recipient, subject)
             if delete:
                 for r in res:
                     self.request(uri=f"/{r.id}", method="DELETE")
@@ -60,4 +48,4 @@ class FetchMail(HTTPClient):
                 return res
 
             time.sleep(self.wait)
-            return None
+        return []

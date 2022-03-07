@@ -1,4 +1,8 @@
 import re
+import typing as t
+
+from vbcore.http import httpcode
+from vbcore.http.headers import HeaderEnum
 
 try:
     from vbcore.jsonschema.support import JSONSchema
@@ -10,21 +14,20 @@ class BaseAssert:
     assert_fail_message = "Test that {that} failed: got {actual}, expected {expected}"
 
     @classmethod
-    def assert_that(cls, func, actual, expected=None, that="", error=None):
-        """
-
-        :param func:
-        :param actual:
-        :param expected:
-        :param that:
-        :param error:
-        """
+    def assert_that(
+        cls,
+        func: t.Callable,
+        actual: t.Any,
+        expected: t.Optional[t.Any] = None,
+        that: str = "",
+        error: t.Optional[str] = None,
+    ):
         assert func(actual, expected), error or cls.assert_fail_message.format(
             that=that, actual=actual, expected=expected
         )
 
     @classmethod
-    def assert_true(cls, actual, error=None):
+    def assert_true(cls, actual, error: t.Optional[str] = None):
         cls.assert_that(
             lambda a, _: bool(a) is True,
             error=error,
@@ -33,7 +36,7 @@ class BaseAssert:
         )
 
     @classmethod
-    def assert_false(cls, actual, error=None):
+    def assert_false(cls, actual, error: t.Optional[str] = None):
         cls.assert_that(
             lambda a, _: bool(a) is False,
             error=error,
@@ -42,7 +45,7 @@ class BaseAssert:
         )
 
     @classmethod
-    def assert_none(cls, actual, error=None):
+    def assert_none(cls, actual, error: t.Optional[str] = None):
         cls.assert_that(
             lambda a, _: a is None,
             error=error,
@@ -51,7 +54,7 @@ class BaseAssert:
         )
 
     @classmethod
-    def assert_equals(cls, actual, expected, error=None):
+    def assert_equals(cls, actual, expected, error: t.Optional[str] = None):
         cls.assert_that(
             lambda a, e: a == e,
             error=error,
@@ -61,7 +64,7 @@ class BaseAssert:
         )
 
     @classmethod
-    def assert_different(cls, actual, expected, error=None):
+    def assert_different(cls, actual, expected, error: t.Optional[str] = None):
         cls.assert_that(
             lambda a, e: a != e,
             error=error,
@@ -71,7 +74,7 @@ class BaseAssert:
         )
 
     @classmethod
-    def assert_in(cls, actual, expected, error=None):
+    def assert_in(cls, actual, expected, error: t.Optional[str] = None):
         cls.assert_that(
             lambda a, e: a in e,
             error=error,
@@ -81,7 +84,7 @@ class BaseAssert:
         )
 
     @classmethod
-    def assert_not_in(cls, actual, expected, error=None):
+    def assert_not_in(cls, actual, expected, error: t.Optional[str] = None):
         cls.assert_that(
             lambda a, e: a not in e,
             error=error,
@@ -91,7 +94,7 @@ class BaseAssert:
         )
 
     @classmethod
-    def assert_range(cls, actual, expected, error=None):
+    def assert_range(cls, actual, expected, error: t.Optional[str] = None):
         cls.assert_that(
             lambda a, e: e[0] <= a <= e[1],
             error=error,
@@ -101,7 +104,7 @@ class BaseAssert:
         )
 
     @classmethod
-    def assert_greater(cls, actual, expected, error=None):
+    def assert_greater(cls, actual, expected, error: t.Optional[str] = None):
         cls.assert_that(
             lambda a, e: a > e,
             error=error,
@@ -111,7 +114,7 @@ class BaseAssert:
         )
 
     @classmethod
-    def assert_less(cls, actual, expected, error=None):
+    def assert_less(cls, actual, expected, error: t.Optional[str] = None):
         cls.assert_that(
             lambda a, e: a < e,
             error=error,
@@ -121,7 +124,7 @@ class BaseAssert:
         )
 
     @classmethod
-    def assert_allin(cls, actual, expected, error=None):
+    def assert_allin(cls, actual, expected, error: t.Optional[str] = None):
         cls.assert_that(
             lambda a, e: all(i in a for i in e),
             error=error,
@@ -131,7 +134,7 @@ class BaseAssert:
         )
 
     @classmethod
-    def assert_type(cls, actual, expected, error=None):
+    def assert_type(cls, actual, expected, error: t.Optional[str] = None):
         cls.assert_that(
             isinstance,
             error=error,
@@ -143,14 +146,7 @@ class BaseAssert:
 
 class JSONValidatorMixin(BaseAssert, JSONSchema):
     @classmethod
-    def assert_schema(cls, data, schema, strict=True):
-        """
-
-        :param data:
-        :param schema:
-        :param strict:
-        :return:
-        """
+    def assert_schema(cls, data: dict, schema: t.Union[dict, str], strict: bool = True):
         cls.assert_different(JSONSchema, object, error="you must install jsonschema")
         if strict and not schema:
             cls.assert_that(
@@ -171,14 +167,9 @@ class JSONValidatorMixin(BaseAssert, JSONSchema):
 
 class RegexMixin(BaseAssert):
     @classmethod
-    def regex_find(cls, data, pattern, index=None):
-        """
-
-        :param data:
-        :param pattern:
-        :param index:
-        :return:
-        """
+    def regex_find(
+        cls, data: str, pattern: t.Pattern, index: t.Optional[int] = None
+    ) -> t.Optional[t.Union[t.List[str], str]]:
         occ = re.findall(pattern, data)
         if index is not None:
             if len(occ) > index:
@@ -187,23 +178,11 @@ class RegexMixin(BaseAssert):
         return occ
 
     @classmethod
-    def regex_match(cls, data, pattern):
-        """
-
-        :param data:
-        :param pattern:
-        :return:
-        """
+    def regex_match(cls, data: str, pattern: t.Pattern) -> bool:
         return bool(re.search(pattern, data))
 
     @classmethod
-    def assert_match(cls, actual, expected, error=None):
-        """
-
-        :param actual:
-        :param expected:
-        :param error:
-        """
+    def assert_match(cls, actual, expected, error: t.Optional[str] = None):
         cls.assert_that(
             cls.regex_match,
             error=error,
@@ -214,18 +193,14 @@ class RegexMixin(BaseAssert):
 
     @classmethod
     def assert_occurrence(
-        cls, actual, expected, occurrence, error=None, greater=False, less=False
+        cls,
+        actual,
+        expected,
+        occurrence: int,
+        error: t.Optional[str] = None,
+        greater: bool = False,
+        less: bool = False,
     ):
-        """
-
-        :param actual:
-        :param expected:
-        :param occurrence:
-        :param error:
-        :param greater:
-        :param less:
-        """
-
         def find_all(a, e):
             tmp = len(cls.regex_find(a, e))
             if greater:
@@ -251,17 +226,14 @@ class RegexMixin(BaseAssert):
 class HttpAsserter(RegexMixin):
     @classmethod
     def assert_status_code(
-        cls, response, code=200, in_range=False, is_in=False, greater=False, less=False
+        cls,
+        response,
+        code: int = httpcode.SUCCESS,
+        in_range: bool = False,
+        is_in: bool = False,
+        greater: bool = False,
+        less: bool = False,
     ):
-        """
-
-        :param response:
-        :param code:
-        :param in_range:
-        :param is_in:
-        :param greater:
-        :param less
-        """
         status_code = response.status_code or response.status
         if type(code) in (list, tuple):
             if in_range is True:
@@ -282,15 +254,14 @@ class HttpAsserter(RegexMixin):
                 cls.assert_equals(status_code, code)
 
     @classmethod
-    def assert_header(cls, response, name, value=None, is_in=False, regex=None):
-        """
-
-        :param response:
-        :param name:
-        :param value:
-        :param is_in:
-        :param regex:
-        """
+    def assert_header(
+        cls,
+        response,
+        name: str,
+        value: t.Optional[str] = None,
+        is_in: bool = False,
+        regex: t.Optional[t.Pattern] = None,
+    ):
         header = response.headers.get(name)
         if is_in is True and value is not None:
             cls.assert_in(value, header)
@@ -302,7 +273,7 @@ class HttpAsserter(RegexMixin):
             else:
                 cls.assert_equals(value, header)
 
-    def assert_headers(self, response, headers):
+    def assert_headers(self, response, headers: dict):
         """
 
         :param response:
@@ -313,9 +284,19 @@ class HttpAsserter(RegexMixin):
             self.assert_header(response, name=k, **v)
 
     @classmethod
-    def assert_content_type(cls, response, value=None, is_in=True, regex=None):
+    def assert_content_type(
+        cls,
+        response,
+        value: t.Optional[str] = None,
+        is_in: bool = True,
+        regex: t.Optional[t.Pattern] = None,
+    ):
         cls.assert_header(
-            response, name="Content-Type", value=value, is_in=is_in, regex=regex
+            response,
+            name=HeaderEnum.CONTENT_TYPE,
+            value=value,
+            is_in=is_in,
+            regex=regex,
         )
 
 
