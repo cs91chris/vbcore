@@ -260,13 +260,13 @@ class HttpAsserter(RegexMixin):
         name: str,
         value: t.Optional[str] = None,
         is_in: bool = False,
-        regex: t.Optional[t.Pattern] = None,
+        regex: bool = False,
     ):
         header = response.headers.get(name)
         if is_in is True and value is not None:
             cls.assert_in(value, header)
-        elif regex is not None:
-            cls.assert_match(value, header)
+        elif regex is True:
+            cls.assert_match(header, value)
         else:
             if is_in is True:
                 cls.assert_in(name, response.headers)
@@ -289,7 +289,7 @@ class HttpAsserter(RegexMixin):
         response,
         value: t.Optional[str] = None,
         is_in: bool = True,
-        regex: t.Optional[t.Pattern] = None,
+        regex: bool = False,
     ):
         cls.assert_header(
             response,

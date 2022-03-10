@@ -14,8 +14,8 @@ def basic_auth_header(username: str, password: str) -> t.Dict[str, str]:
     return dict(Authorization=f"Basic {token}")
 
 
-def build_url(url: str, **params) -> t.Tuple[str, t.Optional[str]]:
+def build_url(url: str, **params) -> t.Tuple[str, str]:
     args = "&".join([f"{k}={v}" for k, v in params.items()])
     if args:
         return f"{url}?{args}", args
-    return url, None
+    return url, ""

@@ -32,6 +32,8 @@ class ContentTypeEnum(StrEnum):
     JSON_PROBLEM = f"{TypeEnum.APPLICATION}/problem+json"
     XML_PROBLEM = f"{TypeEnum.APPLICATION}/problem+xml"
     JSON_HEALTH = f"{TypeEnum.APPLICATION}/health+json"
+    FORM_DATA = "multipart/form-data"
+    FORM_URLENCODED = f"{TypeEnum.APPLICATION}/x-www-form-urlencoded"
 
 
 class HeaderEnum(IStrEnum):
