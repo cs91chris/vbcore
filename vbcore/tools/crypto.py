@@ -3,7 +3,7 @@ import click
 from vbcore.crypto.argon import Argon2
 
 HASHERS = {
-    "argon2": Argon2,
+    "argon2": Argon2(),
 }
 HASHERS_CHOICE = click.Choice(list(HASHERS.keys()))
 

@@ -16,11 +16,13 @@ PACKAGE_DATA = True
 
 PKG_NAME = "vbcore"
 PKG_TEST = "tests"
-PKG_SCRIPTS = f"{PKG_NAME}.scripts"
+PKG_SCRIPTS = f"{PKG_NAME}.tools"
 EXCLUDE_FILES: t.List = []
 
 ENTRY_POINTS: t.Dict[str, t.List[str]] = {
-    "console_scripts": [],
+    "console_scripts": [
+        f"{PKG_NAME}={PKG_SCRIPTS}.entrypoint:main",
+    ],
 }
 
 BASE_PATH = os.path.dirname(__file__)
