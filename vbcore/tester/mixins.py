@@ -273,7 +273,8 @@ class HttpAsserter(RegexMixin):
             else:
                 cls.assert_equals(value, header)
 
-    def assert_headers(self, response, headers: dict):
+    @classmethod
+    def assert_headers(cls, response, headers: t.Dict[str, t.Union[dict, t.Any]]):
         """
 
         :param response:
@@ -281,7 +282,10 @@ class HttpAsserter(RegexMixin):
         :return:
         """
         for k, v in headers.items():
-            self.assert_header(response, name=k, **v)
+            if isinstance(v, dict):
+                cls.assert_header(response, name=k, **v)
+            else:
+                cls.assert_header(response, name=k, value=str(v))
 
     @classmethod
     def assert_content_type(

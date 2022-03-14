@@ -39,7 +39,7 @@ class CatalogMixin(BaseMixin):
 
 
 class UserMixin(StandardMixin):
-    _hasher_class: t.Type[Hasher] = Argon2
+    _hasher: Hasher = Argon2()
     _password = sa.Column("password", sa.String(128), nullable=False)
 
     email = sa.Column(sa.String(255), unique=True, nullable=False)
@@ -50,10 +50,10 @@ class UserMixin(StandardMixin):
 
     @password.setter
     def password(self, password):
-        self._password = self._hasher_class().hash(password)
+        self._password = self._hasher.hash(password)
 
     def check_password(self, password):
-        return self._hasher_class().verify(self._password, password)
+        return self._hasher.verify(self._password, password)
 
 
 class ExtraMixin(BaseMixin):
@@ -67,5 +67,5 @@ class ExtraMixin(BaseMixin):
     @extra.setter
     def extra(self, value: t.Optional[t.Dict[str, t.Any]]):
         self._extra = None
-        if value:
+        if value is not None:
             self._extra = self._json_class.dumps(value)

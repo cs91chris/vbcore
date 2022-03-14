@@ -18,75 +18,45 @@ except ImportError:
 
 
 class SetsEncoderMixin(json.JSONEncoder):
-    """
-    Encoders for: set, frozenset
-    """
-
     def default(self, o, *_, **__):
         if isinstance(o, (set, frozenset)):
             return list(o)
-
         return super().default(o)
 
 
 class BytesEncoderMixin(json.JSONEncoder):
-    """
-    Encoders for: bytes, bytearray
-    """
-
     def default(self, o, *_, **__):
         if isinstance(o, (bytes, bytearray)):
             return o.decode()
-
         return super().default(o)
 
 
 class BuiltinEncoderMixin(BytesEncoderMixin, SetsEncoderMixin):
-    """
-    Encoders for: Enum, Decimal
-    Extends: BytesEncoderMixin, SetsEncoderMixin
-    """
-
     def default(self, o, *_, **__):
         if isinstance(o, Enum):
             return o.value
         if isinstance(o, Decimal):
             return float(o)
-
         return super().default(o)
 
 
 class DateTimeEncoderMixin(json.JSONEncoder):
-    """
-    Encoders for: datetime, date, time, timedelta
-    """
-
     def default(self, o, *_, **__):
         if isinstance(o, (datetime.datetime, datetime.date, datetime.time)):
             return o.isoformat()
         if isinstance(o, datetime.timedelta):
             return o.total_seconds()
-
         return super().default(o)
 
 
 class TypesEncoderMixin(json.JSONEncoder):
-    """
-    Encoders for: types
-    """
-
     def default(self, o, *_, **__):
         if isinstance(o, SimpleNamespace):
             return o.__dict__
-
         return super().default(o)
 
 
 class CollectionsEncoderMixin(json.JSONEncoder):
-    """
-    Encoders for: collections
-    """
-
     def default(self, o, *_, **__):
         if isinstance(o, deque):
             return list(o)
@@ -102,25 +72,28 @@ class CollectionsEncoderMixin(json.JSONEncoder):
         return super().default(o)
 
 
-class ExtraEncoderMixin(json.JSONEncoder):
-    """
-    Encoders for: UUID, ObjectId and object with methods: to_dict, asdict
-    """
-
+class HexUUIDMixin(json.JSONEncoder):
     def default(self, o, *_, **__):
         if isinstance(o, uuid.UUID):
             return o.hex
+        return super().default(o)
+
+
+class ObjectIdMixin(json.JSONEncoder):
+    def default(self, o, *_, **__):
         if isinstance(o, ObjectId):
             return {"$oid": str(o)}
-        try:
-            return o.asdict()
-        except (AttributeError, TypeError):
-            pass
-        try:
-            return o.to_dict()
-        except (AttributeError, TypeError):
-            pass
+        return super().default(o)
 
+
+class DictableMethodMixin(json.JSONEncoder):
+    methods = ("to_dict", "asdict", "dict", "as_dict", "todict")
+
+    def default(self, o, *_, **__):
+        for name in self.methods:
+            method = getattr(o, name, None)
+            if method is not None:
+                return method()
         return super().default(o)
 
 
@@ -129,7 +102,9 @@ class JsonEncoder(
     DateTimeEncoderMixin,
     TypesEncoderMixin,
     CollectionsEncoderMixin,
-    ExtraEncoderMixin,
+    HexUUIDMixin,
+    ObjectIdMixin,
+    DictableMethodMixin,
 ):
     """
     Extends all encoders provided with this module
@@ -158,9 +133,9 @@ class JsonISODateDecoder(JsonObjectDecoderMixin):
             try:
                 return datetime.datetime.strptime(value, cls.ISO_FORMAT)
             except (TypeError, ValueError):
-                pass
+                return value
 
-        return value
+        return super().custom_object_hook(value)
 
 
 class JsonObjectIdDecoder(JsonObjectDecoderMixin):
@@ -192,10 +167,9 @@ class JsonDecoder(
         # noinspection PyBroadException
         try:
             data = super().custom_object_hook(data)
-            data = {k: super().custom_field_hook(v) for k, v in data.items()}
+            return {k: super().custom_field_hook(v) for k, v in data.items()}
         except Exception:  # pylint: disable=broad-except
-            pass
-        return data
+            return data
 
 
 def dumps(data, *args, **kwargs):
@@ -204,5 +178,5 @@ def dumps(data, *args, **kwargs):
 
 
 def loads(data, *args, **kwargs):
-    kwargs.setdefault("object_hook", JsonDecoder.custom_object_hook)
+    kwargs.setdefault("cls", JsonDecoder)
     return json.loads(data, *args, **kwargs)
