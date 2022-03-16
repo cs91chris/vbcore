@@ -28,11 +28,12 @@ class FetchMail(HTTPClient):
     def fetch(self, recipient: str, subject: str) -> t.List[ObjectDict]:
         response = []
         resp = self.request("/", raise_on_exc=True)
-        for d in resp.body.data:
-            if recipient in d.recipients_envelope:
-                if subject and d.subject != subject:
+        emails = resp.body.data if isinstance(resp.body, ObjectDict) else resp
+        for email in emails:
+            if recipient in email.recipients_envelope:
+                if subject and email.subject != subject:
                     continue
-                response.append(d)
+                response.append(email)
 
         return response
 

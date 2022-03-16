@@ -1,10 +1,8 @@
 import pytest
-import responses
-
 from vbcore.datastruct import ObjectDict
 from vbcore.http import httpcode, useragent, HttpMethod, WebDavMethod
-from vbcore.http.client import HTTPClient
 from vbcore.http.headers import ContentTypeEnum, HeaderEnum
+from vbcore.tester.helpers import do_not_dump_long_string
 from vbcore.tester.mixins import Asserter
 
 
@@ -20,49 +18,10 @@ def test_http_status():
     Asserter.assert_false(httpcode.is_server_error(httpcode.NOT_MODIFIED))
     Asserter.assert_true(httpcode.is_ok(httpcode.FOUND))
     Asserter.assert_false(httpcode.is_ko(httpcode.SUCCESS))
-    Asserter.assert_status_code(
-        ObjectDict(status=201), code=(201, 202, 203), is_in=True
-    )
+    Asserter.assert_status_code(ObjectDict(status=201), code=(201, 203), is_in=True)
     Asserter.assert_status_code(ObjectDict(status=201), code=(200, 299), in_range=True)
     Asserter.assert_status_code(ObjectDict(status=400), code=300, greater=True)
     Asserter.assert_status_code(ObjectDict(status=200), code=300, less=True)
-
-
-@responses.activate
-@pytest.mark.parametrize(
-    "method, match_method",
-    [
-        ("get", responses.GET),
-        ("post", responses.POST),
-        ("put", responses.PUT),
-        ("patch", responses.PATCH),
-        ("delete", responses.DELETE),
-        ("head", responses.HEAD),
-        ("options", responses.OPTIONS),
-    ],
-)
-def test_http_client(method, match_method):
-    params = {"a": "1", "b": "1"}
-    responses.add(
-        match_method,
-        match=(responses.matchers.query_param_matcher(params),),
-        url="http://fake.endpoint/url",
-        status=httpcode.BAD_REQUEST,
-        json={},
-        headers={"hdr": "value"},
-    )
-    client = HTTPClient(endpoint="http://fake.endpoint")
-    client_method = getattr(client, method)
-    response = client_method("/url", params=params)
-    Asserter.assert_status_code(response, httpcode.BAD_REQUEST)
-    Asserter.assert_equals(response.body, {})
-    Asserter.assert_header(response, "hdr", "value")
-
-
-def do_not_dump_long_string(x):
-    if x and len(x) < 20:
-        return x
-    return "None" if not x else ""
 
 
 @pytest.mark.parametrize(

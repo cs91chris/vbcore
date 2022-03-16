@@ -24,9 +24,9 @@ class JSONSchema:
     message_format = "{message}\nError in line {line}:\n{report}\n{message}"
 
     @classmethod
-    def load_from_url(cls, url: str) -> dict:
+    def load_from_url(cls, url: str) -> ObjectDict:
         res = HTTPClient(url, raise_on_exc=True).get(url)
-        return res.body
+        return t.cast(ObjectDict, res.body)
 
     @classmethod
     def load_from_file(cls, file: str, encoding: str = "utf-8", **kwargs) -> dict:

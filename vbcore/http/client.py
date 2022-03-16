@@ -1,152 +1,137 @@
 import logging
+import typing as t
 
+from requests import auth, exceptions as http_exc, request as send_request, Response
 from vbcore.datastruct import ObjectDict
+from vbcore.http.headers import HeaderEnum
 from vbcore.uuid import get_uuid
+
 from . import httpcode
 from .httpdumper import LazyHTTPDumper
 from .methods import HttpMethod
-
-try:
-    from requests import auth
-    from requests import exceptions as http_exc
-    from requests import request as send_request
-except ImportError as _exc:
-    raise ImportError("you must install 'requests'") from _exc
 
 HTTPStatusError = (http_exc.HTTPError,)
 NetworkError = (http_exc.ConnectionError, http_exc.Timeout)
 all_errors = (*HTTPStatusError, *NetworkError)
 
+DumpBodyType = t.Union[bool, t.Tuple[bool, bool]]
+
+
+class ResponseData(ObjectDict):
+    def __init__(
+        self,
+        body: t.Union[ObjectDict, t.Iterable, Response],
+        status: int,
+        headers: t.Optional[t.Dict[str, str]] = None,
+        exception: t.Optional[Exception] = None,
+    ):
+        super().__init__()
+        self.body = body
+        self.status = status
+        self.headers = headers
+        self.exception = exception
+
 
 class HTTPTokenAuth(auth.AuthBase):
-    def __init__(self, token, token_type=None):
-        """
-
-        :param token:
-        """
+    def __init__(self, token: str, token_type: t.Optional[str] = None):
         self.token = token
         self.token_type = token_type or "Bearer"
 
     def __eq__(self, other):
-        """
-
-        :param other:
-        :return:
-        """
         return self.token == getattr(other, "token", None)  # pragma: no cover
 
     def __ne__(self, other):
-        """
-
-        :param other:
-        :return:
-        """
         return not self == other  # pragma: no cover
 
-    def __call__(self, r):
-        """
-
-        :param r:
-        :return:
-        """
-        r.headers["Authorization"] = f"{self.token_type} {self.token}"
-        return r
+    def __call__(self, response):
+        response.headers["Authorization"] = f"{self.token_type} {self.token}"
+        return response
 
 
 class HTTPBase(LazyHTTPDumper):
-    def __init__(self, dump_body=False, timeout=10, raise_on_exc=False, logger=None):
-        """
-
-        :param dump_body:
-        :param timeout:
-        :param raise_on_exc:
-        :param logger:
-        """
-        self._dump_body = self._normalize_dump_flag(dump_body)
+    def __init__(
+        self,
+        endpoint: str,
+        dump_body: DumpBodyType = False,
+        timeout: int = 10,
+        raise_on_exc: bool = False,
+        logger=None,
+    ):
         self._timeout = timeout
+        self._endpoint = endpoint
         self._raise_on_exc = raise_on_exc
+        self._dump_body = self._normalize_dump_flag(dump_body)
         self._logger = logger or logging.getLogger(self.__module__)
 
     @staticmethod
-    def _normalize_dump_flag(dump_body):
+    def _normalize_dump_flag(
+        dump_body: t.Optional[DumpBodyType] = None,
+    ) -> t.Tuple[bool, bool]:
         if isinstance(dump_body, bool):
             return dump_body, dump_body
         if not dump_body:
             return False, False
         return dump_body
 
-    def request(self, uri, dump_body=None, **kwargs):
-        """
+    def normalize_url(self, url: str) -> str:
+        if url.startswith("http"):
+            return url
 
-        :param uri:
-        :param dump_body:
-        :param kwargs:
-        """
+        return f"{self._endpoint}/{url.lstrip('/')}"
+
+    def request(
+        self,
+        uri: str,
+        method: str = HttpMethod.GET,
+        dump_body: t.Optional[DumpBodyType] = None,
+        raise_on_exc: bool = False,
+        **kwargs,
+    ) -> ResponseData:
         raise NotImplementedError  # pragma: no cover
 
 
 class HTTPClient(HTTPBase):
-    def __init__(self, endpoint, token=None, username=None, password=None, **kwargs):
-        """
-
-        :param endpoint:
-        :param token:
-        :param username:
-        :param password:
-        """
-        super().__init__(**kwargs)
-        self._endpoint = endpoint
+    def __init__(
+        self,
+        endpoint: str,
+        token: t.Optional[str] = None,
+        username: t.Optional[str] = None,
+        password: t.Optional[str] = None,
+        **kwargs,
+    ):
+        super().__init__(endpoint, **kwargs)
         self._username = username
         self._password = password
         self._token = token
 
-    def get_auth(self):
-        """
-
-        :return:
-        """
+    def get_auth(self) -> t.Optional[auth.AuthBase]:
         if self._username and self._password:
             return auth.HTTPBasicAuth(self._username, self._password)
         if self._token:
             return HTTPTokenAuth(self._token)
         return None
 
-    def normalize_url(self, url):
-        if url.startswith("http"):
-            return url
-
-        return f"{self._endpoint}/{url.lstrip('/')}"
-
     @staticmethod
     def prepare_response(
-        body=None, status=httpcode.SUCCESS, headers=None, exception=None
-    ):
-        return ObjectDict(
-            body=body or {}, status=status, headers=headers or {}, exception=exception
+        body: t.Optional[t.Any] = None,
+        status: int = httpcode.SUCCESS,
+        headers: t.Optional[t.Dict[str, str]] = None,
+        exception: t.Optional[Exception] = None,
+    ) -> ResponseData:
+        return ResponseData(
+            body=body, status=status, headers=headers or {}, exception=exception
         )
 
     def request(
         self,
-        uri,
-        method=HttpMethod.GET,
-        raise_on_exc=False,
-        dump_body=None,
-        chunk_size=None,
-        decode_unicode=False,
+        uri: str,
+        method: str = HttpMethod.GET,
+        dump_body: t.Optional[DumpBodyType] = None,
+        raise_on_exc: bool = False,
         **kwargs,
-    ):  # pylint: disable=arguments-differ
-        """
-
-        :param uri:
-        :param method:
-        :param raise_on_exc:
-        :param dump_body:
-        :param chunk_size:
-        :param decode_unicode:
-        :param kwargs:
-        :return:
-        """
+    ) -> ResponseData:
         kwargs["auth"] = self.get_auth()
+
         if dump_body is None:
             dump_body = self._dump_body
         else:
@@ -179,47 +164,42 @@ class HTTPClient(HTTPBase):
             if raise_on_exc or self._raise_on_exc:
                 raise
 
+        body: t.Any = response.text
         if kwargs.get("stream") is True:
+            chunk_size = kwargs.pop("chunk_size", None)
+            decode_unicode = kwargs.pop("decode_unicode", False)
             body = response.iter_content(chunk_size, decode_unicode)
-        elif "json" in (response.headers.get("Content-Type") or ""):
+        elif "json" in (response.headers.get(HeaderEnum.CONTENT_TYPE) or ""):
             body = response.json()
-        else:
-            body = response.text
 
         return self.prepare_response(
             body=body, status=response.status_code, headers=dict(response.headers)
         )
 
-    def get(self, uri, **kwargs):
+    def get(self, uri: str, **kwargs) -> ResponseData:
         return self.request(uri, **kwargs)
 
-    def post(self, uri, **kwargs):
+    def post(self, uri: str, **kwargs) -> ResponseData:
         return self.request(uri, method=HttpMethod.POST, **kwargs)
 
-    def put(self, uri, **kwargs):
+    def put(self, uri: str, **kwargs) -> ResponseData:
         return self.request(uri, method=HttpMethod.PUT, **kwargs)
 
-    def patch(self, uri, **kwargs):
+    def patch(self, uri: str, **kwargs) -> ResponseData:
         return self.request(uri, method=HttpMethod.PATCH, **kwargs)
 
-    def delete(self, uri, **kwargs):
+    def delete(self, uri: str, **kwargs) -> ResponseData:
         return self.request(uri, method=HttpMethod.DELETE, **kwargs)
 
-    def options(self, uri, **kwargs):
+    def options(self, uri: str, **kwargs) -> ResponseData:
         return self.request(uri, method=HttpMethod.OPTIONS, **kwargs)
 
-    def head(self, uri, **kwargs):
+    def head(self, uri: str, **kwargs) -> ResponseData:
         return self.request(uri, method=HttpMethod.HEAD, **kwargs)
 
 
 class JsonRPCClient(HTTPClient):
     def __init__(self, endpoint, uri, version="2.0", **kwargs):
-        """
-
-        :param endpoint:
-        :param uri:
-        :param version:
-        """
         super().__init__(endpoint, raise_on_exc=True, **kwargs)
         self._uri = uri
         self._version = version
@@ -227,43 +207,19 @@ class JsonRPCClient(HTTPClient):
 
     @property
     def request_id(self):
-        """
-
-        :return:
-        """
         return self._request_id
 
     def request(
         self, method, request_id=None, **kwargs
     ):  # pylint: disable=arguments-differ
-        """
-
-        :param method:
-        :param request_id:
-        :param kwargs:
-        :return:
-        """
         self._request_id = request_id or get_uuid()
         return self._request(method, **kwargs)
 
     def notification(self, method, **kwargs):
-        """
-
-        :param method:
-        :param kwargs:
-        :return:
-        """
         self._request_id = None
         return self._request(method, **kwargs)
 
     def _request(self, method, params=None, **kwargs):
-        """
-
-        :param method:
-        :param params:
-        :param kwargs:
-        :return:
-        """
         kwargs.setdefault("raise_on_exc", True)
         resp = super().request(
             self._uri,

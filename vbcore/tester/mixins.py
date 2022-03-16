@@ -228,7 +228,7 @@ class HttpAsserter(RegexMixin):
     def assert_status_code(
         cls,
         response,
-        code: int = httpcode.SUCCESS,
+        code: t.Union[int, t.Iterable[int]] = httpcode.SUCCESS,
         in_range: bool = False,
         is_in: bool = False,
         greater: bool = False,

@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from vbcore.datastruct import ObjectDict
 from vbcore.http import httpcode, HttpMethod
 from vbcore.http.client import HTTPBase, HTTPClient, JsonRPCClient
+from vbcore.http.headers import HeaderEnum, ContentTypeEnum
 from vbcore.http.rpc import rpc_error_to_httpcode
 
 
@@ -53,9 +54,8 @@ class ProxyRequest(ABC):
     client_class: t.Type[HTTPBase] = HTTPClient
 
     @property
-    @classmethod
     @abstractmethod
-    def request_dto(cls) -> t.Type[IncomingRequestData]:
+    def request_dto(self) -> t.Type[IncomingRequestData]:
         ...
 
     def __init__(
@@ -140,8 +140,8 @@ class ProxyRequest(ABC):
 
 
 class JsonRPCProxyRequest(ProxyRequest, ABC):
-    request_id_header: str = "X-Request-Id"
-    response_content_type: str = "application/json"
+    request_id_header: str = HeaderEnum.X_REQUEST_ID
+    response_content_type: str = ContentTypeEnum.JSON
     client_class: t.Type[JsonRPCClient] = JsonRPCClient
 
     def __init__(self, *args, **kwargs):
@@ -174,7 +174,10 @@ class JsonRPCProxyRequest(ProxyRequest, ABC):
         self, resp: t.Optional[ObjectDict] = None, **kwargs
     ) -> Response:
         body = resp
-        headers = {"Content-Type": self.response_content_type, **kwargs}
+        headers: t.Dict[str, str] = {
+            HeaderEnum.CONTENT_TYPE: self.response_content_type,
+            **kwargs,
+        }
         status = httpcode.NO_CONTENT if resp is None else httpcode.SUCCESS
 
         if resp and resp.error is not None:

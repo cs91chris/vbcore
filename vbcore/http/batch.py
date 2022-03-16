@@ -1,55 +1,46 @@
 import asyncio
+import typing as t
 
-try:
-    import aiohttp
-except ImportError:
-    aiohttp = None  # type: ignore
+import aiohttp
 
 from vbcore.batch import AsyncBatchExecutor
 from vbcore.datastruct import ObjectDict
-from .client import HTTPBase, httpcode
+from . import HttpMethod
+from .client import HTTPBase, httpcode, DumpBodyType, ResponseData
 
 
 class HTTPBatch(HTTPBase, AsyncBatchExecutor):
-    def __init__(self, conn_timeout=10, read_timeout=10, **kwargs):
-        """
-
-        :param conn_timeout:
-        :param read_timeout:
-        :param kwargs:
-        """
-        assert aiohttp is not None, "You myst install 'aiohttp"
-
-        HTTPBase.__init__(self, **kwargs)
+    def __init__(
+        self,
+        endpoint: str,
+        dump_body: DumpBodyType = False,
+        timeout: int = 10,
+        raise_on_exc: bool = False,
+        logger=None,
+    ):
+        HTTPBase.__init__(self, endpoint, dump_body, timeout, raise_on_exc, logger)
         AsyncBatchExecutor.__init__(self, return_exceptions=not self._raise_on_exc)
-        self._timeout = aiohttp.ClientTimeout(
-            sock_read=read_timeout, sock_connect=conn_timeout
-        )
 
-    async def http_request(self, dump_body=None, timeout=None, **kwargs):
-        """
-
-        :param dump_body:
-        :param timeout:
-        :param kwargs:
-        :return:
-        """
+    async def http_request(
+        self,
+        dump_body: t.Optional[DumpBodyType] = None,
+        timeout: t.Optional[int] = None,
+        **kwargs,
+    ) -> ResponseData:
         if dump_body is None:
             dump_body = self._dump_body
         else:
             dump_body = self._normalize_dump_flag(dump_body)
-
-        if timeout is None:
-            timeout = self._timeout
-        elif not isinstance(timeout, aiohttp.ClientTimeout):
-            timeout = aiohttp.ClientTimeout(sock_read=timeout, sock_connect=timeout)
 
         try:
             self._logger.info(
                 "%s", self.dump_request(ObjectDict(**kwargs), dump_body[0])
             )
             async with aiohttp.ClientSession(
-                timeout=timeout
+                timeout=aiohttp.ClientTimeout(
+                    sock_read=timeout or self._timeout,
+                    sock_connect=timeout or self._timeout,
+                )
             ) as session, session.request(**kwargs) as resp:
                 try:
                     body = await resp.json()
@@ -57,10 +48,10 @@ class HTTPBatch(HTTPBase, AsyncBatchExecutor):
                     body = await resp.text()
 
                 try:
-                    response = ObjectDict(
+                    response = ResponseData(
                         body=body,
                         status=resp.status,
-                        headers=dict(resp.headers.items()),
+                        headers=dict(**resp.headers),
                     )
                     log_resp = response
                     log_resp.text = response.body
@@ -82,18 +73,13 @@ class HTTPBatch(HTTPBase, AsyncBatchExecutor):
             if self._raise_on_exc is True:
                 raise  # pragma: no cover
 
-            return ObjectDict(
+            return ResponseData(
                 body={}, status=httpcode.SERVICE_UNAVAILABLE, headers={}, exception=exc
             )
 
     def request(self, requests, **kwargs):  # pylint: disable=arguments-differ
-        """
-
-        :param requests:
-        :return:
-        """
-        for r in requests:
-            r.setdefault("method", "GET")
-            self._tasks.append((self.http_request, r))
+        for req in requests:
+            req.setdefault("method", HttpMethod.GET)
+            self._tasks.append((self.http_request, req))
 
         return self.run()

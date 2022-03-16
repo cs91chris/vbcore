@@ -19,3 +19,9 @@ def build_url(url: str, **params) -> t.Tuple[str, str]:
     if args:
         return f"{url}?{args}", args
     return url, ""
+
+
+def do_not_dump_long_string(field: str):
+    if field and len(field) < 20:
+        return field
+    return "None" if not field else ""
