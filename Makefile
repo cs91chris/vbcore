@@ -2,7 +2,6 @@ PACKAGE=vbcore
 LOG_LEVEL=DEBUG
 REQ_PATH=requirements
 export PIP_CONFIG_FILE=pip.conf
-COMPILE_OPTS=--no-emit-trusted-host --no-emit-index-url --build-isolation
 
 define bump_version
 	bumpversion -n $(1) --verbose
@@ -15,7 +14,9 @@ define copy_requirements
 endef
 
 define req_compile
-	pip-compile $(2) ${COMPILE_OPTS} -o ${REQ_PATH}/$(1).txt ${REQ_PATH}/$(1).in
+	pip-compile $(2) \
+		--no-emit-trusted-host --no-emit-index-url --build-isolation \
+		-o ${REQ_PATH}/$(1).txt ${REQ_PATH}/$(1).in
 endef
 
 

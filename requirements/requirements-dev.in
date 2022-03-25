@@ -13,6 +13,8 @@ bump2version
 pipdeptree
 mypy
 coloredlogs
+safety
+liccheck
 
 types-PyYAML
 types-python-dateutil

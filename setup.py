@@ -19,12 +19,6 @@ PKG_TEST = "tests"
 PKG_SCRIPTS = f"{PKG_NAME}.tools"
 EXCLUDE_FILES: t.List = []
 
-ENTRY_POINTS: t.Dict[str, t.List[str]] = {
-    "console_scripts": [
-        f"{PKG_NAME}={PKG_SCRIPTS}.entrypoint:main",
-    ],
-}
-
 BASE_PATH = os.path.dirname(__file__)
 VERSION_FILE = os.path.join(PKG_NAME, "version.py")
 
@@ -36,23 +30,52 @@ REQUIRES = [
     "pyyaml",
     "psutil",
 ]
-
-REQUIRES_ALL = REQUIRES + [
+REQUIRES_DB = [
+    *REQUIRES,
     "sqlalchemy",
     "sqlalchemy_schemadisplay",
+]
+REQUIRES_CRYPTO = [
+    *REQUIRES,
     "argon2-cffi",
+]
+REQUIRES_HTTP = [
+    *REQUIRES,
+    "aiohttp",
     "requests",
-    "jsonschema",
     "user_agents",
-    "pysocks",
 ]
 
-REQUIRES_TEST = REQUIRES_ALL + [
+REQUIRES_ALL = {
+    *REQUIRES_DB,
+    *REQUIRES_CRYPTO,
+    *REQUIRES_HTTP,
+    "jsonschema",
+    "pysocks",
+}
+
+REQUIRES_TEST = [
+    *REQUIRES_ALL,
     "responses",
     "coverage",
     "pytest",
     "pytest-cov",
+    "hypothesis",
 ]
+
+EXTRAS_REQUIRES = {
+    "db": REQUIRES_DB,
+    "crypto": REQUIRES_CRYPTO,
+    "http": REQUIRES_HTTP,
+    "all": REQUIRES_ALL,
+    "test": REQUIRES_TEST,
+}
+
+ENTRY_POINTS = {
+    "console_scripts": [
+        f"{PKG_NAME}={PKG_SCRIPTS}.entrypoint:main",
+    ],
+}
 
 
 try:
@@ -156,10 +179,7 @@ setup(
     entry_points=ENTRY_POINTS,
     test_suite=PKG_TEST,
     install_requires=REQUIRES,
-    extras_require={
-        "test": REQUIRES_TEST,
-        "all": REQUIRES_ALL,
-    },
+    extras_require=EXTRAS_REQUIRES,
     cmdclass=dict(test=PyTest),
     classifiers=[],
 )

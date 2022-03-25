@@ -5,5 +5,4 @@ coverage
 pytest
 pytest-cov
 responses
-safety
 hypothesis

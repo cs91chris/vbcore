@@ -17,17 +17,11 @@ charset-normalizer==2.0.12
     # via
     #   -c requirements/requirements-all.txt
     #   requests
-click==8.0.4
-    # via
-    #   -c requirements/requirements.txt
-    #   safety
 coverage[toml]==6.3.2
     # via
     #   -r requirements/requirements-test.in
     #   pytest-cov
-dparse==0.5.1
-    # via safety
-hypothesis==6.39.1
+hypothesis==6.39.4
     # via -r requirements/requirements-test.in
 idna==3.3
     # via
@@ -36,10 +30,7 @@ idna==3.3
 iniconfig==1.1.1
     # via pytest
 packaging==21.3
-    # via
-    #   dparse
-    #   pytest
-    #   safety
+    # via pytest
 pluggy==1.0.0
     # via pytest
 py==1.11.0
@@ -48,38 +39,26 @@ pyparsing==3.0.7
     # via
     #   -c requirements/requirements-all.txt
     #   packaging
-pytest==7.0.1
+pytest==7.1.1
     # via
     #   -r requirements/requirements-test.in
     #   pytest-cov
 pytest-cov==3.0.0
     # via -r requirements/requirements-test.in
-pyyaml==6.0
-    # via
-    #   -c requirements/requirements.txt
-    #   dparse
 requests==2.27.1
     # via
     #   -c requirements/requirements-all.txt
     #   responses
-    #   safety
-responses==0.18.0
-    # via -r requirements/requirements-test.in
-safety==1.10.3
+responses==0.20.0
     # via -r requirements/requirements-test.in
 sortedcontainers==2.4.0
     # via hypothesis
-toml==0.10.2
-    # via dparse
 tomli==2.0.1
     # via
     #   coverage
     #   pytest
-urllib3==1.26.8
+urllib3==1.26.9
     # via
     #   -c requirements/requirements-all.txt
     #   requests
     #   responses
-
-# The following packages are considered to be unsafe in a requirements file:
-# setuptools
