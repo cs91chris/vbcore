@@ -20,7 +20,7 @@ define req_compile
 endef
 
 
-all: clean lint security run-tox
+all: clean run-tox
 build-publish: build-dist pypi-publish
 lint: black flake pylint mypy
 security: safety liccheck
@@ -66,7 +66,7 @@ mypy:
 	mypy --install-types --non-interactive --no-strict-optional ${PACKAGE} sandbox tests
 
 run-tox:
-	tox --verbose -p all
+	tox --verbose --parallel all
 
 test:
 	PYTHONPATH=. pytest -v -rf --strict-markers \
