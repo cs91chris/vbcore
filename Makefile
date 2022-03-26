@@ -19,10 +19,14 @@ define req_compile
 		-o ${REQ_PATH}/$(1).txt ${REQ_PATH}/$(1).in
 endef
 
+define check_format
+	$(shell ([ "${FMT_ONLY_CHECK}" = "true" ] && echo --check || echo ""))
+endef
 
 all: clean run-tox
 build-publish: build-dist pypi-publish
-lint: black flake pylint mypy
+format: autoflake black isort
+lint: flake pylint mypy
 security: safety liccheck
 
 
@@ -53,11 +57,27 @@ clean:
 	find . -name '.pytest_cache' -prune -exec rm -rf {} \;
 	find ${PACKAGE} -name ".mypy_cache" -prune -exec rm -rf {} \;
 
+autoflake:
+	autoflake $(call check_format) \
+		--recursive --in-place \
+		--remove-all-unused-imports --ignore-init-module-imports \
+		--remove-duplicate-keys --remove-unused-variables \
+		vbcore tests setup.py
 black:
-	black -t py38 ${PACKAGE} sandbox tests setup.py
+	black $(call check_format) \
+		-t py38 --workers $(shell nproc) \
+		${PACKAGE} sandbox tests setup.py
+
+isort:
+	isort $(call check_format) \
+		--profile black -j $(shell nproc) --py 38 \
+		--atomic --overwrite-in-place \
+		--combine-star --combine-as --dont-float-to-top --honor-noqa \
+		--force-alphabetical-sort-within-sections --multi-line VERTICAL_HANGING_INDENT \
+		vbcore tests setup.py
 
 flake:
-	flake8 --config=.flake8 ${PACKAGE} sandbox tests setup.py --statistics
+	flake8 --config=.flake8 --statistics ${PACKAGE} sandbox tests setup.py
 
 pylint:
 	pylint --rcfile=.pylintrc ${PACKAGE} sandbox tests setup.py
@@ -90,15 +110,16 @@ liccheck:
 build-dist:
 	python setup.py sdist bdist_wheel
 
+build-cython:
+	python setup.py bdist_wheel --cythonize
+
 pypi-publish:
 	twine upload --verbose --skip-existing -u voidbrain dist/${PACKAGE}-*
 
-image-publish:
-	docker build --target ${PACKAGE}-38 -t voidbrain/${PACKAGE}-38:$${VERSION:-latest} .
-	docker push voidbrain/${PACKAGE}-38:$${VERSION:-latest}
-
-build-cython:
-	python setup.py bdist_wheel --cythonize
+image-build:
+	docker build --target ${PACKAGE}-38 -t voidbrain/${PACKAGE}:$${VERSION:-latest}-py38 .
+	docker build --target ${PACKAGE}-39 -t voidbrain/${PACKAGE}:$${VERSION:-latest}-py39 .
+	docker build --target ${PACKAGE}-310 -t voidbrain/${PACKAGE}:$${VERSION:-latest}-py310 .
 
 bump-build:
 	$(call bump_version,build)
