@@ -1,6 +1,7 @@
 import pytest
+
 from vbcore.datastruct import ObjectDict
-from vbcore.http import httpcode, useragent, HttpMethod, WebDavMethod
+from vbcore.http import httpcode, HttpMethod, useragent, WebDavMethod
 from vbcore.http.headers import ContentTypeEnum, HeaderEnum
 from vbcore.tester.helpers import do_not_dump_long_string
 from vbcore.tester.mixins import Asserter

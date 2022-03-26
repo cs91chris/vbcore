@@ -4,7 +4,7 @@ import smtplib
 import typing as t
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.utils import make_msgid, formatdate, parseaddr
+from email.utils import formatdate, make_msgid, parseaddr
 from smtplib import SMTP
 
 from email_validator import caching_resolver, validate_email, ValidatedEmail

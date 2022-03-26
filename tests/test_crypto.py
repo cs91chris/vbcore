@@ -1,6 +1,6 @@
 import string
 
-from hypothesis import given, strategies as st, settings
+from hypothesis import given, settings, strategies as st
 
 from vbcore.crypto.argon import Argon2
 from vbcore.tester.mixins import Asserter

@@ -18,8 +18,7 @@ import re
 import sys
 import typing as t
 
-from sqlalchemy import event
-from sqlalchemy import exc as sqla_exc
+from sqlalchemy import event, exc as sqla_exc
 from sqlalchemy.exc import DBAPIError
 
 from vbcore.db import exceptions

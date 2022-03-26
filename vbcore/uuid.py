@@ -1,5 +1,5 @@
-import uuid
 import typing as t
+import uuid
 
 
 def get_uuid(

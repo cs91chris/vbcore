@@ -1,12 +1,12 @@
 from vbcore.system import (
-    SysStats,
-    SwapStat,
-    NetStat,
-    MemoryStat,
-    CpuTimes,
     CpuFreq,
     CpuStat,
+    CpuTimes,
     DiskStat,
+    MemoryStat,
+    NetStat,
+    SwapStat,
+    SysStats,
 )
 from vbcore.tester.mixins import Asserter
 

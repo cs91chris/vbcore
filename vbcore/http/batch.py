@@ -5,8 +5,9 @@ import aiohttp
 
 from vbcore.batch import AsyncBatchExecutor
 from vbcore.datastruct import ObjectDict
+
 from . import HttpMethod
-from .client import HTTPBase, httpcode, DumpBodyType, ResponseData
+from .client import DumpBodyType, HTTPBase, httpcode, ResponseData
 
 
 class HTTPBatch(HTTPBase, AsyncBatchExecutor):

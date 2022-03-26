@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from vbcore.configurator import load_dotenv, config
+from vbcore.configurator import config, load_dotenv
 from vbcore.tester.mixins import Asserter
 
 TEST_ENV_BOOL = "TEST_ENV_BOOL"

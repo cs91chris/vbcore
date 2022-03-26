@@ -80,11 +80,8 @@ ENTRY_POINTS = {
 
 try:
     # must be after setuptools
-    # noinspection PyPackageRequirements
-    from Cython.Build import cythonize as base_cythonize
-
-    # noinspection PyPackageRequirements,PyPep8Naming
     import Cython.Compiler.Options as cython_options
+    from Cython.Build import cythonize as base_cythonize
 
     cython_options.docstrings = False
 except ImportError:

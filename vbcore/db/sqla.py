@@ -5,7 +5,7 @@ from functools import partial
 import sqlalchemy as sa
 import sqlalchemy.exc
 from sqlalchemy import event
-from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker, Session
+from sqlalchemy.orm import declarative_base, scoped_session, Session, sessionmaker
 
 from vbcore.datastruct import ObjectDict
 

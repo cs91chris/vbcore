@@ -2,6 +2,7 @@ import logging
 import typing as t
 
 from requests import auth, exceptions as http_exc, request as send_request, Response
+
 from vbcore.datastruct import ObjectDict
 from vbcore.http.headers import HeaderEnum
 from vbcore.uuid import get_uuid

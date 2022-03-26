@@ -3,12 +3,12 @@ import pytest
 from vbcore import misc
 from vbcore.importer import (
     Importer,
-    ImporterFactory,
     ImporterAttributeError,
-    ImporterModuleError,
-    ImporterValueError,
+    ImporterFactory,
     ImporterInstanceError,
+    ImporterModuleError,
     ImporterSubclassError,
+    ImporterValueError,
 )
 from vbcore.tester.mixins import Asserter
 

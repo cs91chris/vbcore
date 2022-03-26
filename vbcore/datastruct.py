@@ -1,8 +1,7 @@
 import enum
-
 import typing as t
 from collections import OrderedDict
-from dataclasses import asdict, fields, dataclass
+from dataclasses import asdict, dataclass, fields
 
 BytesType = t.Union[bytes, bytearray, memoryview]
 CallableDictType = t.Callable[[t.List[t.Tuple[str, t.Any]]], t.Any]

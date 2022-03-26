@@ -2,7 +2,7 @@ import sys
 
 import click
 
-from vbcore.db.schema import model_to_uml, db_to_schema, dump_model_ddl
+from vbcore.db.schema import db_to_schema, dump_model_ddl, model_to_uml
 
 DIALECTS = ["sqlite", "mysql", "oracle", "postgresql", "mssql"]
 

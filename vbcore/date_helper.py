@@ -1,5 +1,5 @@
 import typing as t
-from datetime import datetime, date as datetime_date
+from datetime import date as datetime_date, datetime
 
 from dateutil.parser import parse as date_parse
 

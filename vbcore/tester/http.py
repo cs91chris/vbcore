@@ -6,9 +6,10 @@ from vbcore.datastruct import ObjectDict
 from vbcore.http import httpcode, HttpMethod
 from vbcore.http.httpdumper import BaseHTTPDumper as HTTPDumper
 from vbcore.jsonschema.schemas.jsonrpc import JSONRPC
+
+from ..http.headers import ContentTypeEnum, HeaderEnum
 from .helpers import basic_auth_header
 from .mixins import JSONValidatorMixin, RegexMixin
-from ..http.headers import ContentTypeEnum, HeaderEnum
 
 
 class TestHttpCall(HTTPDumper, JSONValidatorMixin, RegexMixin):

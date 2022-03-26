@@ -2,7 +2,7 @@ import string
 
 import pytest
 
-from vbcore import uuid, misc
+from vbcore import misc, uuid
 from vbcore.misc import CommonRegex
 from vbcore.tester.mixins import Asserter
 

@@ -1,7 +1,7 @@
 import importlib
 import typing as t
 
-from sqlalchemy import MetaData, create_mock_engine  # type: ignore
+from sqlalchemy import create_mock_engine, MetaData  # type: ignore
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import class_mapper
 from sqlalchemy_schemadisplay import create_schema_graph, create_uml_graph

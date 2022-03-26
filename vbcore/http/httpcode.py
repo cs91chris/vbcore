@@ -1,5 +1,5 @@
-import typing as t
 import enum
+import typing as t
 
 CONTINUE = 100
 SWITCHING_PROTOCOL = 101

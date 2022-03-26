@@ -1,6 +1,6 @@
 import enum
 
-from vbcore.datastruct import ObjectDict, StrEnum, IStrEnum
+from vbcore.datastruct import IStrEnum, ObjectDict, StrEnum
 from vbcore.tester.mixins import Asserter
 
 
