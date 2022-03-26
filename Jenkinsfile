@@ -8,7 +8,6 @@ pipeline {
     options {
         buildDiscarder(logRotator(numToKeepStr: '3'))
         timeout(time: 20, unit: 'MINUTES')
-        ansiColor('xterm')
         timestamps()
     }
 
