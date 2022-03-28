@@ -1,7 +1,11 @@
 PACKAGE=vbcore
+PYVER=39
 LOG_LEVEL=DEBUG
 REQ_PATH=requirements
+
 export PIP_CONFIG_FILE=pip.conf
+export VERSION="$(shell grep 'current_version' .bumpversion.cfg | sed 's/^[^=]*= *//')"
+
 
 define bump_version
 	bumpversion -n $(1) --verbose
@@ -23,21 +27,35 @@ define check_format
 	$(shell ([ "${FMT_ONLY_CHECK}" = "true" ] && echo --check || echo ""))
 endef
 
+define docker_build
+	docker build -f devops/Dockerfile \
+		--target ${PACKAGE}-$(1) \
+		-t voidbrain/${PACKAGE}:${VERSION}-py$(1) .
+endef
+
+define docker_push
+	docker push "${DOCKER_REGISTRY}/${PACKAGE}:${VERSION}-py$(1)"
+endef
+
+
 all: clean run-tox
-build-publish: build-dist pypi-publish
-format: autoflake black isort
 lint: flake pylint mypy
 security: safety liccheck
+format: autoflake black isort
+dist-build-publish: build-dist dist-publish
+image-build-publish: image-build image-publish
 
 
 compile-deps:
 	$(call req_compile,requirements)
+	$(call req_compile,requirements-build)
 	$(call req_compile,requirements-all)
 	$(call req_compile,requirements-test)
 	$(call req_compile,requirements-dev)
 
 upgrade-deps:
 	$(call req_compile,requirements,--upgrade)
+	$(call req_compile,requirements-build,--upgrade)
 	$(call req_compile,requirements-all,--upgrade)
 	$(call req_compile,requirements-test,--upgrade)
 	$(call req_compile,requirements-dev,--upgrade)
@@ -65,12 +83,12 @@ autoflake:
 		vbcore tests setup.py
 black:
 	black $(call check_format) \
-		-t py38 --workers $(shell nproc) \
+		-t py${PYVER} --workers $(shell nproc) \
 		${PACKAGE} sandbox tests setup.py
 
 isort:
 	isort $(call check_format) \
-		--profile black -j $(shell nproc) --py 38 \
+		--profile black -j $(shell nproc) --py ${PYVER} \
 		--atomic --overwrite-in-place \
 		--combine-star --combine-as --dont-float-to-top --honor-noqa \
 		--force-alphabetical-sort-within-sections --multi-line VERTICAL_HANGING_INDENT \
@@ -113,13 +131,16 @@ build-dist:
 build-cython:
 	python setup.py bdist_wheel --cythonize
 
-pypi-publish:
-	twine upload --verbose --skip-existing -u voidbrain dist/${PACKAGE}-*
+dist-publish:
+	twine upload \
+		--verbose --skip-existing --non-interactive \
+		dist/${PACKAGE}-*
 
 image-build:
-	docker build --target ${PACKAGE}-38 -t voidbrain/${PACKAGE}:$${VERSION:-latest}-py38 .
-	docker build --target ${PACKAGE}-39 -t voidbrain/${PACKAGE}:$${VERSION:-latest}-py39 .
-	docker build --target ${PACKAGE}-310 -t voidbrain/${PACKAGE}:$${VERSION:-latest}-py310 .
+	$(call docker_build,${PYVER})
+
+image-publish:
+	$(call docker_push,${PYVER})
 
 bump-build:
 	$(call bump_version,build)

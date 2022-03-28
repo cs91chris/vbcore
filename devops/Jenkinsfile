@@ -1,0 +1,76 @@
+pipeline {
+    agent {
+        dockerfile {
+            filename 'devops/Dockerfile'
+            additionalBuildArgs '--target=builder'
+        }
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '3'))
+        timeout(time: 20, unit: 'MINUTES')
+        timestamps()
+    }
+
+    environment {
+        GITHUB_USER = credentials('github-user')
+        GITHUB_TOKEN = credentials('github-token')
+        TWINE_USERNAME = credentials('twine-username')
+        TWINE_PASSWORD = credentials('twine-password')
+    }
+
+    stages {
+        stage ('prerequisites') {
+            steps {
+                sh 'bash devops/scripts/github-status.sh pending'
+            }
+        }
+        stage ('check and test codebase') {
+            steps {
+                sh 'make run-tox'
+            }
+        }
+        stage ('build package and images') {
+            steps {
+                sh 'make build-dist image-build'
+            }
+        }
+        stage ('test builds') {
+            steps {
+                sh 'bash devops/scripts/test-builds.sh'
+            }
+        }
+        stage ('publish all') {
+            when {
+                expression {
+                    env.BRANCH_NAME.startsWith('release/')
+                }
+            }
+            steps {
+                sh 'make dist-publish image-publish'
+            }
+        }
+        stage ('sonar scanner') {
+            when {
+                expression {
+                    env.BRANCH_NAME == 'master'|| env.BRANCH_NAME.startsWith('release/')
+                }
+            }
+            steps {
+                sh 'bash devops/scripts/sonar-scanner.sh'
+            }
+        }
+    }
+
+    post {
+        success {
+            sh 'bash devops/scripts/github-status.sh success'
+        }
+        failure {
+            sh 'bash devops/scripts/github-status.sh failure'
+        }
+        cleanup {
+            cleanWs()
+        }
+    }
+}

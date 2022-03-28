@@ -2,13 +2,10 @@
 -c requirements-test.txt
 -c requirements-all.txt
 
-twine
-wheel
 black
 flake8
 pip-tools
 pylint
-tox
 bump2version
 pipdeptree
 mypy
