@@ -2,11 +2,20 @@ import sys
 
 import click
 
-from vbcore.db.schema import db_to_schema, dump_model_ddl, model_to_uml
+try:
+    from vbcore.db.schema import db_to_schema, dump_model_ddl, model_to_uml
+except ImportError:
+    db_to_schema = dump_model_ddl = model_to_uml = None
+
 
 DIALECTS = ["sqlite", "mysql", "oracle", "postgresql", "mssql"]
 
 main = click.Group(name="database", help="tools for database")
+
+
+def check_dependency(label):
+    if label is None:
+        raise ImportError("you must install vbcore[db]")
 
 
 @main.command(name="schema")
@@ -15,6 +24,8 @@ main = click.Group(name="database", help="tools for database")
 @click.option("-f", "--file", required=True, help="output png filename")
 def dump_schema(from_models, from_database, file):
     """Create png schema of database"""
+    check_dependency(model_to_uml or db_to_schema)
+
     if from_models:
         graph = model_to_uml(from_models)
     elif from_database:
@@ -34,4 +45,5 @@ def dump_schema(from_models, from_database, file):
 @click.option("-m", "--metadata", help="metadata module", required=True)
 def dump_ddl(dialect, metadata):
     """Dumps the create table statements for a given metadata"""
+    check_dependency(dump_model_ddl)
     dump_model_ddl(metadata, dialect)
