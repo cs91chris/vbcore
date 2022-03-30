@@ -4,7 +4,7 @@ orbs:
   python: circleci/python@1.5.0
 
 jobs:
-  build-and-test:
+  run-tox:
     docker:
       - image: cimg/python:3.9
     steps:
@@ -17,6 +17,6 @@ jobs:
           command: make run-tox
 
 workflows:
-  build-and-test:
+  run-tox:
     jobs:
-      - build-and-test
+      - run-tox

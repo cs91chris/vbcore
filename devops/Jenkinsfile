@@ -43,7 +43,7 @@ pipeline {
         stage ('publish all') {
             when {
                 expression {
-                    env.BRANCH_NAME.startsWith('release/')
+                    env.BRANCH_NAME.startsWith('release')
                 }
             }
             steps {
@@ -53,7 +53,7 @@ pipeline {
         stage ('sonar scanner') {
             when {
                 expression {
-                    env.BRANCH_NAME == 'master'|| env.BRANCH_NAME.startsWith('release/')
+                    env.BRANCH_NAME == 'master'|| env.BRANCH_NAME.startsWith('release')
                 }
             }
             steps {
