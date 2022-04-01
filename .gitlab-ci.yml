@@ -1,0 +1,23 @@
+image: python:3.9
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+before_script:
+  - pip install -r requirements/requirements-build.txt
+
+test:
+  script:
+    - make run-tox
+
+run:
+  script:
+    - python setup.py sdist bdist_wheel
+  artifacts:
+    paths:
+      - dist/*
