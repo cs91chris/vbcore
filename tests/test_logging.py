@@ -55,7 +55,16 @@ class TestLoggers(TestCase):
         with tempfile.NamedTemporaryFile(delete=False) as file:
             file.write(json.dumps(log_config).encode())
 
-        loggers.reload(file.name)
+        attempts = 0
+        while True:
+            try:
+                loggers.reload(file.name)
+                break
+            except ConnectionRefusedError:
+                if attempts >= 3:
+                    raise
+                attempts += 1
+                time.sleep(1)
 
         with self.assertLogs(LOGGER_NAME, "DEBUG") as captured:
             loggers(LOGGER_NAME).debug("TEST")

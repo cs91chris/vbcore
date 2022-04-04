@@ -1,0 +1,35 @@
+image: python:3.9
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+before_script:
+  - pip install -r requirements/requirements-build.txt
+
+validate-test:
+  script:
+    - make run-tox
+
+dist-build-publish:
+  needs: [validate-test]
+  script:
+    - python setup.py sdist bdist_wheel
+    - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --verbose --skip-existing --non-interactive --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi dist/*
+
+image-build-publish:
+  needs: [validate-test]
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    IMAGE_TAG: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}
+  before_script:
+    - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
+  script:
+    - docker build -f devops/Dockerfile -t ${IMAGE_TAG} .
+    - docker push ${IMAGE_TAG}
