@@ -8,7 +8,12 @@ cache:
     - .cache/pip
     - venv/
 
+stages:
+  - test
+  - build
+
 validate-test:
+  stage: test
   before_script:
     - pip install -r requirements/requirements-build.txt
   script:
