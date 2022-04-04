@@ -26,6 +26,8 @@ dist-build-publish:
     TWINE_PASSWORD: ${CI_JOB_TOKEN}
     TWINE_USERNAME: gitlab-ci-token
     REPO_URL: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi
+  before_script:
+    - pip install -r requirements/requirements-build.txt
   script:
     - make build-dist
     - twine upload --verbose --skip-existing --non-interactive --repository-url ${REPO_URL} dist/*
