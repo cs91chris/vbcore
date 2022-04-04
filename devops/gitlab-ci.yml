@@ -26,8 +26,8 @@ dist-build-publish:
     TWINE_PASSWORD: ${CI_JOB_TOKEN}
     REPO_URL: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi
   script:
-    - bash devops/build.sh
-    - bash devops/dist-publish.sh
+    - bash devops/scripts/build.sh
+    - bash devops/scripts/dist-publish.sh
 
 image-build-publish:
   stage: build
@@ -41,5 +41,5 @@ image-build-publish:
     - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
   script:
     - docker build -f devops/Dockerfile -t ${IMAGE_NAME} .
-    - bash devops/test-builds.sh ${IMAGE_NAME}
+    - sh devops/scripts/test-builds.sh ${IMAGE_NAME}
     - docker push ${IMAGE_NAME}
