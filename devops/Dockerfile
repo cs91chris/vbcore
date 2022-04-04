@@ -27,3 +27,4 @@ RUN bash /tmp/install.sh && rm -rf dist
 ENV PATH=/app/venv/bin:${PATH}
 
 CMD ["bash"]
+ENTRYPOINT ["vbcore"]

@@ -5,8 +5,7 @@ variables:
 
 cache:
   paths:
-    - .cache/pip
-    - venv/
+    - "${PIP_CACHE_DIR}"
 
 stages:
   - test
@@ -23,14 +22,12 @@ dist-build-publish:
   stage: build
   needs: [validate-test]
   variables:
-    TWINE_PASSWORD: ${CI_JOB_TOKEN}
     TWINE_USERNAME: gitlab-ci-token
+    TWINE_PASSWORD: ${CI_JOB_TOKEN}
     REPO_URL: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi
-  before_script:
-    - pip install -r requirements/requirements-build.txt
   script:
-    - make build-dist
-    - twine upload --verbose --skip-existing --non-interactive --repository-url ${REPO_URL} dist/*
+    - bash devops/build.sh
+    - bash devops/dist-publish.sh
 
 image-build-publish:
   stage: build
@@ -39,9 +36,10 @@ image-build-publish:
   services:
     - docker:dind
   variables:
-    IMAGE_TAG: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}
+    IMAGE_NAME: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}
   before_script:
     - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
   script:
-    - docker build -f devops/Dockerfile -t ${IMAGE_TAG} .
-    - docker push ${IMAGE_TAG}
+    - docker build -f devops/Dockerfile -t ${IMAGE_NAME} .
+    - bash devops/test-builds.sh ${IMAGE_NAME}
+    - docker push ${IMAGE_NAME}

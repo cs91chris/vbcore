@@ -1,16 +1,14 @@
 #!/bin/bash
 
-PYVER=39
-PACKAGE="vbcore"
-IMAGE_NAME="voidbrain/${PACKAGE}"
-VERSION="$(shell grep 'current_version' .bumpversion.cfg | sed 's/^[^=]*= *//')"
-
+if [[ -z "${1}" ]]; then
+	echo "missing image name argument!"
+	exit 1
+fi
 
 testing_build() {
-    local tag=${1}
-    echo -e "testing build: ${IMAGE_NAME}:${tag}"
-    docker run -it --rm "${IMAGE_NAME}:${tag}" ${PACKAGE} version
+	local image_name=${1}
+	echo -e "testing build: ${image_name}"
+	docker run -it --rm "${image_name}" version
 }
 
-
-testing_build "${VERSION}-py${PYVER}"
+testing_build "${1}"
