@@ -1,0 +1,61 @@
+version: 3
+tasks:
+  clean-install:
+    cmds:
+      - pip-sync ${REQ_PATH}/requirements*.txt
+
+  install:
+    cmds:
+      - pip install -r ${REQ_PATH}/requirements.txt
+      - pip install -r ${REQ_PATH}/requirements-all.txt
+      - pip install -r ${REQ_PATH}/requirements-test.txt
+      - pip install -r ${REQ_PATH}/requirements-dev.txt
+
+  pip_compile:
+    vars:
+      OPTS: '{{default " " .OPTS}}'
+    cmds:
+      - |
+        pip-compile {{.OPTS}} \
+          --no-emit-trusted-host --no-emit-index-url --build-isolation \
+          -o ${REQ_PATH}/{{.NAME}}.txt ${REQ_PATH}/{{.NAME}}.in
+  compile:
+    cmds:
+      - task: pip_compile
+        vars:
+          NAME: requirements
+      - task: pip_compile
+        vars:
+          NAME: requirements-build
+      - task: pip_compile
+        vars:
+          NAME: requirements-all
+      - task: pip_compile
+        vars:
+          NAME: requirements-test
+      - task: pip_compile
+        vars:
+          NAME: requirements-dev
+
+  upgrade:
+    cmds:
+      - task: pip_compile
+        vars:
+          NAME: requirements
+          OPTS: "--upgrade"
+      - task: pip_compile
+        vars:
+          NAME: requirements-build
+          OPTS: "--upgrade"
+      - task: pip_compile
+        vars:
+          NAME: requirements-all
+          OPTS: "--upgrade"
+      - task: pip_compile
+        vars:
+          NAME: requirements-test
+          OPTS: "--upgrade"
+      - task: pip_compile
+        vars:
+          NAME: requirements-dev
+          OPTS: "--upgrade"

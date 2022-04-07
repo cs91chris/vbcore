@@ -1,0 +1,24 @@
+version: 3
+
+dotenv: ['.taskfile.env']
+env:
+  PACKAGE: vbcore
+  REQ_PATH: requirements
+  PIP_CONFIG_FILE: pip.conf
+  FMT_ONLY_CHECK:
+  NPROC: 8
+  PYVER: 39
+
+includes:
+  tests: ./taskfiles/tests.yml
+  reqs: ./taskfiles/piptools.yml
+  linters: ./taskfiles/linters.yml
+  formatters: ./taskfiles/formatters.yml
+
+tasks:
+  clean:
+    cmds:
+      - find . -name '*.pyc' -prune -exec rm -rf {} \;
+      - find . -name '__pycache__' -prune -exec rm -rf {} \;
+      - find . -name '.pytest_cache' -prune -exec rm -rf {} \;
+      - find ${PACKAGE} -name ".mypy_cache" -prune -exec rm -rf {} \;

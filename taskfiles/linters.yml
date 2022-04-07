@@ -1,0 +1,48 @@
+version: 3
+tasks:
+  all:
+    cmds:
+      - task: lint
+      - task: security
+
+  lint:
+    cmds:
+      - task: flake
+      - task: pylint
+      - task: mypy
+
+  security:
+    cmds:
+      - task: safety
+      - task: liccheck
+
+  # TODO autoflake, isort
+
+  flake:
+    cmds:
+      - flake8 --config=.flake8 --statistics ${PACKAGE} sandbox tests setup.py
+
+  pylint:
+    cmds:
+      - pylint --rcfile=.pylintrc ${PACKAGE} sandbox tests setup.py
+
+  mypy:
+    cmds:
+      - |
+        mypy \
+          --install-types --non-interactive --no-strict-optional \
+          ${PACKAGE} sandbox tests
+
+  safety:
+    cmds:
+      - |
+        safety check \
+          -r ${REQ_PATH}requirements.txt \
+          -r ${REQ_PATH}requirements-all.txt
+
+  liccheck:
+    cmds:
+      - |
+        liccheck --level CAUTIOUS \
+          -r ${REQ_PATH}requirements.txt \
+          -r ${REQ_PATH}requirements-all.txt

@@ -1,0 +1,29 @@
+version: 3
+tasks:
+  all:
+    cmds:
+      - task: autoflake
+      - task: black
+      - task: isort
+  autoflake:
+      cmds:
+        - |
+          autoflake ${FMT_ONLY_CHECK} \
+            --recursive --in-place --remove-all-unused-imports \
+            --ignore-init-module-imports --remove-duplicate-keys --remove-unused-variables \
+            ${PACKAGE} tests setup.py
+  black:
+    cmds:
+      - |
+        black ${FMT_ONLY_CHECK} \
+          -t py${PYVER} --workers ${NPROC} \
+          ${PACKAGE} sandbox tests setup.py \
+  isort:
+    cmds:
+      - |
+        isort ${FMT_ONLY_CHECK} \
+          --profile black -j ${NPROC} --py ${PYVER} \
+          --atomic --overwrite-in-place \
+          --combine-star --combine-as --dont-float-to-top --honor-noqa \
+          --force-alphabetical-sort-within-sections --multi-line VERTICAL_HANGING_INDENT \
+          ${PACKAGE} tests setup.py
