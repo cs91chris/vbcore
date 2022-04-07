@@ -27,23 +27,11 @@ define check_format
 	$(shell ([ "${FMT_ONLY_CHECK}" = "true" ] && echo --check || echo ""))
 endef
 
-define docker_build
-	docker build -f devops/Dockerfile \
-		--target ${PACKAGE}-$(1) \
-		-t voidbrain/${PACKAGE}:${VERSION}-py$(1) .
-endef
-
-define docker_push
-	docker push "${DOCKER_REGISTRY}/${PACKAGE}:${VERSION}-py$(1)"
-endef
-
 
 all: clean run-tox
 lint: flake pylint mypy
 security: safety liccheck
 format: autoflake black isort
-dist-build-publish: build-dist dist-publish
-image-build-publish: image-build image-publish
 
 
 compile-deps:
@@ -130,17 +118,6 @@ build-dist:
 
 build-cython:
 	python setup.py bdist_wheel --cythonize
-
-dist-publish:
-	twine upload \
-		--verbose --skip-existing --non-interactive \
-		dist/${PACKAGE}-*
-
-image-build:
-	$(call docker_build,${PYVER})
-
-image-publish:
-	$(call docker_push,${PYVER})
 
 bump-build:
 	$(call bump_version,build)
