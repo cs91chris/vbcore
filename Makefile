@@ -102,6 +102,15 @@ test:
 		--cov-config .coveragerc \
 		tests
 
+test-coverage:
+	PYTHONPATH=. pytest -v -rf --strict-markers \
+		-p ${PACKAGE}.tester.plugins.fixtures \
+		-p ${PACKAGE}.tester.plugins.startup \
+		--junitxml=junit-report.xml \
+		--cov=${PACKAGE} --cov-report=xml \
+		--cov-config .coveragerc \
+		tests
+
 safety:
 	safety check \
 		-r ${REQ_PATH}/requirements.txt \
