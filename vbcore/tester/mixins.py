@@ -235,23 +235,28 @@ class HttpAsserter(RegexMixin):
         less: bool = False,
     ):
         status_code = response.status_code or response.status
-        if type(code) in (list, tuple):
+        if isinstance(code, (list, tuple)):
             if in_range is True:
-                cls.assert_range(status_code, code)
+                message = f"status code {status_code} is not in range: {code}"
+                cls.assert_range(status_code, code, error=message)
             elif is_in is True:
-                cls.assert_in(status_code, code)
+                message = f"status code {status_code} is not in: {code}"
+                cls.assert_in(status_code, code, error=message)
             else:
-                mess = (
-                    "one of (is_in, in_range) must be true if a list of code is given"
+                cls.assert_true(
+                    actual=False,
+                    error="one of (is_in, in_range) must be true if a list of code is given",
                 )
-                cls.assert_true(False, error=mess)
         else:
             if greater is True:
-                cls.assert_greater(status_code, code)
+                message = f"status code {status_code} is not greater than: {code}"
+                cls.assert_greater(status_code, code, error=message)
             elif less is True:
-                cls.assert_less(status_code, code)
+                message = f"status code {status_code} is not less than: {code}"
+                cls.assert_less(status_code, code, error=message)
             else:
-                cls.assert_equals(status_code, code)
+                message = f"status code {status_code} is different from: {code}"
+                cls.assert_equals(status_code, code, error=message)
 
     @classmethod
     def assert_header(
@@ -264,14 +269,28 @@ class HttpAsserter(RegexMixin):
     ):
         header = response.headers.get(name)
         if is_in is True and value is not None:
-            cls.assert_in(value, header)
+            cls.assert_in(
+                value,
+                header,
+                error=f"value '{value}' is not in header '{name}: {header}'",
+            )
         elif regex is True:
-            cls.assert_match(header, value)
+            cls.assert_match(
+                header,
+                value,
+                error=f"header '{name}: {header}' does not match '{value}'",
+            )
         else:
             if is_in is True:
-                cls.assert_in(name, response.headers)
+                cls.assert_in(
+                    name, response.headers, error=f"header '{name}' not exists"
+                )
             else:
-                cls.assert_equals(value, header)
+                cls.assert_equals(
+                    value,
+                    header,
+                    error=f"header '{name}: {header}' is different from: '{value}'",
+                )
 
     @classmethod
     def assert_headers(cls, response, headers: t.Dict[str, t.Union[dict, t.Any]]):
