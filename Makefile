@@ -86,7 +86,7 @@ flake:
 	flake8 --config=.flake8 --statistics ${PACKAGE} sandbox tests setup.py
 
 pylint:
-	pylint --rcfile=.pylintrc ${PACKAGE} sandbox tests setup.py
+	pylint -j0 --rcfile=.pylintrc --reports=y ${PACKAGE} sandbox tests setup.py
 
 mypy:
 	mypy --install-types --non-interactive --no-strict-optional ${PACKAGE} sandbox tests

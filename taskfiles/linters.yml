@@ -24,7 +24,7 @@ tasks:
 
   pylint:
     cmds:
-      - pylint --rcfile=.pylintrc ${PACKAGE} sandbox tests setup.py
+      - pylint -j0 --rcfile=.pylintrc --reports=y ${PACKAGE} sandbox tests setup.py
 
   mypy:
     cmds:
