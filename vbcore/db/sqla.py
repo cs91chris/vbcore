@@ -1,3 +1,4 @@
+import logging
 import typing as t
 from contextlib import contextmanager
 from functools import partial
@@ -11,6 +12,8 @@ from vbcore.datastruct import ObjectDict
 
 SessionType = t.Union[scoped_session, Session]
 LoadersType = t.Tuple[t.Type["LoaderModel"], ...]
+
+logger = logging.getLogger(__name__)
 
 
 class BaseModel:
@@ -45,16 +48,8 @@ class SQLAConnector:
 
     @staticmethod
     def register_loaders(session: SessionType, loaders: LoadersType):
-        def _load_values(loader_class: "LoaderModel", *_, **__):
-            try:
-                # noinspection PyCallingNonCallable
-                session.add_all(loader_class(**d) for d in loader_class.values)
-                session.commit()
-            except sqlalchemy.exc.SQLAlchemyError:
-                session.rollback()
-
         for loader in loaders:
-            callback = partial(_load_values, loader)
+            callback = partial(loader.load_values, session)
             event.listen(loader.__table__, "after_create", callback)
 
     def create_all(self, loaders: LoadersType = ()):
@@ -88,3 +83,12 @@ class LoaderModel(Model):  # type: ignore
     __abstract__ = True
 
     values: t.Tuple[t.Dict[str, t.Any], ...] = ()
+
+    @classmethod
+    def load_values(cls, session: SessionType, *_, **__):
+        try:
+            session.add_all(cls(**d) for d in cls.values)
+            session.commit()
+        except sqlalchemy.exc.SQLAlchemyError as exc:
+            logger.exception(exc)
+            session.rollback()
