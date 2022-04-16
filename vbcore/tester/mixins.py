@@ -228,19 +228,29 @@ class HttpAsserter(RegexMixin):
     def assert_status_code(
         cls,
         response,
-        code: t.Union[int, t.Iterable[int]] = httpcode.SUCCESS,
+        code: t.Optional[t.Union[int, t.Iterable[int]]] = None,
+        status_type: httpcode.StatusType = httpcode.StatusType.SUCCESS,
         in_range: bool = False,
         is_in: bool = False,
         greater: bool = False,
         less: bool = False,
     ):
         status_code = response.status_code or response.status
-        if isinstance(code, (list, tuple)):
+        prefix_mess = f"test that status code ({status_code}) is"
+
+        if code is None:
+            resp_status_type = httpcode.StatusType(status_code)
+            cls.assert_equals(
+                status_type,
+                resp_status_type,
+                error=f"{prefix_mess} {status_type.name} failed: got {resp_status_type.name}",
+            )
+        elif isinstance(code, (list, tuple)):
             if in_range is True:
-                message = f"status code {status_code} is not in range: {code}"
+                message = f"{prefix_mess} in range {code} failed"
                 cls.assert_range(status_code, code, error=message)
             elif is_in is True:
-                message = f"status code {status_code} is not in: {code}"
+                message = f"{prefix_mess} one of {code} failed"
                 cls.assert_in(status_code, code, error=message)
             else:
                 cls.assert_true(
@@ -249,13 +259,13 @@ class HttpAsserter(RegexMixin):
                 )
         else:
             if greater is True:
-                message = f"status code {status_code} is not greater than: {code}"
+                message = f"{prefix_mess} greater than {code} failed"
                 cls.assert_greater(status_code, code, error=message)
             elif less is True:
-                message = f"status code {status_code} is not less than: {code}"
+                message = f"{prefix_mess} less than {code} failed"
                 cls.assert_less(status_code, code, error=message)
             else:
-                message = f"status code {status_code} is different from: {code}"
+                message = f"{prefix_mess} is {code} failed"
                 cls.assert_equals(status_code, code, error=message)
 
     @classmethod
@@ -270,25 +280,27 @@ class HttpAsserter(RegexMixin):
         header = response.headers.get(name)
         if is_in is True and value is not None:
             cls.assert_in(
-                value,
-                header,
+                actual=value,
+                expected=header,
                 error=f"value '{value}' is not in header '{name}: {header}'",
             )
         elif regex is True:
             cls.assert_match(
-                header,
-                value,
+                actual=header,
+                expected=value,
                 error=f"header '{name}: {header}' does not match '{value}'",
             )
         else:
             if is_in is True:
                 cls.assert_in(
-                    name, response.headers, error=f"header '{name}' not exists"
+                    actual=name,
+                    expected=response.headers,
+                    error=f"header '{name}' not exists",
                 )
             else:
                 cls.assert_equals(
-                    value,
-                    header,
+                    actual=value,
+                    expected=header,
                     error=f"header '{name}: {header}' is different from: '{value}'",
                 )
 
