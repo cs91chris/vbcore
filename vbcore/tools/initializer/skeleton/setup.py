@@ -3,18 +3,18 @@ import re
 import sys
 import typing as t
 
-from pkg_resources import Requirement, yield_lines
+from pkg_resources import parse_requirements
 from setuptools import find_packages as base_find_packages, setup
 from setuptools.command.test import test
 
 LICENSE = "MIT"
-URL = "https://github.com/cs91chris/vbcore"
+URL = ""
 PLATFORMS = "any"
 PYTHON_VERSION = ">=3.8"
-DESCRIPTION = "VBCore common helpers and components"
+DESCRIPTION = ""
 PACKAGE_DATA = True
 
-PKG_NAME = "vbcore"
+PKG_NAME = "{skeleton}"
 PKG_TEST = "tests"
 PKG_SCRIPTS = f"{PKG_NAME}.tools"
 REQ_PATH = "requirements"
@@ -78,21 +78,7 @@ def readme(file):
 
 
 def read_requirements(filename):
-    reqs = []
-    lines = iter(yield_lines(read(filename)))
-    for line in lines:
-        if line.startswith("-c"):
-            continue
-        if " #" in line:
-            line = line[: line.find(" #")]
-        if line.endswith("\\"):
-            line = line[:-2].strip()
-            try:
-                line += next(lines)
-            except StopIteration:
-                break
-        reqs.append(str(Requirement(line)))
-    return reqs
+    return [str(req) for req in parse_requirements(read(filename))]
 
 
 class PyTest(test):
@@ -126,10 +112,6 @@ def find_packages():
 
 install_requires = read_requirements(os.path.join(REQ_PATH, "requirements.in"))
 tests_requires = read_requirements(os.path.join(REQ_PATH, "requirements-test.in"))
-db_requires = read_requirements(os.path.join(REQ_PATH, "requirements-db.in"))
-crypto_requires = read_requirements(os.path.join(REQ_PATH, "requirements-crypto.in"))
-http_requires = read_requirements(os.path.join(REQ_PATH, "requirements-http.in"))
-net_requires = read_requirements(os.path.join(REQ_PATH, "requirements-net.in"))
 
 setup(
     name=PKG_NAME,
@@ -150,17 +132,7 @@ setup(
     test_suite=PKG_TEST,
     install_requires=install_requires,
     tests_requires=tests_requires,
-    extras_requires={
-        "db": db_requires,
-        "crypto": crypto_requires,
-        "http": http_requires,
-        "net": net_requires,
-        "all": [
-            *db_requires,
-            *crypto_requires,
-            *http_requires,
-        ],
-    },
+    extras_requires={},
     cmdclass=dict(test=PyTest),
     classifiers=[],
 )

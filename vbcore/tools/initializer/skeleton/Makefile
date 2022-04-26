@@ -1,4 +1,4 @@
-PACKAGE=vbcore
+PACKAGE={skeleton}
 PYVER=39
 LOG_LEVEL=DEBUG
 REQ_PATH=requirements
@@ -37,32 +37,22 @@ format: autoflake black isort
 compile-deps:
 	$(call req_compile,requirements)
 	$(call req_compile,requirements-build)
-	$(call req_compile,requirements-db)
-	$(call req_compile,requirements-http)
-	$(call req_compile,requirements-crypto)
-	$(call req_compile,requirements-net)
+	$(call req_compile,requirements-all)
 	$(call req_compile,requirements-test)
 	$(call req_compile,requirements-dev)
 
 upgrade-deps:
 	$(call req_compile,requirements,--upgrade)
 	$(call req_compile,requirements-build,--upgrade)
-	$(call req_compile,requirements-db,--upgrade)
-	$(call req_compile,requirements-http,--upgrade)
-	$(call req_compile,requirements-crypto,--upgrade)
-	$(call req_compile,requirements-net,--upgrade)
+	$(call req_compile,requirements-all,--upgrade)
 	$(call req_compile,requirements-test,--upgrade)
 	$(call req_compile,requirements-dev,--upgrade)
 
 install-deps:
-	pip install \
-		-r ${REQ_PATH}/requirements.txt \
-		-r ${REQ_PATH}/requirements-db.txt \
-		-r ${REQ_PATH}/requirements-http.txt \
-		-r ${REQ_PATH}/requirements-crypto.txt \
-		-r ${REQ_PATH}/requirements-net.txt \
-		-r ${REQ_PATH}/requirements-test.txt \
-		-r ${REQ_PATH}/requirements-dev.txt
+	pip install -r ${REQ_PATH}/requirements.txt
+	pip install -r ${REQ_PATH}/requirements-all.txt
+	pip install -r ${REQ_PATH}/requirements-test.txt
+	pip install -r ${REQ_PATH}/requirements-dev.txt
 
 clean-install-deps:
 	pip install pip-tools
@@ -107,16 +97,12 @@ run-tox:
 
 test:
 	PYTHONPATH=. pytest -v -rf --strict-markers \
-		-p ${PACKAGE}.tester.plugins.fixtures \
-		-p ${PACKAGE}.tester.plugins.startup \
 		--cov=${PACKAGE} --cov-report=html \
 		--cov-config .coveragerc \
 		tests
 
 test-coverage:
 	PYTHONPATH=. pytest -v -rf --strict-markers \
-		-p ${PACKAGE}.tester.plugins.fixtures \
-		-p ${PACKAGE}.tester.plugins.startup \
 		--junitxml=junit-report.xml \
 		--cov=${PACKAGE} --cov-report=xml \
 		--cov-config .coveragerc \
@@ -125,19 +111,13 @@ test-coverage:
 safety:
 	safety check \
 		-r ${REQ_PATH}/requirements.txt \
-		-r ${REQ_PATH}/requirements-db.txt \
-		-r ${REQ_PATH}/requirements-http.txt \
-		-r ${REQ_PATH}/requirements-crypto.txt \
-		-r ${REQ_PATH}/requirements-net.txt
+		-r ${REQ_PATH}/requirements-all.txt
 
 liccheck:
 	liccheck \
 		--level CAUTIOUS \
 		-r ${REQ_PATH}/requirements.txt \
-		-r ${REQ_PATH}/requirements-db.txt \
-		-r ${REQ_PATH}/requirements-http.txt \
-		-r ${REQ_PATH}/requirements-crypto.txt \
-		-r ${REQ_PATH}/requirements-net.txt
+		-r ${REQ_PATH}/requirements-all.txt
 
 build-dist:
 	python setup.py sdist bdist_wheel
