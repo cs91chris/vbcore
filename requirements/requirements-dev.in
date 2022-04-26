@@ -1,6 +1,5 @@
 -c requirements.txt
 -c requirements-test.txt
--c requirements-all.txt
 
 black
 flake8

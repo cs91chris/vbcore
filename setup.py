@@ -3,7 +3,7 @@ import re
 import sys
 import typing as t
 
-from pkg_resources import parse_requirements
+from pkg_resources import Requirement, yield_lines
 from setuptools import find_packages as base_find_packages, setup
 from setuptools.command.test import test
 
@@ -17,59 +17,11 @@ PACKAGE_DATA = True
 PKG_NAME = "vbcore"
 PKG_TEST = "tests"
 PKG_SCRIPTS = f"{PKG_NAME}.tools"
+REQ_PATH = "requirements"
 EXCLUDE_FILES: t.List = []
 
 BASE_PATH = os.path.dirname(__file__)
 VERSION_FILE = os.path.join(PKG_NAME, "version.py")
-
-REQUIRES = [
-    "click",
-    "python-dateutil",
-    "python-decouple",
-    "python-dotenv",
-    "pyyaml",
-    "psutil",
-]
-REQUIRES_DB = [
-    *REQUIRES,
-    "sqlalchemy",
-    "sqlalchemy_schemadisplay",
-]
-REQUIRES_CRYPTO = [
-    *REQUIRES,
-    "argon2-cffi",
-]
-REQUIRES_HTTP = [
-    *REQUIRES,
-    "aiohttp",
-    "requests",
-    "user_agents",
-]
-
-REQUIRES_ALL = {
-    *REQUIRES_DB,
-    *REQUIRES_CRYPTO,
-    *REQUIRES_HTTP,
-    "jsonschema",
-    "pysocks",
-}
-
-REQUIRES_TEST = [
-    *REQUIRES_ALL,
-    "responses",
-    "coverage",
-    "pytest",
-    "pytest-cov",
-    "hypothesis",
-]
-
-EXTRAS_REQUIRES = {
-    "db": REQUIRES_DB,
-    "crypto": REQUIRES_CRYPTO,
-    "http": REQUIRES_HTTP,
-    "all": REQUIRES_ALL,
-    "test": REQUIRES_TEST,
-}
 
 ENTRY_POINTS = {
     "console_scripts": [
@@ -126,7 +78,21 @@ def readme(file):
 
 
 def read_requirements(filename):
-    return [str(req) for req in parse_requirements(read(filename))]
+    reqs = []
+    lines = iter(yield_lines(read(filename)))
+    for line in lines:
+        if line.startswith("-c"):
+            continue
+        if " #" in line:
+            line = line[: line.find(" #")]
+        if line.endswith("\\"):
+            line = line[:-2].strip()
+            try:
+                line += next(lines)
+            except StopIteration:
+                break
+        reqs.append(str(Requirement(line)))
+    return reqs
 
 
 class PyTest(test):
@@ -158,6 +124,13 @@ def find_packages():
     )
 
 
+install_requires = read_requirements(os.path.join(REQ_PATH, "requirements.in"))
+tests_requires = read_requirements(os.path.join(REQ_PATH, "requirements-test.in"))
+db_requires = read_requirements(os.path.join(REQ_PATH, "requirements-db.in"))
+crypto_requires = read_requirements(os.path.join(REQ_PATH, "requirements-crypto.in"))
+http_requires = read_requirements(os.path.join(REQ_PATH, "requirements-http.in"))
+net_requires = read_requirements(os.path.join(REQ_PATH, "requirements-net.in"))
+
 setup(
     name=PKG_NAME,
     url=URL,
@@ -175,8 +148,19 @@ setup(
     ext_modules=cythonize(ext_paths(PKG_NAME, EXCLUDE_FILES)),
     entry_points=ENTRY_POINTS,
     test_suite=PKG_TEST,
-    install_requires=REQUIRES,
-    extras_require=EXTRAS_REQUIRES,
+    install_requires=install_requires,
+    tests_require=tests_requires,
+    extras_require={
+        "db": db_requires,
+        "crypto": crypto_requires,
+        "http": http_requires,
+        "net": net_requires,
+        "all": [
+            *db_requires,
+            *crypto_requires,
+            *http_requires,
+        ],
+    },
     cmdclass=dict(test=PyTest),
     classifiers=[],
 )

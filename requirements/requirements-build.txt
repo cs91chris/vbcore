@@ -11,7 +11,9 @@ certifi==2021.10.8
     #   -c requirements/requirements-dev.txt
     #   requests
 cffi==1.15.0
-    # via cryptography
+    # via
+    #   -c requirements/requirements-dev.txt
+    #   cryptography
 charset-normalizer==2.0.12
     # via
     #   -c requirements/requirements-dev.txt
@@ -58,10 +60,12 @@ pluggy==1.0.0
 py==1.11.0
     # via tox
 pycparser==2.21
-    # via cffi
+    # via
+    #   -c requirements/requirements-dev.txt
+    #   cffi
 pygments==2.11.2
     # via readme-renderer
-pyparsing==3.0.7
+pyparsing==3.0.8
     # via
     #   -c requirements/requirements-dev.txt
     #   packaging
@@ -80,6 +84,7 @@ secretstorage==3.3.1
     # via keyring
 six==1.16.0
     # via
+    #   -c requirements/requirements-dev.txt
     #   bleach
     #   tox
     #   virtualenv

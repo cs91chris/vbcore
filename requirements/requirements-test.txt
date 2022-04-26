@@ -6,16 +6,17 @@
 #
 attrs==21.4.0
     # via
-    #   -c requirements/requirements-all.txt
+    #   -c requirements/requirements-http.txt
+    #   -c requirements/requirements.txt
     #   hypothesis
     #   pytest
 certifi==2021.10.8
     # via
-    #   -c requirements/requirements-all.txt
+    #   -c requirements/requirements-http.txt
     #   requests
 charset-normalizer==2.0.12
     # via
-    #   -c requirements/requirements-all.txt
+    #   -c requirements/requirements-http.txt
     #   requests
 coverage[toml]==6.3.2
     # via
@@ -25,7 +26,8 @@ hypothesis==6.39.4
     # via -r requirements/requirements-test.in
 idna==3.3
     # via
-    #   -c requirements/requirements-all.txt
+    #   -c requirements/requirements-http.txt
+    #   -c requirements/requirements-net.txt
     #   requests
 iniconfig==1.1.1
     # via pytest
@@ -35,9 +37,9 @@ pluggy==1.0.0
     # via pytest
 py==1.11.0
     # via pytest
-pyparsing==3.0.7
+pyparsing==3.0.8
     # via
-    #   -c requirements/requirements-all.txt
+    #   -c requirements/requirements-db.txt
     #   packaging
 pytest==7.1.1
     # via
@@ -47,7 +49,7 @@ pytest-cov==3.0.0
     # via -r requirements/requirements-test.in
 requests==2.27.1
     # via
-    #   -c requirements/requirements-all.txt
+    #   -c requirements/requirements-http.txt
     #   responses
 responses==0.20.0
     # via -r requirements/requirements-test.in
@@ -59,6 +61,6 @@ tomli==2.0.1
     #   pytest
 urllib3==1.26.9
     # via
-    #   -c requirements/requirements-all.txt
+    #   -c requirements/requirements-http.txt
     #   requests
     #   responses

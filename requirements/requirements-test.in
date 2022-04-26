@@ -1,5 +1,8 @@
 -c requirements.txt
--c requirements-all.txt
+-c requirements-db.txt
+-c requirements-http.txt
+-c requirements-crypto.txt
+-c requirements-net.txt
 
 coverage
 pytest
