@@ -2,8 +2,8 @@ import os
 from unittest.mock import patch
 
 from click.testing import CliRunner
-from vbcore.tester.mixins import Asserter
 
+from vbcore.tester.mixins import Asserter
 from vbcore.tools.entrypoint import main
 from vbcore.tools.initializer.init import init_app
 
@@ -27,9 +27,7 @@ def test_init_app(tmpdir):
     os.chdir(home)
     init_app(new_app_name)
 
-    for base_dir, directory in (
-        (home, new_app_name),
-    ):
+    for base_dir, directory in ((home, new_app_name),):
         Asserter.assert_true(os.path.isdir(os.path.join(base_dir, directory)))
 
     for base_dir, file in (

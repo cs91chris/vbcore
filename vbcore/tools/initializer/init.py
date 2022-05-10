@@ -14,7 +14,7 @@ def replace_in_file(file: str, src: str, dst: str):
 
 
 def copy_skeleton(name: str):
-    from vbcore.tools import initializer
+    from vbcore.tools import initializer  # pylint: disable=import-outside-toplevel
 
     try:
         source = os.path.join(initializer.__path__[0], "skeleton")
