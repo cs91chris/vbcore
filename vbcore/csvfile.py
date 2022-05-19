@@ -52,13 +52,13 @@ class CSVHandler:
 
     def get_num_lines(self, filename: OptStr = None) -> int:
         with self.open_file(filename) as file:
-            return sum(1 for _ in file) - 1
+            lines = sum(1 for _ in file)
+            return lines - 1 if lines > 0 else 0
 
     # noinspection PyMethodMayBeStatic
     def after_read_hook(self, record: dict) -> t.Any:
         return record
 
-    # noinspection PyMethodMayBeStatic
     def pre_write_hook(self, record: dict) -> t.Any:
         return {k: v for k, v in record.items() if k in self.fields}
 
@@ -102,6 +102,5 @@ class CSVHandler:
         with self.reader(filename) as reader:
             sortedlist = sorted(reader, key=lambda r: tuple(r[c] for c in columns))
 
-        with self.writer(output_file, **kwargs) as writer:
-            writer.writeheader()
-            writer.writerows(self.pre_write_hook(r) for r in sortedlist)
+        with self.open_writer(output_file, **kwargs) as writer:
+            writer.send(self.pre_write_hook(r) for r in sortedlist)
