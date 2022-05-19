@@ -1,4 +1,5 @@
 # based on https://github.com/enricobarzetti/sqlalchemy_get_or_create
+import contextlib
 import typing as t
 
 from sqlalchemy import create_engine, inspect, tuple_
@@ -20,6 +21,15 @@ class SQLASupport:
         self.session = session
         self.model = model
         self._commit = commit
+
+    @contextlib.contextmanager
+    def transaction(self):
+        try:
+            yield self
+            self.session.commit()
+        except Exception:
+            self.session.rollback()
+            raise
 
     @staticmethod
     def _prepare_params(defaults: t.Optional[dict] = None, **kwargs) -> dict:
