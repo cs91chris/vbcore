@@ -2,6 +2,8 @@ import json
 import logging
 import typing as t
 
+from requests import request as http_client
+
 from vbcore.datastruct import ObjectDict
 from vbcore.http import httpcode, HttpMethod
 from vbcore.http.httpdumper import BaseHTTPDumper as HTTPDumper
@@ -17,11 +19,10 @@ class TestHttpCall(HTTPDumper, JSONValidatorMixin, RegexMixin):
     default_status_code = (httpcode.SUCCESS, 299)
     default_content_type = ContentTypeEnum.HTML
 
-    def __init__(self, test_client, endpoint=None, auth=None, **__):
+    def __init__(self, endpoint=None, auth=None, **__):
         self.auth = None
         self.response = None
         self.endpoint = endpoint
-        self.test_client = test_client
         self.log = logging.getLogger()
 
         if auth:
@@ -57,9 +58,9 @@ class TestHttpCall(HTTPDumper, JSONValidatorMixin, RegexMixin):
     ):
         header = self.response.headers.get(name)
         if is_in:
-            self.assert_in(header, value)
+            self.assert_in(value, header)
         elif regex:
-            self.assert_match(header, value)
+            self.assert_match(value, header)
         else:
             self.assert_equals(header, value)
 
@@ -80,6 +81,9 @@ class TestHttpCall(HTTPDumper, JSONValidatorMixin, RegexMixin):
             if v is not None:
                 self.assert_header(name=k, **v)
 
+    def request_implementation(self, method, url, **kwargs):
+        return http_client(method, url, **kwargs)
+
     def request(self, method=HttpMethod.GET, url=None, **kwargs):
         url = url or self.endpoint
         if not url.startswith("http"):
@@ -90,13 +94,14 @@ class TestHttpCall(HTTPDumper, JSONValidatorMixin, RegexMixin):
             kwargs["auth"] = self.auth
 
         request = ObjectDict(method=method, url=url, **kwargs)
-        self.response = self.test_client.open(method=method, path=url, **kwargs)
+        self.response = self.request_implementation(**request)
         print(self.dump_request(request, dump_body=True))
         print(self.dump_response(self.response, dump_body=True))
 
     def perform(self, request, response=None, **__):
         self.request(**request)
         self.assert_response(**(response or {}))
+        return self.response
 
 
 class TestHttpApi(TestHttpCall):

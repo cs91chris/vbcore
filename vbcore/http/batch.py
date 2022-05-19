@@ -13,7 +13,7 @@ from .client import DumpBodyType, HTTPBase, httpcode, ResponseData
 class HTTPBatch(HTTPBase, AsyncBatchExecutor):
     def __init__(
         self,
-        endpoint: str,
+        endpoint: t.Optional[str] = None,
         dump_body: DumpBodyType = False,
         timeout: int = 10,
         raise_on_exc: bool = False,
