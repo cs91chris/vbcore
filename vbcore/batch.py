@@ -4,8 +4,11 @@ import dataclasses
 import logging
 import threading
 import typing as t
-from enum import Enum
+from contextlib import contextmanager
+from enum import auto
 from queue import Queue
+
+from vbcore.datastruct import StrEnum
 
 try:
     import nest_asyncio
@@ -153,9 +156,9 @@ class ThreadBatchExecutor(BatchExecutor):
         return [task.response for task in self._tasks]
 
 
-class WorkersType(Enum):
-    PRODUCER = "producer"
-    CONSUMER = "consumer"
+class WorkersType(StrEnum):
+    PRODUCER = auto()
+    CONSUMER = auto()
 
 
 @dataclasses.dataclass
@@ -187,11 +190,21 @@ class IProducerConsumerBatchExecutor(abc.ABC):
     ):
         self._producer = producer
         self._consumer = consumer
+        self.is_running: bool = False
         self._log = logging.getLogger(self.__module__)
 
-    @abc.abstractmethod
+    @contextmanager
+    def runner(self):
+        if not self.is_running:
+            self.startup()
+        yield self
+        self.barrier()
+
     def startup(self):
-        pass  # pragma: no cover
+        self.is_running = True
+
+    def barrier(self):
+        self.is_running = False
 
     @abc.abstractmethod
     def consumer(self):
@@ -202,48 +215,38 @@ class IProducerConsumerBatchExecutor(abc.ABC):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def barrier(self):
-        pass  # pragma: no cover
-
-    @abc.abstractmethod
     def load(self, item):
         pass  # pragma: no cover
 
-    def run(self, items: t.Iterable):
-        for item in items:
-            self.load(item)
+    def run_on(self, items: t.Iterable):
+        with self.runner() as executor:
+            for item in items:
+                executor.load(item)
 
 
 class LinearExecutor(IProducerConsumerBatchExecutor):
-    def startup(self):
-        """No startup required"""
-
     def consumer(self):
         """No consumer required"""
 
     def producer(self):
         """No producer required"""
 
-    def barrier(self):
-        """No barrier required"""
-
     def load(self, item):
-        item = self._producer.perform(item)
-        self._consumer.perform(item)
+        product = self._producer.perform(item)
+        self._consumer.perform(product)
 
 
 class ProducerConsumerBatchExecutor(IProducerConsumerBatchExecutor):
     def __init__(
         self,
+        producer: PCTask,
+        consumer: PCTask,
         *args,
-        daemonize: bool = True,
         batch_size: t.Optional[BatchSize] = None,
         thread_class: t.Type[Thread] = Thread,
         **kwargs,
     ):
-        super().__init__(*args, **kwargs)
-        self._daemonize = daemonize
-        self.is_running: bool = False
+        super().__init__(producer, consumer, *args, **kwargs)
         self._thread_class = thread_class
         self.size: BatchSize = batch_size or BatchSize()
         self._consumer_queue: Queue = Queue(self.size.consumer_queue)
@@ -251,26 +254,27 @@ class ProducerConsumerBatchExecutor(IProducerConsumerBatchExecutor):
 
     def startup(self):
         workers = (
-            self.producer,
-            WorkersType.PRODUCER.value
+            (self.producer, WorkersType.PRODUCER)
             if self.size.worker_type == WorkersType.PRODUCER
-            else self.consumer,
-            WorkersType.CONSUMER.value,
+            else (self.consumer, WorkersType.CONSUMER)
         )
         single = (
-            self.consumer,
-            WorkersType.CONSUMER.value
+            (self.consumer, WorkersType.CONSUMER)
             if self.size.worker_type == WorkersType.PRODUCER
-            else self.producer,
-            WorkersType.PRODUCER.value,
+            else (self.producer, WorkersType.PRODUCER)
         )
+        self.start_threads(single, workers)
+        super().startup()
 
-        self._thread_class(single[0], daemon=self._daemonize, name=single[1]).start()
-        for i in range(0, self.size.pool_workers):
-            self._thread_class(
-                workers[0], daemon=self._daemonize, name=f"{workers[1]}-{i}"
-            ).start()
-        self.is_running = True
+    def start_threads(
+        self,
+        single: t.Tuple[t.Callable, WorkersType],
+        workers: t.Tuple[t.Callable, WorkersType],
+    ):
+        self._thread_class(single[0], daemon=True, name=single[1]).start()
+        for num in range(0, self.size.pool_workers):
+            name = f"{workers[1]}-{num+1}"
+            self._thread_class(workers[0], daemon=True, name=name).start()
 
     def consumer(self):
         while True:
@@ -296,14 +300,7 @@ class ProducerConsumerBatchExecutor(IProducerConsumerBatchExecutor):
     def barrier(self):
         self._producer_queue.join()
         self._consumer_queue.join()
-        self.is_running = False
+        super().barrier()
 
     def load(self, item):
         self._producer_queue.put(item)
-
-    def run(self, items: t.Iterable):
-        if not self.is_running:
-            self.startup()
-
-        super().run(items)
-        self.barrier()
