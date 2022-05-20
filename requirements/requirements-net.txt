@@ -6,7 +6,7 @@
 #
 dnspython==2.2.1
     # via email-validator
-email-validator==1.2.0
+email-validator==1.2.1
     # via -r requirements/requirements-net.in
 idna==3.3
     # via email-validator
