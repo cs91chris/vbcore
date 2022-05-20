@@ -1,5 +1,6 @@
 import re
 import typing as t
+from functools import partial
 
 from vbcore.http import httpcode
 from vbcore.http.headers import HeaderEnum
@@ -94,13 +95,54 @@ class BaseAssert:
         )
 
     @classmethod
-    def assert_range(cls, actual, expected, error: t.Optional[str] = None):
+    def assert_len(cls, actual, expected, error: t.Optional[str] = None):
+        cls.assert_equals(len(actual), expected, error=error)
+
+    @classmethod
+    def assert_is_empty_list(cls, actual, error: t.Optional[str] = None):
+        cls.assert_equals(actual, [], error=error)
+
+    @classmethod
+    def assert_is_empty_tuple(cls, actual, error: t.Optional[str] = None):
+        cls.assert_equals(actual, (), error=error)
+
+    @classmethod
+    def assert_is_empty_dict(cls, actual, error: t.Optional[str] = None):
+        cls.assert_equals(actual, {}, error=error)
+
+    @classmethod
+    def assert_is_empty_set(cls, actual, error: t.Optional[str] = None):
+        cls.assert_equals(actual, set(), error=error)
+
+    @classmethod
+    def assert_range(
+        cls,
+        actual,
+        expected,
+        error: t.Optional[str] = None,
+        closed: bool = False,
+        left: bool = False,
+        right: bool = False,
+    ):
+        if closed is True or (left and right):
+            callback = partial(lambda a, e: e[0] <= a <= e[1])
+            repr_range = f"[{expected[0]}, {expected[1]}]"
+        elif left is True:
+            callback = partial(lambda a, e: e[0] <= a < e[1])
+            repr_range = f"[{expected[0]}, {expected[1]})"
+        elif right is True:
+            callback = partial(lambda a, e: e[0] < a <= e[1])
+            repr_range = f"({expected[0]}, {expected[1]}]"
+        else:
+            callback = partial(lambda a, e: e[0] < a < e[1])
+            repr_range = f"({expected[0]}, {expected[1]})"
+
         cls.assert_that(
-            lambda a, e: e[0] <= a <= e[1],
+            callback,
             error=error,
-            that=f"'{actual}' is in ranger '{expected}'",
             actual=actual,
             expected=expected,
+            that=f"'{actual}' is in range '{repr_range}'",
         )
 
     @classmethod

@@ -31,6 +31,25 @@ def test_misc():
     Asserter.assert_equals("test", misc.parse_value("test"))
 
 
+def test_assert_range():
+    Asserter.assert_range(3, [1, 5])
+    Asserter.assert_range(1, [1, 5], closed=True)
+    Asserter.assert_range(5, [1, 5], closed=True)
+    Asserter.assert_range(1, [1, 5], left=True)
+    Asserter.assert_range(5, [1, 5], right=True)
+
+    with pytest.raises(AssertionError):
+        Asserter.assert_range(6, [1, 5])
+    with pytest.raises(AssertionError):
+        Asserter.assert_range(5, [1, 5])
+    with pytest.raises(AssertionError):
+        Asserter.assert_range(1, [1, 5])
+    with pytest.raises(AssertionError):
+        Asserter.assert_range(5, [1, 5], left=True)
+    with pytest.raises(AssertionError):
+        Asserter.assert_range(1, [1, 5], right=True)
+
+
 def test_random_string():
     test_str = misc.random_string(4, alphabet=string.ascii_lowercase)
     Asserter.assert_equals(len(test_str), 4)
