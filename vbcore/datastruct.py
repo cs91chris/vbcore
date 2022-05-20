@@ -1,7 +1,9 @@
 import enum
+import time
 import typing as t
 from collections import OrderedDict
 from dataclasses import asdict, dataclass, fields
+from threading import RLock
 
 BytesType = t.Union[bytes, bytearray, memoryview]
 CallableDictType = t.Callable[[t.List[t.Tuple[str, t.Any]]], t.Any]
@@ -241,7 +243,7 @@ class LRUCache(OrderedDict):
 
 
 class DataClassDictable:
-    def to_dict(self, factory: CallableDictType = ObjectDict, **__) -> dict:
+    def to_dict(self, factory: CallableDictType = ObjectDict) -> dict:
         # noinspection PyDataclass
         return asdict(self, dict_factory=factory)
 
@@ -284,3 +286,123 @@ class BufferManager:
         if self._buffer:
             self.buffer_flush_hook()
             self._buffer.clear()
+
+
+# based on: https://github.com/mailgun/expiringdict
+class ExpiringCache(OrderedDict):
+    """
+    Dictionary with auto-expiring values for caching purposes.
+    Expiration happens on any access, object is locked during cleanup from expired
+    values. Can not store more than max_len elements - the oldest will be deleted.
+    The values stored in the following way:
+    {
+        key1: (value1, created_time1),
+        key2: (value2, created_time2)
+    }
+    NOTE: iteration over dict and also keys() do not remove expired values!
+    """
+
+    def __init__(self, max_len: int = 128, max_age: float = 0):
+        super().__init__(self)
+        self.lock = RLock()
+        self.max_len = max_len
+        self.max_age = max_age
+
+    def __contains__(self, key):
+        try:
+            with self.lock:
+                item = super().__getitem__(key)
+                if self.__item_age(item) < self.max_age:
+                    return True
+                del self[key]
+        except KeyError:
+            pass
+        return False
+
+    def __getitem__(self, key, with_age: bool = False):
+        with self.lock:
+            item = super().__getitem__(key)
+            item_age = self.__item_age(item)
+            if item_age < self.max_age:
+                if with_age:
+                    return item[0], item_age
+                return item[0]
+            del self[key]
+            raise KeyError(key)
+
+    def __setitem__(self, key, value, set_time=None):
+        with self.lock:
+            if len(self) == self.max_len:
+                if key in self:
+                    del self[key]
+                else:
+                    try:
+                        self.popitem(last=False)
+                    except KeyError:
+                        pass
+            super().__setitem__(key, (value, set_time or time.time()))
+
+    @staticmethod
+    def __item_age(item) -> int:
+        return time.time() - item[1]
+
+    def items(self):
+        values = []
+        for key in list(self.keys()):
+            try:
+                values.append((key, self[key]))
+            except KeyError:
+                pass
+        return values
+
+    def items_with_age(self):
+        values = []
+        for key in list(self.keys()):
+            try:
+                values.append((key, super().__getitem__(key)))
+            except KeyError:
+                pass
+        return values
+
+    def values(self):
+        values = []
+        for key in list(self.keys()):
+            try:
+                values.append(self[key])
+            except KeyError:
+                pass
+        return values
+
+    def pop(self, key, default=None):
+        with self.lock:
+            try:
+                item = super().__getitem__(key)
+                del self[key]
+                return item[0]
+            except KeyError:
+                return default
+
+    def ttl(self, key):
+        _, key_age = self.get(key, with_age=True)
+        if key_age:
+            key_ttl = self.max_age - (key_age or 0)
+            return key_ttl if key_ttl > 0 else None
+        return None
+
+    def get(self, key, default=None, with_age=False):
+        try:
+            return self.__getitem__(key, with_age)
+        except KeyError:
+            if with_age:
+                return default, None
+            return default
+
+    def set(self, key, value):
+        self[key] = value
+
+    def delete(self, key):
+        try:
+            with self.lock:
+                del self[key]
+        except KeyError:
+            pass
