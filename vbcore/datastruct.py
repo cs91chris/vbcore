@@ -397,8 +397,8 @@ class ExpiringCache(OrderedDict):
                 return default, None
             return default
 
-    def set(self, key, value):
-        self[key] = value
+    def set(self, key, value, set_time=None):
+        self.__setitem__(key, value, set_time=set_time)
 
     def delete(self, key):
         try:
