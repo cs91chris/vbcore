@@ -150,7 +150,7 @@ setup(
     test_suite=PKG_TEST,
     install_requires=install_requires,
     tests_requires=tests_requires,
-    extras_requires={
+    extras_require={
         "db": db_requires,
         "crypto": crypto_requires,
         "http": http_requires,
