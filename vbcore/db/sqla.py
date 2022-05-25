@@ -1,6 +1,7 @@
 import logging
 import typing as t
 from contextlib import contextmanager
+from dataclasses import make_dataclass
 from functools import partial
 
 import sqlalchemy as sa
@@ -8,7 +9,7 @@ import sqlalchemy.exc
 from sqlalchemy import event
 from sqlalchemy.orm import declarative_base, scoped_session, Session, sessionmaker
 
-from vbcore.datastruct import ObjectDict
+from vbcore.datastruct import BaseDTO
 
 SessionType = t.Union[scoped_session, Session]
 LoadersType = t.Tuple[t.Type["LoaderModel"], ...]
@@ -18,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 class BaseModel:
     __table__ = None
-    dto_class = ObjectDict
+    dto_class = None
 
     def columns(self) -> t.Tuple[str, ...]:
         if self.__table__ is None:
@@ -28,8 +29,24 @@ class BaseModel:
     def to_dict(self) -> t.Dict[str, t.Any]:
         return {col: getattr(self, col, None) for col in self.columns()}
 
+    # noinspection PyArgumentList
+    @classmethod
+    def from_dto(cls, dto):
+        if isinstance(dto, BaseDTO):
+            return cls(**dto.to_dict())
+        return cls(**dto)
+
     def to_dto(self):
-        return self.dto_class(**self.to_dict())
+        items = tuple((col, getattr(self, col, None)) for col in self.columns())
+        dto_class = self.dto_class
+        if self.dto_class is None:
+            dto_class = make_dataclass(
+                f"{self.__class__.__name__}DTO",
+                [(col, type(value)) for col, value in items],
+                bases=(BaseDTO,),
+                frozen=True,
+            )
+        return dto_class(**dict(items))
 
 
 class SQLAConnector:

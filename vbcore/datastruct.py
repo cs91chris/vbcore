@@ -406,3 +406,9 @@ class ExpiringCache(OrderedDict):
                 del self[key]
         except KeyError:
             pass
+
+
+@dataclass(frozen=True)
+class BaseDTO:
+    def to_dict(self) -> dict:
+        return asdict(self)
