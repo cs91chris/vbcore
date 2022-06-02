@@ -32,6 +32,7 @@ all: clean run-tox
 lint: flake pylint mypy
 security: safety liccheck
 format: autoflake black isort
+dev: format lint security test
 
 
 compile-deps:
@@ -66,9 +67,12 @@ clean:
 
 autoflake:
 	autoflake $(call check_format) \
-		--recursive --in-place \
-		--remove-all-unused-imports --ignore-init-module-imports \
-		--remove-duplicate-keys --remove-unused-variables \
+		--recursive \
+		--in-place \
+		--remove-all-unused-imports \
+		--ignore-init-module-imports \
+		--remove-duplicate-keys \
+		--remove-unused-variables \
 		vbcore tests setup.py
 black:
 	black $(call check_format) \
@@ -78,9 +82,14 @@ black:
 isort:
 	isort $(call check_format) \
 		--profile black -j $(shell nproc) --py ${PYVER} \
-		--atomic --overwrite-in-place \
-		--combine-star --combine-as --dont-float-to-top --honor-noqa \
-		--force-alphabetical-sort-within-sections --multi-line VERTICAL_HANGING_INDENT \
+		--atomic \
+		--overwrite-in-place \
+		--combine-star \
+		--combine-as \
+		--dont-float-to-top \
+		--honor-noqa \
+		--force-alphabetical-sort-within-sections \
+		--multi-line VERTICAL_HANGING_INDENT \
 		vbcore tests setup.py
 
 flake:
@@ -90,22 +99,20 @@ pylint:
 	pylint -j0 --rcfile=.pylintrc --reports=y ${PACKAGE} sandbox tests setup.py
 
 mypy:
-	mypy --install-types --non-interactive --no-strict-optional ${PACKAGE} sandbox tests
+	mypy --warn-unused-configs --no-strict-optional ${PACKAGE} sandbox tests
 
 run-tox:
 	tox --verbose --parallel all
 
 test:
 	PYTHONPATH=. pytest -v -rf --strict-markers \
-		--cov=${PACKAGE} --cov-report=html \
-		--cov-config .coveragerc \
+		--cov=${PACKAGE} --cov-report=html --cov-config .coveragerc \
 		tests
 
 test-coverage:
 	PYTHONPATH=. pytest -v -rf --strict-markers \
+		--cov=${PACKAGE} --cov-report=xml --cov-config .coveragerc \
 		--junitxml=junit-report.xml \
-		--cov=${PACKAGE} --cov-report=xml \
-		--cov-config .coveragerc \
 		tests
 
 safety:

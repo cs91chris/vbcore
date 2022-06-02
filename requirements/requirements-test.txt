@@ -18,11 +18,11 @@ charset-normalizer==2.0.12
     # via
     #   -c requirements/requirements-http.txt
     #   requests
-coverage[toml]==6.3.3
+coverage[toml]==6.4.1
     # via
     #   -r requirements/requirements-test.in
     #   pytest-cov
-hypothesis==6.46.7
+hypothesis==6.46.11
     # via -r requirements/requirements-test.in
 idna==3.3
     # via
@@ -51,7 +51,7 @@ requests==2.27.1
     # via
     #   -c requirements/requirements-http.txt
     #   responses
-responses==0.20.0
+responses==0.21.0
     # via -r requirements/requirements-test.in
 sortedcontainers==2.4.0
     # via hypothesis

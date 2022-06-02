@@ -64,7 +64,6 @@ disable=missing-module-docstring,
         missing-class-docstring,
         missing-function-docstring,
         too-few-public-methods,
-        no-self-use,
         duplicate-code
 
 # Enable the message, report, category or checker with the given id(s). You can
