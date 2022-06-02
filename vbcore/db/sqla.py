@@ -88,6 +88,16 @@ class SQLAConnector:
         yield session
         session.close()  # pylint: disable=no-member
 
+    @contextmanager
+    def transaction(self, **options) -> t.Generator[SessionType, None, None]:
+        with self.connection(**options) as conn:
+            try:
+                yield conn
+                conn.commit()
+            except Exception:
+                conn.rollback()
+                raise
+
 
 Model = declarative_base(
     metadata=SQLAConnector.metadata,
