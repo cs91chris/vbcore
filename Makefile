@@ -42,6 +42,7 @@ compile-deps:
 	$(call req_compile,requirements-http)
 	$(call req_compile,requirements-crypto)
 	$(call req_compile,requirements-net)
+	$(call req_compile,requirements-extra)
 	$(call req_compile,requirements-test)
 	$(call req_compile,requirements-dev)
 
@@ -52,6 +53,7 @@ upgrade-deps:
 	$(call req_compile,requirements-http,--upgrade)
 	$(call req_compile,requirements-crypto,--upgrade)
 	$(call req_compile,requirements-net,--upgrade)
+	$(call req_compile,requirements-extra,--upgrade)
 	$(call req_compile,requirements-test,--upgrade)
 	$(call req_compile,requirements-dev,--upgrade)
 
@@ -62,6 +64,7 @@ install-deps:
 		-r ${REQ_PATH}/requirements-http.txt \
 		-r ${REQ_PATH}/requirements-crypto.txt \
 		-r ${REQ_PATH}/requirements-net.txt \
+		-r ${REQ_PATH}/requirements-extra.txt \
 		-r ${REQ_PATH}/requirements-test.txt \
 		-r ${REQ_PATH}/requirements-dev.txt
 

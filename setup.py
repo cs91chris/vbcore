@@ -130,6 +130,7 @@ db_requires = read_requirements(os.path.join(REQ_PATH, "requirements-db.in"))
 crypto_requires = read_requirements(os.path.join(REQ_PATH, "requirements-crypto.in"))
 http_requires = read_requirements(os.path.join(REQ_PATH, "requirements-http.in"))
 net_requires = read_requirements(os.path.join(REQ_PATH, "requirements-net.in"))
+extra_requires = read_requirements(os.path.join(REQ_PATH, "requirements-extra.in"))
 
 setup(
     name=PKG_NAME,
@@ -159,6 +160,7 @@ setup(
             *db_requires,
             *crypto_requires,
             *http_requires,
+            *extra_requires,
         ],
     },
     cmdclass=dict(test=PyTest),

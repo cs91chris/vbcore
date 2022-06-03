@@ -11,9 +11,7 @@ aiosignal==1.2.0
 async-timeout==4.0.2
     # via aiohttp
 attrs==21.4.0
-    # via
-    #   -c requirements/requirements.txt
-    #   aiohttp
+    # via aiohttp
 certifi==2022.5.18.1
     # via requests
 charset-normalizer==2.0.12

@@ -1,5 +1,4 @@
 click
-jsonschema
 python-dateutil
 python-decouple
 python-dotenv

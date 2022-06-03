@@ -7,7 +7,6 @@
 attrs==21.4.0
     # via
     #   -c requirements/requirements-http.txt
-    #   -c requirements/requirements.txt
     #   hypothesis
     #   pytest
 certifi==2022.5.18.1
