@@ -98,10 +98,10 @@ class Importer:
         cls.check_subclass(imported, subclass_of)
         cls.check_isinstance(imported, instance_of)
 
-        if call_with is False and not (args and kwargs):
+        if call_with is False and not (args or kwargs):
             return imported
 
-        return imported(*args, **kwargs) if args and kwargs else imported()
+        return imported(*args, **kwargs) if args or kwargs else imported()
 
 
 class ImporterFactory:

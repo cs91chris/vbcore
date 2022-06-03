@@ -83,7 +83,8 @@ autoflake:
 		--ignore-init-module-imports \
 		--remove-duplicate-keys \
 		--remove-unused-variables \
-		vbcore tests setup.py
+		${PACKAGE} tests setup.py
+
 black:
 	black $(call check_format) \
 		-t py${PYVER} --workers $(shell nproc) \
@@ -100,7 +101,7 @@ isort:
 		--honor-noqa \
 		--force-alphabetical-sort-within-sections \
 		--multi-line VERTICAL_HANGING_INDENT \
-		vbcore tests setup.py
+		${PACKAGE} tests setup.py
 
 flake:
 	flake8 --config=.flake8 --statistics ${PACKAGE} sandbox tests setup.py
