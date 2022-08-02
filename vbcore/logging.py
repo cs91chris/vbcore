@@ -6,6 +6,7 @@ import struct
 import timeit
 import typing as t
 from contextlib import contextmanager
+from dataclasses import dataclass
 from datetime import timedelta
 from logging.handlers import QueueHandler, QueueListener
 from queue import Queue
@@ -13,7 +14,8 @@ from queue import Queue
 DEFAULT_LISTENER_PORT = logging.config.DEFAULT_LOGGING_CONFIG_PORT
 
 
-class LoggingSettings(t.NamedTuple):
+@dataclass(frozen=True)
+class LoggingSettings:
     level: str = "WARNING"
     config_file: t.Optional[str] = None
     logger_name: t.Optional[str] = None

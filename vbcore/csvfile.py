@@ -84,6 +84,7 @@ class CSVHandler:
     ) -> t.Generator[WriterCoroutineType, None, None]:
         # pylint: disable=assignment-from-no-return
         writer = self.coroutine_writer(filename, **kwargs)
+        # pylint: disable=unnecessary-dunder-call
         writer.__next__()
         yield writer
         writer.close()

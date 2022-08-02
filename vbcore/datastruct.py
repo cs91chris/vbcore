@@ -239,6 +239,7 @@ class LRUCache(OrderedDict):
             del self[oldest]
 
     def set(self, key, value):
+        # pylint: disable=unnecessary-dunder-call
         return self.__setitem__(key, value)
 
 
@@ -391,6 +392,7 @@ class ExpiringCache(OrderedDict):
 
     def get(self, key, default=None, with_age=False):
         try:
+            # pylint: disable=unnecessary-dunder-call
             return self.__getitem__(key, with_age)
         except KeyError:
             if with_age:
@@ -398,6 +400,7 @@ class ExpiringCache(OrderedDict):
             return default
 
     def set(self, key, value, set_time=None):
+        # pylint: disable=unnecessary-dunder-call
         self.__setitem__(key, value, set_time=set_time)
 
     def delete(self, key):
@@ -412,3 +415,12 @@ class ExpiringCache(OrderedDict):
 class BaseDTO:
     def to_dict(self) -> dict:
         return asdict(self)
+
+
+class Singleton(type):
+    __instances: t.Dict[t.Type, t.Any] = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls.__instances:
+            cls.__instances[cls] = super().__call__(*args, **kwargs)
+        return cls.__instances[cls]

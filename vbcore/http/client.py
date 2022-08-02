@@ -39,10 +39,12 @@ class HTTPTokenAuth(auth.AuthBase):
         self.token_type = token_type or "Bearer"
 
     def __eq__(self, other):
-        return self.token == getattr(other, "token", None)  # pragma: no cover
+        other_token = getattr(other, "token", None)
+        other_token_type = getattr(other, "token_type", None)
+        return self.token_type == other_token_type and self.token == other_token
 
     def __ne__(self, other):
-        return not self == other  # pragma: no cover
+        return not self.__eq__(other)
 
     def __call__(self, response):
         response.headers["Authorization"] = f"{self.token_type} {self.token}"

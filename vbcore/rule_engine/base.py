@@ -47,7 +47,7 @@ class IdentityActionRule(ActionRule):
 
 @dataclass(frozen=True)
 class RuleInfo:
-    id: str  # pylint: disable?invalid-name
+    id: str  # pylint: disable=invalid-name
     rule: RuleType
     evaluate: bool = False
     action: t.Optional[ActionRule] = NoneActionRule()

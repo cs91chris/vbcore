@@ -27,6 +27,7 @@ def test_batch_executor_startup(mock_thread):
 def test_batch_load():
     producer_task = MagicMock()
     consumer_task = MagicMock()
+    # pylint: disable=unnecessary-lambda
     producer_task.perform.side_effect = lambda x: str(x)
 
     executor = ProducerConsumerBatchExecutor(
