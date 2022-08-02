@@ -10,7 +10,7 @@ pydot==1.4.2
     # via sqlalchemy-schemadisplay
 pyparsing==3.0.9
     # via pydot
-sqlalchemy==1.4.37
+sqlalchemy==1.4.39
     # via -r requirements/requirements-db.in
 sqlalchemy-schemadisplay==1.3
     # via -r requirements/requirements-db.in

@@ -73,7 +73,7 @@ class CSVHandler:
         with self.writer(filename, **kwargs) as writer:
             writer.writeheader()
             while True:
-                records: RecordType = (yield)
+                records: RecordType = (yield)  # noqa: E275
                 _records = [records] if isinstance(records, dict) else records
                 for r in _records:
                     writer.writerow(self.pre_write_hook(r))
