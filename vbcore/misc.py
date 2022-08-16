@@ -6,6 +6,7 @@ import string
 import sys
 import tempfile
 import typing as t
+from decimal import Decimal
 from random import SystemRandom
 from threading import Lock
 
@@ -82,6 +83,34 @@ def to_float(n) -> t.Optional[float]:
         return float(n)
     except (TypeError, ValueError):
         return None
+
+
+def format_decimal(value: Decimal, precision: int = 8) -> str:
+    if value.is_zero():
+        return "0"
+
+    str_fmt = f"{{:.{precision}f}}"
+    return str_fmt.format(value).rstrip("0").rstrip(".")
+
+
+CIT = t.TypeVar("CIT")
+
+
+def chunk_iterator(
+    iterable: t.Iterable[CIT], chunk_size: int
+) -> t.Generator[t.List[CIT], None, None]:
+    _iterable = iter(iterable)
+
+    while True:
+        chunk = []
+        try:
+            for _ in range(chunk_size):
+                chunk.append(next(_iterable))
+            yield chunk
+        except StopIteration:
+            if chunk:
+                yield chunk
+            break
 
 
 def random_string(length: int, alphabet: str = string.printable) -> str:
