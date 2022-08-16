@@ -1,9 +1,13 @@
+import base64
+import os
 import re
+import tempfile
 import unittest
 from email.utils import parsedate
 from unittest.mock import MagicMock
 
-from vbcore.sendmail import SendMail, SMTPParams
+from vbcore.http.headers import ContentTypeEnum
+from vbcore.sendmail import MessageAddresses, MessageData, SendMail, SMTPParams
 
 
 class MockSmtp(SendMail):
@@ -16,30 +20,36 @@ class MockSmtp(SendMail):
 
 class ModuleTest(unittest.TestCase):
     def setUp(self):
+        self.tmp_dir = tempfile.TemporaryDirectory()
+
         self.to_cc = "cc@mail.com"
         self.to_bcc = "bcc@mail.com"
         self.sender = "sender@mail.com"
         self.reply_to = "reply@mail.com"
         self.recipient = "destination@mail.com"
-
         self.client = MockSmtp(SMTPParams(host="127.0.0.1", port=25))
-        self.message_id_regex = re.compile(
-            r"^<[0-9]*\.[0-9]*\.[0-9]*\.[a-z0-9]{32}@mail.com>$"
-        )
+        self.message_id_regex = re.compile(r"^<\d*\.\d*\.\d*\.[a-z0-9]{32}@mail.com>$")
+
+    def tearDown(self):
+        self.tmp_dir.cleanup()
 
     def test_prepare_message(self):
         message = self.client.message(
-            to=self.recipient,
-            sender=self.sender,
-            reply_to=self.reply_to,
-            cc=(self.to_cc,),
-            bcc=(self.to_bcc,),
-            subject="TEST MAIL",
-            html="<h1>TEST MAIL</h1>",
-            text="TEST MAIL",
-            headers={
-                "X-Custom-Header": "value",
-            },
+            MessageAddresses(
+                to=self.recipient,
+                sender=self.sender,
+                reply_to=self.reply_to,
+                cc=(self.to_cc,),
+                bcc=(self.to_bcc,),
+            ),
+            MessageData(
+                subject="TEST MAIL",
+                html="<h1>TEST MAIL</h1>",
+                text="TEST MAIL",
+                headers={
+                    "X-Custom-Header": "value",
+                },
+            ),
         )
 
         self.assertTrue(message.is_multipart())
@@ -72,3 +82,22 @@ class ModuleTest(unittest.TestCase):
             },
         )
         self.assertTrue(self.message_id_regex.match(response.message_id))
+
+    def test_attachment(self):
+        content = b"TEST"
+        filename = os.path.join(self.tmp_dir.name, "test.xlsx")
+        with open(filename, "wb") as file:
+            file.write(content)
+
+        message = self.client.message(
+            addresses=MessageAddresses(to=self.recipient, sender=self.sender),
+            data=MessageData(subject="subject"),
+        )
+        self.client.add_attachments(message, [filename])
+
+        attach = message.get_payload(0)
+        encoded_content = base64.b64encode(content).decode()
+        self.assertEqual(attach.get_payload(), f"{encoded_content}\n")
+        self.assertEqual(attach.get_content_type(), ContentTypeEnum.STREAM)
+        self.assertEqual(attach.get_content_disposition(), "attachment")
+        self.assertEqual(attach.get_filename(), "test.xlsx")

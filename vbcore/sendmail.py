@@ -1,7 +1,10 @@
 import dataclasses
 import logging
+import os
 import smtplib
 import typing as t
+from email.mime.application import MIMEApplication
+from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formatdate, make_msgid, parseaddr
@@ -21,7 +24,7 @@ class SMTPResponse:
     response: t.Dict[str, t.Tuple[int, bytes]]
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class SMTPParams:
     host: str
     port: int
@@ -32,6 +35,26 @@ class SMTPParams:
     user: t.Optional[str] = None
     password: t.Optional[str] = None
     sender: t.Optional[t.Union[str, t.Tuple[str, str]]] = None
+
+
+@dataclasses.dataclass(frozen=True)
+class MessageData:
+    subject: str
+    priority: int = 3
+    html: t.Optional[str] = None
+    text: t.Optional[str] = None
+    headers: t.Optional[t.Dict[str, str]] = None
+    message_id: t.Optional[str] = None
+    attachments: t.Optional[t.List[str]] = None
+
+
+@dataclasses.dataclass(frozen=True)
+class MessageAddresses:
+    sender: str
+    to: AddressType
+    reply_to: t.Optional[str] = None
+    cc: AddressType = ()
+    bcc: AddressType = ()
 
 
 class SendMail:
@@ -52,48 +75,46 @@ class SendMail:
     def prepare_addresses(cls, addr: AddressType) -> str:
         return ",".join(addr) if isinstance(addr, tuple) else addr
 
-    # pylint: disable=too-many-arguments
     @classmethod
-    def message(
-        cls,
-        sender: str,
-        to: AddressType,
-        subject: str,
-        priority: int = 3,
-        html: t.Optional[str] = None,
-        text: t.Optional[str] = None,
-        reply_to: t.Optional[str] = None,
-        cc: t.Optional[AddressType] = (),
-        bcc: t.Optional[AddressType] = (),
-        headers: t.Optional[t.Dict[str, str]] = None,
-        message_id: t.Optional[str] = None,
-    ) -> MIMEMultipart:
+    def add_attachments(cls, message: MIMEBase, files: t.List[str]):
+        for filename in files:
+            with open(filename, "rb") as file:
+                attach = MIMEApplication(file.read())
+                filename = os.path.basename(filename)
+                attach.add_header(
+                    "Content-Disposition", f"attachment; filename={filename}"
+                )
+                message.attach(attach)
+
+    @classmethod
+    def message(cls, addresses: MessageAddresses, data: MessageData) -> MIMEMultipart:
         message = MIMEMultipart("alternative")
-        message["From"] = sender
-        message["Subject"] = subject
-        message["X-Priority"] = str(priority)
-        message["Reply-To"] = reply_to or sender
-        message["To"] = cls.prepare_addresses(to)
+        message["From"] = addresses.sender
+        message["Subject"] = data.subject
+        message["X-Priority"] = str(data.priority)
+        message["Reply-To"] = addresses.reply_to or addresses.sender
+        message["To"] = cls.prepare_addresses(addresses.to)
         message["Date"] = formatdate(localtime=True)
         message["Message-Id"] = make_msgid(
-            idstring=str(message_id or get_uuid()),
-            domain=parseaddr(sender)[1].split("@")[1],
+            idstring=str(data.message_id or get_uuid()),
+            domain=parseaddr(addresses.sender)[1].split("@")[1],
         )
 
-        if cc:
-            message["Cc"] = cls.prepare_addresses(cc)
-        if bcc:
-            message["Bcc"] = cls.prepare_addresses(bcc)
+        if addresses.cc:
+            message["Cc"] = cls.prepare_addresses(addresses.cc)
+        if addresses.bcc:
+            message["Bcc"] = cls.prepare_addresses(addresses.bcc)
 
-        if headers:
-            for k, v in headers.items():
+        if data.headers:
+            for k, v in data.headers.items():
                 message.add_header(k, v)
 
-        if text:
-            message.attach(MIMEText(text, "plain"))
-        if html:
-            message.attach(MIMEText(html, "html"))
+        if data.text:
+            message.attach(MIMEText(data.text, "plain"))
+        if data.html:
+            message.attach(MIMEText(data.html, "html"))
 
+        cls.add_attachments(message, data.attachments or [])
         return message
 
     def get_instance(self, **kwargs) -> SMTP:
@@ -116,7 +137,7 @@ class SendMail:
                 response=server.send_message(message),
             )
 
-    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments,too-many-locals
     def send_message(
         self,
         subject: str,
@@ -130,20 +151,26 @@ class SendMail:
         bcc: t.Optional[AddressType] = (),
         headers: t.Optional[t.Dict[str, str]] = None,
         message_id: t.Optional[str] = None,
+        attachments: t.Optional[t.List[str]] = None,
         **kwargs,
     ) -> SMTPResponse:
         _sender = sender or str(self.params.sender) or self.params.user
         message = self.message(
-            subject=subject,
-            to=to,
-            sender=_sender,
-            priority=priority,
-            html=html,
-            text=text,
-            reply_to=reply_to,
-            cc=cc,
-            bcc=bcc,
-            headers=headers,
-            message_id=message_id,
+            MessageAddresses(
+                to=to,
+                sender=_sender,
+                reply_to=reply_to,
+                cc=cc,
+                bcc=bcc,
+            ),
+            MessageData(
+                subject=subject,
+                priority=priority,
+                html=html,
+                text=text,
+                headers=headers,
+                message_id=message_id,
+                attachments=attachments,
+            ),
         )
         return self.send(message, **kwargs)
