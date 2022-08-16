@@ -22,4 +22,5 @@ types-setuptools
 types-toml
 types-requests
 types-backports
+types-paramiko
 types-pytz

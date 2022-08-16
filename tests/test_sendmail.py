@@ -20,6 +20,7 @@ class MockSmtp(SendMail):
 
 class ModuleTest(unittest.TestCase):
     def setUp(self):
+        # pylint: disable=consider-using-with
         self.tmp_dir = tempfile.TemporaryDirectory()
 
         self.to_cc = "cc@mail.com"
