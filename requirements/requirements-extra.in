@@ -1,4 +1,5 @@
 -c requirements.txt
 
+chardet
 jsonschema
 rule_engine

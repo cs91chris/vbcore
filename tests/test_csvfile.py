@@ -50,14 +50,6 @@ def test_csv_file_writer(tmpdir):
     Asserter.assert_equals(file.read_text(encoding="utf-8"), SAMPLE_CSV)
 
 
-def test_csv_count_lines(tmpdir):
-    file = tmpdir.join("test_csv_count_lines.csv")
-    file.write(SAMPLE_CSV.encode())
-    handler = CSVHandler(file.strpath)
-
-    Asserter.assert_equals(handler.get_num_lines(), 2)
-
-
 def test_csv_sort(tmpdir):
     file = tmpdir.join("test_csv_sort.csv")
     file.write(UNSORTED.encode())

@@ -6,6 +6,8 @@
 #
 attrs==22.1.0
     # via jsonschema
+chardet==5.0.0
+    # via -r requirements/requirements-extra.in
 importlib-resources==5.9.0
     # via jsonschema
 jsonschema==4.9.0

@@ -2,6 +2,8 @@ import csv
 import typing as t
 from contextlib import contextmanager
 
+from vbcore.files import FileHandler
+
 OptStr = t.Optional[str]
 RecordType = t.Union[dict, t.Iterable[dict]]
 WriterCoroutineType = t.Generator[None, RecordType, None]
@@ -15,7 +17,7 @@ class CustomUnixDialect(csv.unix_dialect):
 csv.register_dialect("custom-unix", CustomUnixDialect)
 
 
-class CSVHandler:
+class CSVHandler(FileHandler):
     def __init__(
         self,
         filename: OptStr = None,
@@ -23,16 +25,15 @@ class CSVHandler:
         encoding: str = "utf-8",
         dialect: str = "custom-unix",
     ):
+        super().__init__(filename, encoding)
         self.fields = fields or []
-        self.filename = filename
-        self.encoding = encoding
         self.dialect = dialect
 
     @contextmanager
     def reader(
         self, filename: OptStr = None
     ) -> t.Generator[csv.DictReader, None, None]:
-        with self.open_file(filename) as file:
+        with self.open(filename) as file:
             reader = csv.DictReader(file, dialect=self.dialect)
             self.fields = list(reader.fieldnames)
             yield reader
@@ -44,16 +45,8 @@ class CSVHandler:
         fields: t.Optional[t.List[str]] = None,
         **kwargs,
     ) -> t.Generator[csv.DictWriter, None, None]:
-        with self.open_file(filename, mode="w", **kwargs) as file:
+        with self.open(filename, mode="w", **kwargs) as file:
             yield csv.DictWriter(file, fields or self.fields, dialect=self.dialect)
-
-    def open_file(self, filename: OptStr = None, **kwargs):
-        return open(filename or self.filename, encoding=self.encoding, **kwargs)
-
-    def get_num_lines(self, filename: OptStr = None) -> int:
-        with self.open_file(filename) as file:
-            lines = sum(1 for _ in file)
-            return lines - 1 if lines > 0 else 0
 
     # noinspection PyMethodMayBeStatic
     def after_read_hook(self, record: dict) -> t.Any:

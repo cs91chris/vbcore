@@ -1,14 +1,14 @@
 import math
-import os
 import re
 import signal
 import string
 import sys
-import tempfile
 import typing as t
 from decimal import Decimal
 from random import SystemRandom
 from threading import Lock
+
+T = t.TypeVar("T")
 
 
 class Printer:
@@ -93,12 +93,9 @@ def format_decimal(value: Decimal, precision: int = 8) -> str:
     return str_fmt.format(value).rstrip("0").rstrip(".")
 
 
-CIT = t.TypeVar("CIT")
-
-
 def chunk_iterator(
-    iterable: t.Iterable[CIT], chunk_size: int
-) -> t.Generator[t.List[CIT], None, None]:
+    iterable: t.Iterable[T], chunk_size: int
+) -> t.Generator[t.List[T], None, None]:
     _iterable = iter(iterable)
 
     while True:
@@ -117,15 +114,6 @@ def random_string(length: int, alphabet: str = string.printable) -> str:
     return "".join(SystemRandom().choice(alphabet) for _ in range(length))
 
 
-def read_text_file(filename: t.Optional[str], **kwargs) -> t.Optional[str]:
-    if not filename:
-        return None
-
-    encoding = kwargs.pop("encoding", "utf-8")
-    with open(filename, encoding=encoding, **kwargs) as file:
-        return file.read()
-
-
 class Signal:
     @classmethod
     def handle_terminate(cls, signum, frame, callback: t.Callable = lambda: None):
@@ -141,21 +129,6 @@ class Signal:
                 signal.signal(sig, handler)
             except Exception as exc:  # pylint: disable=broad-except
                 Printer.error(f"unable to register signal {s}: {exc}")
-
-
-class TempFile:
-    def __init__(self, data):
-        self.data = data
-        # pylint: disable=consider-using-with
-        self.file = tempfile.NamedTemporaryFile(delete=False)
-
-    def __enter__(self):
-        self.file.write(self.data)
-        self.file.close()
-        return self.file
-
-    def __exit__(self, exc_type, exc_value, exc_traceback):
-        os.unlink(self.file.name)
 
 
 class MemoryUsage:
