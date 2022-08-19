@@ -38,6 +38,7 @@ dev: format lint security test
 compile-deps:
 	$(call req_compile,requirements)
 	$(call req_compile,requirements-build)
+	$(call req_compile,requirements-all)
 	$(call req_compile,requirements-db)
 	$(call req_compile,requirements-http)
 	$(call req_compile,requirements-crypto)
@@ -49,6 +50,7 @@ compile-deps:
 upgrade-deps:
 	$(call req_compile,requirements,--upgrade)
 	$(call req_compile,requirements-build,--upgrade)
+	$(call req_compile,requirements-all,--upgrade)
 	$(call req_compile,requirements-db,--upgrade)
 	$(call req_compile,requirements-http,--upgrade)
 	$(call req_compile,requirements-crypto,--upgrade)
@@ -60,6 +62,8 @@ upgrade-deps:
 install-deps:
 	pip install \
 		-r ${REQ_PATH}/requirements.txt \
+		-r ${REQ_PATH}/requirements-build.txt \
+		-r ${REQ_PATH}/requirements-all.txt \
 		-r ${REQ_PATH}/requirements-db.txt \
 		-r ${REQ_PATH}/requirements-http.txt \
 		-r ${REQ_PATH}/requirements-crypto.txt \
@@ -136,7 +140,9 @@ test-coverage:
 safety:
 	safety check \
 		-r ${REQ_PATH}/requirements.txt \
+		-r ${REQ_PATH}/requirements-all.txt \
 		-r ${REQ_PATH}/requirements-db.txt \
+		-r ${REQ_PATH}/requirements-extra.txt \
 		-r ${REQ_PATH}/requirements-http.txt \
 		-r ${REQ_PATH}/requirements-crypto.txt \
 		-r ${REQ_PATH}/requirements-net.txt
@@ -145,7 +151,9 @@ liccheck:
 	liccheck \
 		--level CAUTIOUS \
 		-r ${REQ_PATH}/requirements.txt \
+		-r ${REQ_PATH}/requirements-all.txt \
 		-r ${REQ_PATH}/requirements-db.txt \
+		-r ${REQ_PATH}/requirements-extra.txt \
 		-r ${REQ_PATH}/requirements-http.txt \
 		-r ${REQ_PATH}/requirements-crypto.txt \
 		-r ${REQ_PATH}/requirements-net.txt

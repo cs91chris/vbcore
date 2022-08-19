@@ -1,4 +1,4 @@
--c requirements.txt
+-c requirements-all.txt
 -c requirements-test.txt
 
 black
@@ -15,6 +15,7 @@ isort
 autoflake
 
 sqlalchemy-stubs
+sqlalchemy[mypy]
 
 types-PyYAML
 types-python-dateutil

@@ -1,4 +1,4 @@
--c requirements.txt
+-c requirements-all.txt
 
 sqlalchemy
 sqlalchemy_schemadisplay

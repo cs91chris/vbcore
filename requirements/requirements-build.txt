@@ -7,15 +7,11 @@
 bleach==5.0.1
     # via readme-renderer
 certifi==2022.6.15
-    # via
-    #   -c requirements/requirements-dev.txt
-    #   requests
+    # via requests
 cffi==1.15.1
     # via cryptography
 charset-normalizer==2.1.0
-    # via
-    #   -c requirements/requirements-dev.txt
-    #   requests
+    # via requests
 commonmark==0.9.1
     # via rich
 cryptography==37.0.4
@@ -24,14 +20,12 @@ distlib==0.3.5
     # via virtualenv
 docutils==0.19
     # via readme-renderer
-filelock==3.7.1
+filelock==3.8.0
     # via
     #   tox
     #   virtualenv
 idna==3.3
-    # via
-    #   -c requirements/requirements-dev.txt
-    #   requests
+    # via requests
 importlib-metadata==4.12.0
     # via
     #   keyring
@@ -40,37 +34,30 @@ jeepney==0.8.0
     # via
     #   keyring
     #   secretstorage
-keyring==23.7.0
+keyring==23.8.2
     # via twine
 packaging==21.3
-    # via
-    #   -c requirements/requirements-dev.txt
-    #   tox
+    # via tox
 pkginfo==1.8.3
     # via twine
 platformdirs==2.5.2
-    # via
-    #   -c requirements/requirements-dev.txt
-    #   virtualenv
+    # via virtualenv
 pluggy==1.0.0
     # via tox
 py==1.11.0
     # via tox
 pycparser==2.21
     # via cffi
-pygments==2.12.0
+pygments==2.13.0
     # via
     #   readme-renderer
     #   rich
 pyparsing==3.0.9
-    # via
-    #   -c requirements/requirements-dev.txt
-    #   packaging
-readme-renderer==35.0
+    # via packaging
+readme-renderer==36.0
     # via twine
 requests==2.28.1
     # via
-    #   -c requirements/requirements-dev.txt
     #   requests-toolbelt
     #   twine
 requests-toolbelt==0.9.1
@@ -79,36 +66,30 @@ rfc3986==2.0.0
     # via twine
 rich==12.5.1
     # via twine
-secretstorage==3.3.2
+secretstorage==3.3.3
     # via keyring
 six==1.16.0
     # via
+    #   -c requirements/requirements.txt
     #   bleach
     #   tox
 toml==0.10.2
-    # via
-    #   -c requirements/requirements-dev.txt
-    #   tox
+    # via tox
 tox==3.25.1
     # via -r requirements/requirements-build.in
 twine==4.0.1
     # via -r requirements/requirements-build.in
 typing-extensions==4.3.0
-    # via
-    #   -c requirements/requirements-dev.txt
-    #   rich
+    # via rich
 urllib3==1.26.11
     # via
-    #   -c requirements/requirements-dev.txt
     #   requests
     #   twine
-virtualenv==20.16.2
+virtualenv==20.16.3
     # via tox
 webencodings==0.5.1
     # via bleach
 wheel==0.37.1
-    # via
-    #   -c requirements/requirements-dev.txt
-    #   -r requirements/requirements-build.in
+    # via -r requirements/requirements-build.in
 zipp==3.8.1
     # via importlib-metadata

@@ -1,0 +1,16 @@
+-c requirements.txt
+-c requirements-build.txt
+
+
+argon2-cffi
+sqlalchemy
+sqlalchemy_schemadisplay
+chardet
+jsonschema
+rule_engine
+aiohttp
+requests
+user_agents
+email_validator
+pysocks
+paramiko
