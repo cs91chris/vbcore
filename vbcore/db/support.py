@@ -2,7 +2,10 @@
 import typing as t
 
 from sqlalchemy import create_engine, inspect, tuple_
-from sqlalchemy.exc import IntegrityError, NoResultFound as NoResultError
+from sqlalchemy.exc import (  # type: ignore
+    IntegrityError,
+    NoResultFound as NoResultError,
+)
 from sqlalchemy.orm import Query, Session
 from sqlalchemy.sql import text as text_sql
 
@@ -45,7 +48,7 @@ class SQLASupport:
         :param lock: flag used for atomic update
         :return:
         """
-        obj = self.model(**params)
+        obj = self.model(**params)  # type: ignore
         self.session.add(obj)
 
         with self.session.begin_nested():
@@ -122,7 +125,7 @@ class SQLASupport:
     def get_primary_key(self, record: t.Optional[Model] = None) -> t.Tuple:
         return tuple(
             getattr(record or self.model, pk_item.name)
-            for pk_item in inspect(self.model).primary_key
+            for pk_item in inspect(self.model).primary_key  # type: ignore
         )
 
     def bulk_upsert(self, records: t.Iterable[Model]):

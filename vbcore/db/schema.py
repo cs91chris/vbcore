@@ -2,6 +2,7 @@ import importlib
 import typing as t
 
 from sqlalchemy import create_mock_engine, MetaData  # type: ignore
+from sqlalchemy.engine import Engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import class_mapper
 from sqlalchemy_schemadisplay import create_schema_graph, create_uml_graph
@@ -25,7 +26,7 @@ def model_to_uml(module):
 
 def db_to_schema(url: str):
     return create_schema_graph(
-        metadata=MetaData(url),
+        metadata=MetaData(url),  # type: ignore
         show_datatypes=False,
         show_indexes=False,
         rankdir="LR",
@@ -41,4 +42,4 @@ def dump_model_ddl(metadata: MetaData, dialect: t.Optional[str] = None):
         print(compiled, ";", sep="")  # type: ignore
 
     engine = create_mock_engine(f"{dialect}://", executor=executor)
-    metadata.create_all(engine)
+    metadata.create_all(t.cast(Engine, engine))

@@ -48,6 +48,12 @@ __REGISTRY: t.Dict[
 ] = collections.defaultdict(lambda: collections.defaultdict(list))
 
 
+class Listener:
+    @classmethod
+    def register_after_create(cls, target, callback):
+        event.listen(target, "after_create", callback)
+
+
 def try_match(match, key):
     try:
         return match.group(key)

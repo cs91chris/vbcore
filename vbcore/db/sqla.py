@@ -6,10 +6,12 @@ from functools import partial
 
 import sqlalchemy as sa
 import sqlalchemy.exc
-from sqlalchemy import event
-from sqlalchemy.orm import declarative_base, scoped_session, Session, sessionmaker
+from sqlalchemy.orm import declarative_base  # type: ignore
+from sqlalchemy.orm import scoped_session, Session, sessionmaker
 
 from vbcore.datastruct import BaseDTO
+
+from .events import Listener
 
 SessionType = t.Union[scoped_session, Session]
 LoadersType = t.Tuple[t.Type["LoaderModel"], ...]
@@ -67,7 +69,7 @@ class SQLAConnector:
     def register_loaders(session: SessionType, loaders: LoadersType):
         for loader in loaders:
             callback = partial(loader.load_values, session)
-            event.listen(loader.__table__, "after_create", callback)
+            Listener.register_after_create(loader.__table__, callback)
 
     def create_all(self, loaders: LoadersType = ()):
         if loaders:
@@ -112,7 +114,7 @@ class LoaderModel(Model):  # type: ignore
     values: t.Tuple[t.Dict[str, t.Any], ...] = ()
 
     @classmethod
-    def load_values(cls, session: SessionType, *_, **__):
+    def load_values(cls, session: Session, *_, **__):
         try:
             session.add_all(cls(**d) for d in cls.values)
             session.commit()
