@@ -51,10 +51,10 @@ class MessageData:
 @dataclasses.dataclass(frozen=True)
 class MessageAddresses:
     sender: str
-    to: AddressType
-    reply_to: t.Optional[str] = None
-    cc: AddressType = ()
+    to: AddressType  # pylint: disable=invalid-name
+    cc: AddressType = ()  # pylint: disable=invalid-name
     bcc: AddressType = ()
+    reply_to: t.Optional[str] = None
 
 
 class SendMail:

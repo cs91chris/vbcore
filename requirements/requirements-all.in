@@ -6,6 +6,7 @@ argon2-cffi
 sqlalchemy
 sqlalchemy_schemadisplay
 chardet
+gunicorn
 jsonschema
 rule_engine
 aiohttp

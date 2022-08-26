@@ -128,7 +128,7 @@ class StrEnum(str, enum.Enum):
     def _missing_(cls, value):
         return cls(cls.__members__.get(str(value).upper()))
 
-    def _generate_next_value_(self, *_):
+    def _generate_next_value_(self, *_):  # pylint: disable=arguments-differ
         return self
 
 
