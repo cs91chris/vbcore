@@ -168,20 +168,30 @@ class IStrEnum(LStrEnum):
         return value > other
 
 
-class Dumper:
-    def __init__(
-        self, data: t.Any, *args, callback: t.Optional[t.Callable] = None, **kwargs
-    ):
-        self.data = data
+class Lazy:
+    def __init__(self, callback: t.Callable, *args, **kwargs):
         self._args = args
         self._kwargs = kwargs
         self._callback = callback
 
+    def __call__(self, *args, **kwargs):
+        return self._callback(*self._args, **self._kwargs)
+
+
+class LazyDump(Lazy):
+    def __str__(self):
+        return self()
+
+
+class Dumper(Lazy):
+    def __init__(
+        self, data: t.Any, *args, callback: t.Optional[t.Callable] = None, **kwargs
+    ):
+        super().__init__(callback or str, *args, **kwargs)
+        self.data = data
+
     def dump(self) -> str:
-        data = self.data
-        if callable(self._callback):
-            data = self._callback(data, *self._args, **self._kwargs)
-        return str(data)
+        return self(self.data)
 
     def __str__(self):
         return self.dump()
