@@ -7,7 +7,7 @@ from decouple import Choices, Csv
 from gunicorn import util
 from gunicorn.app.base import BaseApplication  # type: ignore
 
-from vbcore.configurator import config, load_dotenv
+from vbcore.configurator import config, load_dotenv, MISSING
 from vbcore.importer import Importer
 
 # Supported env vars:
@@ -51,19 +51,22 @@ class GUnicornServer(BaseApplication):
         super().__init__()
 
     def from_env_config(
-        self, conf_key: str, opt_key: str, default: t.Optional[t.Any] = None, **kwargs
+        self, conf_key: str, opt_key: str, default: t.Any = MISSING, **kwargs
     ):
         _default = self.options.get(opt_key, default)
-        self.cfg.set(opt_key, config(conf_key, default=_default, **kwargs))
+        if default == _default == MISSING:
+            self.cfg.set(opt_key, config(conf_key, **kwargs))
+        else:
+            self.cfg.set(opt_key, config(conf_key, default=None, **kwargs) or _default)
 
     def set_default_config(self):
         self.cfg.set("errorlog", "-")
         self.cfg.set("accesslog", "-")
 
     def load_from_env(self):
-        self.from_env_config("GU_BIND", "bind", "0.0.0.0:8000", cast=Csv())
+        self.from_env_config("GU_BIND", "bind", ["0.0.0.0:8000"], cast=Csv())
         self.from_env_config("GU_PID_FILE", "pidfile", ".gunicorn.pid")
-        self.from_env_config("GU_PROC_NAME", "proc_name")
+        self.from_env_config("GU_PROC_NAME", "proc_name", None)
         self.from_env_config("GU_TIMEOUT", "timeout", 60, cast=int)
         self.from_env_config("GU_BACKLOG", "backlog", 2048, cast=int)
         self.from_env_config("GU_KEEP_ALIVE", "keepalive", 5, cast=int)
@@ -71,7 +74,7 @@ class GUnicornServer(BaseApplication):
         self.from_env_config("GU_USER", "user", os.geteuid())
         self.from_env_config("GU_GROUP", "group", os.getegid())
         self.from_env_config(
-            "GU_FORWARDED_ALLOW_IPS", "forwarded_allow_ips", "127.0.0.1"
+            "GU_FORWARDED_ALLOW_IPS", "forwarded_allow_ips", ["127.0.0.1"], cast=Csv()
         )
         self.from_env_config("GU_WORKER_CLASS", "worker_class", self.worker_class)
         self.from_env_config("GU_THREADS", "threads", 4, cast=int)
@@ -109,6 +112,10 @@ class GUnicornServer(BaseApplication):
         self.cfg.set("worker_exit", self._worker_exit)
         self.cfg.set("nworkers_changed", self._nworkers_changed)
         self.cfg.set("on_exit", self._on_exit)
+
+    def do_load_config(self):
+        self.load_default_config()
+        self.load_config()
 
     def load_config(self):
         self.set_hooks()

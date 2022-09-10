@@ -6,6 +6,9 @@ from functools import partial
 import decouple
 from dotenv import load_dotenv as base_load_dotenv
 
+# a special object for a default value interpreted as missing value
+MISSING = object()
+
 _conf_search_path = os.environ.get("ENV_PATH")
 _conf_file_name = os.environ.get("ENV_FILE")
 _conf_file_encoding = os.environ.get("ENV_FILE_ENCODING") or "UTF-8"
