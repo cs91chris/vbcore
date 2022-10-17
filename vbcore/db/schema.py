@@ -8,7 +8,14 @@ from sqlalchemy.orm import class_mapper
 from sqlalchemy_schemadisplay import create_schema_graph, create_uml_graph
 
 
-def model_to_uml(module):
+def model_to_uml(
+    module: str,
+    show_operations: bool = False,
+    show_attributes: bool = True,
+    show_inherited: bool = True,
+    show_multiplicity_one: bool = True,
+    show_datatypes: bool = True,
+):
     mappers = []
     models = importlib.import_module(module)
 
@@ -21,16 +28,29 @@ def model_to_uml(module):
         except SQLAlchemyError:
             pass
 
-    return create_uml_graph(mappers, show_operations=False)
+    return create_uml_graph(
+        mappers,
+        show_operations=show_operations,
+        show_attributes=show_attributes,
+        show_inherited=show_inherited,
+        show_multiplicity_one=show_multiplicity_one,
+        show_datatypes=show_datatypes,
+    )
 
 
-def db_to_schema(url: str):
+def db_to_schema(
+    url: str,
+    show_datatypes: bool = True,
+    show_indexes: bool = True,
+    concentrate: bool = True,
+    rankdir: str = "TB",
+):
     return create_schema_graph(
         metadata=MetaData(url),  # type: ignore
-        show_datatypes=False,
-        show_indexes=False,
-        rankdir="LR",
-        concentrate=False,
+        show_datatypes=show_datatypes,
+        show_indexes=show_indexes,
+        concentrate=concentrate,
+        rankdir=rankdir,
     )
 
 
