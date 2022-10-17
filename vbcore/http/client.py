@@ -100,19 +100,21 @@ class HTTPClient(HTTPBase):
         token: t.Optional[str] = None,
         username: t.Optional[str] = None,
         password: t.Optional[str] = None,
+        auth_with: t.Optional[auth.AuthBase] = None,
         **kwargs,
     ):
         super().__init__(endpoint, **kwargs)
+        self._token = token
         self._username = username
         self._password = password
-        self._token = token
+        self._auth_with = auth_with
 
     def get_auth(self) -> t.Optional[auth.AuthBase]:
         if self._username and self._password:
             return auth.HTTPBasicAuth(self._username, self._password)
         if self._token:
             return HTTPTokenAuth(self._token)
-        return None
+        return self._auth_with
 
     @staticmethod
     def prepare_response(
