@@ -187,7 +187,7 @@ class Dumper(Lazy):
     def __init__(
         self, data: t.Any, *args, callback: t.Optional[t.Callable] = None, **kwargs
     ):
-        super().__init__(callback or str, *args, **kwargs)
+        super().__init__(callback or str, data, *args, **kwargs)
         self.data = data
 
     def dump(self) -> str:
