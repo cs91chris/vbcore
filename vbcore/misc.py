@@ -1,3 +1,4 @@
+import functools
 import math
 import re
 import signal
@@ -93,6 +94,19 @@ def format_decimal(value: Decimal, precision: int = 8) -> str:
     return str_fmt.format(value).rstrip("0").rstrip(".")
 
 
+def static_attr(name: str, value):
+    def wrapper(func):
+        setattr(func, name, value)
+
+        @functools.wraps(func)
+        def inner(*args, **kwargs):
+            return func(*args, **kwargs)
+
+        return inner
+
+    return wrapper
+
+
 def chunk_iterator(
     iterable: t.Iterable[T], chunk_size: int
 ) -> t.Generator[t.List[T], None, None]:
@@ -133,12 +147,13 @@ class Signal:
 
 class MemoryUsage:
     @classmethod
-    def sizeof_fmt(cls, num: float) -> str:
-        for unit in ("B", "KB", "MB", "GB"):
+    def sizeof_fmt(cls, num: float, units: t.Sequence[str] = ()) -> str:
+        _units = units or ("B", "KB", "MB", "GB")
+        for unit in _units[:-1]:
             if abs(num) < 1000.0:
                 return f"{num:.2f} {unit}"
             num /= 1000.0
-        return f"{num:.2f} TB"
+        return f"{num:.2f} {units[-1]}"
 
     @classmethod
     def sizeof(cls, value: float) -> float:
