@@ -3,7 +3,7 @@ import typing as t
 from functools import partial
 from multiprocessing import cpu_count
 
-from decouple import Choices, Csv
+from decouple import Choices, Csv, UndefinedValueError
 from gunicorn import util
 from gunicorn.app.base import BaseApplication  # type: ignore
 
@@ -56,8 +56,11 @@ class GUnicornServer(BaseApplication):
         _default = self.options.get(opt_key, default)
         if default == _default == MISSING:
             self.cfg.set(opt_key, config(conf_key, **kwargs))
-        else:
-            self.cfg.set(opt_key, config(conf_key, default=None, **kwargs) or _default)
+            return
+        try:
+            self.cfg.set(opt_key, config(conf_key, **kwargs))
+        except UndefinedValueError:
+            self.cfg.set(opt_key, _default)
 
     def set_default_config(self):
         self.cfg.set("errorlog", "-")
@@ -74,7 +77,7 @@ class GUnicornServer(BaseApplication):
         self.from_env_config("GU_USER", "user", os.geteuid())
         self.from_env_config("GU_GROUP", "group", os.getegid())
         self.from_env_config(
-            "GU_FORWARDED_ALLOW_IPS", "forwarded_allow_ips", ["127.0.0.1"], cast=Csv()
+            "GU_FORWARDED_ALLOW_IPS", "forwarded_allow_ips", "127.0.0.1"
         )
         self.from_env_config("GU_WORKER_CLASS", "worker_class", self.worker_class)
         self.from_env_config("GU_THREADS", "threads", 4, cast=int)
@@ -273,16 +276,17 @@ def cli_gu_options(func: t.Callable) -> t.Callable:
     @str_option("-b", "--bind", multiple=True)
     @int_option("-w", "--workers")
     @int_option("-t", "--threads")
-    @str_option("--worker-class")
-    @int_option("--timeout")
+    @str_option("-W", "--worker-class")
+    @int_option("-T", "--timeout")
     @int_option("--backlog")
     @int_option("--keepalive")
     @str_option("--pidfile")
-    @str_option("--proc_name")
+    @str_option("--proc-name")
     @str_option("--chdir")
     @str_option("-u", "--user")
     @str_option("-g", "--group")
     def wrapper(**kwargs):
-        return func(**{k: v for k, v in kwargs.items() if v})
+        without_blanks = {k: v for k, v in kwargs.items() if v}
+        return func(**without_blanks)
 
     return wrapper

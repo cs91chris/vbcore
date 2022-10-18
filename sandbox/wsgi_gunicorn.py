@@ -1,4 +1,8 @@
+import logging
+
 from vbcore.standalone.wsgi_gunicorn import GUnicornServer
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def app(environ, start_response):
