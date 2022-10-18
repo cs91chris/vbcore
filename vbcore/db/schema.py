@@ -13,8 +13,8 @@ def model_to_uml(
     show_operations: bool = False,
     show_attributes: bool = True,
     show_inherited: bool = True,
-    show_multiplicity_one: bool = True,
     show_datatypes: bool = True,
+    **kwargs,
 ):
     mappers = []
     models = importlib.import_module(module)
@@ -33,8 +33,8 @@ def model_to_uml(
         show_operations=show_operations,
         show_attributes=show_attributes,
         show_inherited=show_inherited,
-        show_multiplicity_one=show_multiplicity_one,
         show_datatypes=show_datatypes,
+        **kwargs,
     )
 
 
@@ -44,6 +44,7 @@ def db_to_schema(
     show_indexes: bool = True,
     concentrate: bool = True,
     rankdir: str = "TB",
+    **kwargs,
 ):
     return create_schema_graph(
         metadata=MetaData(url),  # type: ignore
@@ -51,6 +52,7 @@ def db_to_schema(
         show_indexes=show_indexes,
         concentrate=concentrate,
         rankdir=rankdir,
+        **kwargs,
     )
 
 

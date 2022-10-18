@@ -1,14 +1,16 @@
 import logging
+from abc import ABC, abstractmethod
 from functools import cached_property
 from typing import Generic, TypeVar
 
 LogClass = TypeVar("LogClass", bound=logging.Logger)
 
 
-class LoggerMixin(Generic[LogClass]):
+class LoggerMixin(Generic[LogClass], ABC):
     @classmethod
+    @abstractmethod
     def logger(cls) -> LogClass:
-        return logging.getLogger(cls.__module__)
+        """returns the logger instance"""
 
     @cached_property
     def log(self) -> LogClass:
@@ -16,4 +18,6 @@ class LoggerMixin(Generic[LogClass]):
 
 
 class BaseLoggerMixin(LoggerMixin[logging.Logger]):
-    """default class for logger"""
+    @classmethod
+    def logger(cls) -> logging.Logger:
+        return logging.getLogger(cls.__module__)
