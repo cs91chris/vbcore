@@ -4,3 +4,8 @@ python-decouple
 python-dotenv
 pyyaml
 psutil
+
+# constraints
+#
+backports.zoneinfo==0.2.1;python_version<"3.9"
+cryptography<37

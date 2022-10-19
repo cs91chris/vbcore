@@ -12,11 +12,11 @@ chardet==5.0.0
     # via
     #   -c requirements/requirements-all.txt
     #   -r requirements/requirements-extra.in
-importlib-resources==5.9.0
+importlib-resources==5.10.0
     # via
     #   -c requirements/requirements-all.txt
     #   jsonschema
-jsonschema==4.12.1
+jsonschema==4.16.0
     # via
     #   -c requirements/requirements-all.txt
     #   -r requirements/requirements-extra.in
@@ -44,7 +44,7 @@ six==1.16.0
     # via
     #   -c requirements/requirements-all.txt
     #   python-dateutil
-zipp==3.8.1
+zipp==3.9.0
     # via
     #   -c requirements/requirements-all.txt
     #   importlib-resources
