@@ -148,7 +148,7 @@ class HTTPClient(HTTPBase):
             kwargs.setdefault("timeout", self._timeout)
             url = self.normalize_url(uri)
             req = ObjectDict(method=method, url=url, **kwargs)
-            self._logger.info("%s", self.dump_request(req, dump_body[0]))
+            self._logger.info("%s", self.dump_request(req, dump_body=dump_body[0]))
             response = send_request(method, self.normalize_url(uri), **kwargs)
         except NetworkError as exc:
             self._logger.exception(exc)
@@ -159,7 +159,7 @@ class HTTPClient(HTTPBase):
                 status=httpcode.SERVICE_UNAVAILABLE, exception=exc
             )
 
-        log_resp = self.dump_response(response, dump_body[1])
+        log_resp = self.dump_response(response, dump_body=dump_body[1])
         try:
             response.raise_for_status()
             self._logger.info("%s", log_resp)
