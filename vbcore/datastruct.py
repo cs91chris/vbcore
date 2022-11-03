@@ -278,27 +278,40 @@ class GeoJsonPoint(DataClassDictable):
         self.lon = lon
 
 
-class BufferManager:
+class BufferManager(t.Generic[T]):
     def __init__(self, max_size: int = 0):
         self._max_size = max_size
-        self._buffer: list = []
+        self._buffer: t.List[T] = []
 
     @property
-    def buffer(self) -> list:
+    def buffer(self) -> t.List[T]:
         return self._buffer
 
-    def buffer_flush_hook(self):
+    @property
+    def size(self) -> int:
+        return len(self.buffer)
+
+    def pre_flush_hook(self):
         """Derived class can hook at flush time, so it can handle buffered data"""
 
-    def buffer_load(self, record):
+    def clear(self):
+        self.buffer.clear()
+
+    def load(self, record: T) -> int:
         self._buffer.append(record)
         if self._max_size and len(self._buffer) >= self._max_size:
-            self.buffer_flush()
+            self.flush()
+        return self.size
 
-    def buffer_flush(self):
-        if self._buffer:
-            self.buffer_flush_hook()
-            self._buffer.clear()
+    def loads(self, records: t.Iterable[T]) -> int:
+        for record in records:
+            self.load(record)
+        return self.size
+
+    def flush(self):
+        if self.size > 0:
+            self.pre_flush_hook()
+            self.clear()
 
 
 # based on: https://github.com/mailgun/expiringdict
@@ -317,15 +330,19 @@ class ExpiringCache(OrderedDict):
 
     def __init__(self, max_len: int = 128, max_age: float = 0):
         super().__init__(self)
-        self.lock = RLock()
+        self._lock = RLock()
         self.max_len = max_len
         self.max_age = max_age
 
+    @staticmethod
+    def _item_age(item) -> float:
+        return time.time() - item[1]
+
     def __contains__(self, key):
         try:
-            with self.lock:
+            with self._lock:
                 item = super().__getitem__(key)
-                if self.__item_age(item) < self.max_age:
+                if self._item_age(item) < self.max_age:
                     return True
                 del self[key]
         except KeyError:
@@ -333,9 +350,9 @@ class ExpiringCache(OrderedDict):
         return False
 
     def __getitem__(self, key, with_age: bool = False):
-        with self.lock:
+        with self._lock:
             item = super().__getitem__(key)
-            item_age = self.__item_age(item)
+            item_age = self._item_age(item)
             if item_age < self.max_age:
                 if with_age:
                     return item[0], item_age
@@ -344,7 +361,7 @@ class ExpiringCache(OrderedDict):
             raise KeyError(key)
 
     def __setitem__(self, key, value, set_time=None):
-        with self.lock:
+        with self._lock:
             if len(self) == self.max_len:
                 if key in self:
                     del self[key]
@@ -355,13 +372,9 @@ class ExpiringCache(OrderedDict):
                         pass
             super().__setitem__(key, (value, set_time or time.time()))
 
-    @staticmethod
-    def __item_age(item) -> int:
-        return time.time() - item[1]
-
     def items(self):
         values = []
-        for key in list(self.keys()):
+        for key in list(self.keys()):  # pylint: disable=consider-using-dict-items
             try:
                 values.append((key, self[key]))
             except KeyError:
@@ -379,7 +392,7 @@ class ExpiringCache(OrderedDict):
 
     def values(self):
         values = []
-        for key in list(self.keys()):
+        for key in list(self.keys()):  # pylint: disable=consider-using-dict-items
             try:
                 values.append(self[key])
             except KeyError:
@@ -387,7 +400,7 @@ class ExpiringCache(OrderedDict):
         return values
 
     def pop(self, key, default=None):
-        with self.lock:
+        with self._lock:
             try:
                 item = super().__getitem__(key)
                 del self[key]
@@ -402,7 +415,7 @@ class ExpiringCache(OrderedDict):
             return key_ttl if key_ttl > 0 else None
         return None
 
-    def get(self, key, default=None, with_age=False):
+    def get(self, key, default=None, with_age: bool = False):
         try:
             # pylint: disable=unnecessary-dunder-call
             return self.__getitem__(key, with_age)
@@ -417,25 +430,10 @@ class ExpiringCache(OrderedDict):
 
     def delete(self, key):
         try:
-            with self.lock:
+            with self._lock:
                 del self[key]
         except KeyError:
             pass
-
-
-@dataclass(frozen=True)
-class BaseDTO:
-    def to_dict(self) -> dict:
-        return asdict(self)
-
-
-class Singleton(type):
-    __instances: t.Dict[t.Type, t.Any] = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls.__instances:
-            cls.__instances[cls] = super().__call__(*args, **kwargs)
-        return cls.__instances[cls]
 
 
 class OrderedSet(t.MutableSet[T]):

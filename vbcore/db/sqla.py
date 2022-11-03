@@ -9,8 +9,7 @@ import sqlalchemy.exc
 from sqlalchemy.orm import declarative_base  # type: ignore
 from sqlalchemy.orm import scoped_session, Session, sessionmaker
 
-from vbcore.datastruct import BaseDTO
-
+from ..base import BaseDTO
 from .events import Listener
 
 SessionType = t.Union[scoped_session, Session]
