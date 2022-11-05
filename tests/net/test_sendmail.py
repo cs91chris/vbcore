@@ -7,7 +7,7 @@ from email.utils import parsedate
 from unittest.mock import MagicMock
 
 from vbcore.http.headers import ContentTypeEnum
-from vbcore.sendmail import MessageAddresses, MessageData, SendMail, SMTPParams
+from vbcore.net.sendmail import MessageAddresses, MessageData, SendMail, SMTPParams
 
 
 class MockSmtp(SendMail):

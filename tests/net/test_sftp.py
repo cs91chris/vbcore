@@ -8,8 +8,8 @@ REMOTE_FILE = "remote.txt"
 LOCAL_FILE = "local.txt"
 REMOTE_DIR = "/remote"
 
-patch_sftp_client = partial(patch, "vbcore.sftp.SFTPClient")
-patch_sftp_transport = partial(patch, "vbcore.sftp.Transport")
+patch_sftp_client = partial(patch, "vbcore.net.sftp.SFTPClient")
+patch_sftp_transport = partial(patch, "vbcore.net.sftp.Transport")
 
 
 @patch_sftp_client()

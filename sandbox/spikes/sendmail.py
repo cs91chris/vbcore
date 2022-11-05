@@ -1,4 +1,4 @@
-from vbcore.sendmail import SendMail, SMTPParams
+from vbcore.net.sendmail import SendMail, SMTPParams
 
 if __name__ == "__main__":
     client = SendMail(SMTPParams(host="localhost", port=25))
