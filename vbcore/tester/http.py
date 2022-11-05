@@ -82,6 +82,8 @@ class TestHttpCall(HTTPDumper, JSONValidatorMixin, RegexMixin):
                 self.assert_header(name=k, **v)
 
     def request_implementation(self, method, url, **kwargs):
+        _ = self
+        # pylint: disable=missing-timeout
         return http_client(method, url, **kwargs)
 
     def request(self, method=HttpMethod.GET, url=None, **kwargs):
@@ -95,8 +97,6 @@ class TestHttpCall(HTTPDumper, JSONValidatorMixin, RegexMixin):
 
         request = ObjectDict(method=method, url=url, **kwargs)
         self.response = self.request_implementation(**request)
-        print(self.dump_request(request, dump_body=True))
-        print(self.dump_response(self.response, dump_body=True))
 
     def perform(self, request, response=None, **__):
         self.request(**request)

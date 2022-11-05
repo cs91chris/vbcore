@@ -145,11 +145,11 @@ class HTTPClient(HTTPBase):
             dump_body = (dump_body[0], False)
 
         try:
-            kwargs.setdefault("timeout", self._timeout)
             url = self.normalize_url(uri)
             req = ObjectDict(method=method, url=url, **kwargs)
             self._logger.info("%s", self.dump_request(req, dump_body=dump_body[0]))
-            response = send_request(method, self.normalize_url(uri), **kwargs)
+            timeout = kwargs.pop("timeout", None) or self._timeout
+            response = send_request(method, url, timeout=timeout, **kwargs)
         except NetworkError as exc:
             self._logger.exception(exc)
             if raise_on_exc or self._raise_on_exc:
