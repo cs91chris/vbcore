@@ -11,12 +11,13 @@ from datetime import timedelta
 from logging.handlers import QueueHandler, QueueListener
 from queue import Queue
 
+DEFAULT_FORMAT = "[%(asctime)s][%(levelname)s][%(name)s]: %(message)s"
 DEFAULT_LISTENER_PORT = logging.config.DEFAULT_LOGGING_CONFIG_PORT
 
 
 @dataclass(frozen=True)
 class LoggingSettings:
-    level: str = "WARNING"
+    level: str = "INFO"
     config_file: t.Optional[str] = None
     logger_name: t.Optional[str] = None
     listen_for_reload: bool = False
@@ -35,6 +36,7 @@ class Loggers:
                 logging.config.dictConfig(json.load(file))
         else:
             kwargs.setdefault("level", self.config.level)
+            kwargs.setdefault("format", DEFAULT_FORMAT)
             logging.basicConfig(**kwargs)
 
         if self.config.listen_for_reload:
@@ -42,11 +44,12 @@ class Loggers:
             listener.daemon = self.config.listener_daemon
             listener.start()
 
-    @staticmethod
+    @classmethod
     @contextmanager
     def execution_time(
+        cls,
         message: t.Optional[str] = None,
-        logger_name: str = __name__,
+        logger_name: str = None,
         **kwargs,
     ):
         start_time = timeit.default_timer()

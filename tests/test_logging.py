@@ -3,7 +3,7 @@ import tempfile
 import time
 from unittest import TestCase
 
-from vbcore.logging import Loggers, LoggingSettings
+from vbcore.loggers import Loggers, LoggingSettings
 
 LOGGER_NAME = "vbcore"
 
@@ -43,14 +43,16 @@ class TestLoggers(TestCase):
 
         loggers = Loggers(LoggingSettings(config_file=file.name, level="INFO"))
         with self.assertLogs(LOGGER_NAME, "INFO") as captured:
-            with loggers.execution_time("TIME: "):
+            with loggers.execution_time("TIME: ", logger_name=LOGGER_NAME):
                 time.sleep(0.01)
 
         self.assertEqual(len(captured.records), 1)
         self.assertTrue(captured.records[0].message.startswith("TIME: 0:00:00.01"))
 
     def test_reload(self):
-        loggers = Loggers(LoggingSettings(listen_for_reload=True))
+        loggers = Loggers(
+            LoggingSettings(listen_for_reload=True, logger_name=LOGGER_NAME)
+        )
 
         with tempfile.NamedTemporaryFile(delete=False) as file:
             file.write(json.dumps(log_config).encode())
