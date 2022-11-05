@@ -3,41 +3,51 @@ from datetime import date as datetime_date, datetime
 
 from dateutil.parser import parse as date_parse
 
-
-class Millis:
-    seconds: int = 1000
-    minute: int = seconds * 60
-    hour: int = minute * 60
-    day: int = hour * 24
-
-
-class Seconds:
-    millis: int = 1000
-    minute: int = 60
-    hour: int = minute * 60
-    day: int = hour * 24
-
-
-class Minutes:
-    seconds: int = 60
-    hour: int = 60
-    day: int = hour * 24
-
-
-class Day:
-    hours: int = 24
-    minutes: int = hours * 60
-    seconds: int = minutes * 60
-
+from vbcore.base import Static
 
 DateType = t.Union[datetime_date, datetime]
 AnyDateType = t.Union[DateType, str]
 
 
-class DateHelper:
-    DATE_PRETTY_FORMAT = "%d %B %Y %I:%M %p"
-    DATE_ISO_FORMAT = "%Y-%m-%dT%H:%M:%S"
+class Millis(metaclass=Static):
+    seconds: t.ClassVar[int] = 1000
+    minute: t.ClassVar[int] = seconds * 60
+    hour: t.ClassVar[int] = minute * 60
+    day: t.ClassVar[int] = hour * 24
 
+
+class Seconds(metaclass=Static):
+    millis: t.ClassVar[int] = 1000
+    minute: t.ClassVar[int] = 60
+    hour: t.ClassVar[int] = minute * 60
+    day: t.ClassVar[int] = hour * 24
+
+
+class Minutes(metaclass=Static):
+    seconds: t.ClassVar[int] = 60
+    hour: t.ClassVar[int] = 60
+    day: t.ClassVar[int] = hour * 24
+
+
+class Day(metaclass=Static):
+    hours: t.ClassVar[int] = 24
+    minutes: t.ClassVar[int] = hours * 60
+    seconds: t.ClassVar[int] = minutes * 60
+
+
+class DateTimeFmt(metaclass=Static):
+    PRETTY: t.ClassVar[str] = "%d %B %Y %I:%M %p"
+    ISO: t.ClassVar[str] = "%Y-%m-%dT%H:%M:%S"
+    AS_NUM: t.ClassVar[str] = "%Y%m%d%H%M%S"
+
+
+class DateFmt(metaclass=Static):
+    PRETTY: t.ClassVar[str] = "%d %B %Y"
+    ISO: t.ClassVar[str] = "%Y-%m-%d"
+    AS_NUM: t.ClassVar[str] = "%Y%m%d"
+
+
+class DateHelper:
     @classmethod
     def is_weekend(cls, curr_date: AnyDateType, **kwargs) -> bool:
         """
@@ -79,13 +89,20 @@ class DateHelper:
         return None
 
     @classmethod
-    def now_iso_string(cls, is_utc: bool = True, tz=None) -> str:
-        now = datetime.utcnow() if is_utc else datetime.now()
-        return cls.date_to_str(now, tz)
+    def str_now(cls, is_utc: bool = True, tz=None, fmt: t.Optional[str] = None) -> str:
+        """
+
+        :param is_utc:
+        :param tz:
+        :param fmt:
+        :return:
+        """
+        now = datetime.utcnow() if is_utc else datetime.now(tz)
+        return cls.date_to_str(now, fmt)
 
     @classmethod
     def date_to_str(cls, date: DateType, fmt: t.Optional[str] = None) -> str:
-        return date.strftime(fmt or cls.DATE_ISO_FORMAT)
+        return date.strftime(fmt or DateTimeFmt.ISO)
 
     @classmethod
     def str_to_date(
@@ -100,7 +117,7 @@ class DateHelper:
         :return: return parsed date
         """
         if is_iso is True:
-            fmt = cls.DATE_ISO_FORMAT
+            fmt = DateTimeFmt.ISO
         if fmt is None:
             return date_parse(date, **kwargs)
 
@@ -110,31 +127,23 @@ class DateHelper:
         return date_obj
 
     @classmethod
-    def pretty_date(cls, date: AnyDateType):
+    def pretty_date(cls, date: AnyDateType) -> str:
         if isinstance(date, str):
-            return cls.change_format(
-                date, out_fmt=cls.DATE_PRETTY_FORMAT, raise_exc=True
-            )
-        return cls.date_to_str(date, fmt=cls.DATE_PRETTY_FORMAT)
+            return cls.change_format(date, out_fmt=DateTimeFmt.PRETTY, raise_exc=True)
+        return cls.date_to_str(date, fmt=DateTimeFmt.PRETTY)
 
     @classmethod
-    def from_iso_format(cls, str_date: str, fmt: str, exc: bool = True):
+    def from_iso_format(
+        cls, str_date: str, fmt: str, exc: bool = True
+    ) -> t.Optional[str]:
         return DateHelper.change_format(
-            str_date, in_fmt=DateHelper.DATE_ISO_FORMAT, out_fmt=fmt, raise_exc=exc
+            str_date, in_fmt=DateTimeFmt.ISO, out_fmt=fmt, raise_exc=exc
         )
 
     @classmethod
     def to_iso_format(
         cls, str_date: str, fmt: t.Optional[str] = None, exc: bool = True
-    ):
+    ) -> t.Optional[str]:
         return DateHelper.change_format(
-            str_date, in_fmt=fmt, out_fmt=DateHelper.DATE_ISO_FORMAT, raise_exc=exc
+            str_date, in_fmt=fmt, out_fmt=DateTimeFmt.ISO, raise_exc=exc
         )
-
-
-def from_iso_format(str_date: str, fmt: str, exc: bool = True):
-    return DateHelper.from_iso_format(str_date, fmt, exc)
-
-
-def to_iso_format(str_date: str, fmt: t.Optional[str] = None, exc: bool = True):
-    return DateHelper.to_iso_format(str_date, fmt, exc)
