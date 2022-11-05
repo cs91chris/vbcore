@@ -49,12 +49,18 @@ class BaseDTO:
 
 class Singleton(type):
     """
-    use this class as metaclass, i.e.:
-    >>> class MyClass:
-    >>>     pass
+    Makes classes singleton, use this as metaclass, i.e.:
 
+    >>> class MyClass:
+    ...     pass
+    ...
     >>> class MySingletonClass(MyClass, metaclass=Singleton):
-    >>>     pass
+    ...     pass
+    ...
+    >>> MyClass() is MyClass()
+    False
+    >>> MySingletonClass() is MySingletonClass()
+    True
     """
 
     # private map of instances
@@ -64,3 +70,20 @@ class Singleton(type):
         if cls not in cls.__instances:
             cls.__instances[cls] = super().__call__(*args, **kwargs)
         return cls.__instances[cls]
+
+
+class Static(type):
+    """
+    Makes classes static, use this as metaclass, i.e.:
+
+    >>> class MyStaticClass(metaclass=Static):
+    ...     pass
+    ...
+    >>> MyStaticClass()
+    Traceback (most recent call last):
+        ...
+    TypeError: Can't instantiate class MyStaticClass
+    """
+
+    def __call__(cls):
+        raise TypeError(f"Can't instantiate class {cls.__name__}")
