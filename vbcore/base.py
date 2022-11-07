@@ -28,6 +28,21 @@ class BaseLoggerMixin(LoggerMixin[logging.Logger]):
 class BaseDTO:
     """
     Use this class as mixin for dataclasses
+
+    >>> from dataclasses import dataclass
+
+    >>> @dataclass(frozen=True)
+    ... class MyDTO(BaseDTO):
+    ...     name: str
+    ...     age: int
+    ...
+    >>> data = {"name": "pippo", "age": 12}
+    >>> dto = MyDTO(name="pippo", age=12)
+
+    >>> dto == MyDTO.from_dict(**data)
+    True
+    >>> dto.to_dict() == data
+    True
     """
 
     def __call__(self, *_, **kwargs):

@@ -3,11 +3,10 @@ import json
 import logging.config
 import socket
 import struct
-import timeit
 import typing as t
 from contextlib import contextmanager
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import datetime
 from logging.handlers import QueueHandler, QueueListener
 from queue import Queue
 
@@ -52,14 +51,14 @@ class Loggers:
         logger_name: str = None,
         **kwargs,
     ):
-        start_time = timeit.default_timer()
+        start_time = datetime.now()
         yield
 
         logger = logging.getLogger(logger_name)
         logger.info(
             "%s%s",
             message or "execution time: ",
-            timedelta(seconds=timeit.default_timer() - start_time),
+            datetime.now() - start_time,
             extra=kwargs,
         )
 
