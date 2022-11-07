@@ -9,6 +9,7 @@ from subprocess import CompletedProcess, PIPE, run as run_subprocess
 
 from vbcore.base import BaseLoggerMixin
 from vbcore.date_helper import DateTimeFmt
+from vbcore.net.helpers import Url
 
 CmdLine = t.List[str]
 
@@ -33,7 +34,7 @@ class MySQLDumper:
         self.password = password
         self.port = port or 3306
         self.hostname = hostname or "localhost"
-        self.ignore_databases = ignore_databases or [
+        self.ignore_databases = (ignore_databases or []) + [
             "information_schema",
             "performance_schema",
             "mysql",
@@ -126,11 +127,7 @@ class MysqlBackup(BaseLoggerMixin):
         self.add_datetime = add_datetime
         self.datetime_format = datetime_format
 
-    def prepare_filename(
-        self,
-        *args,
-        ext: str = "tar.gz",
-    ) -> str:
+    def prepare_filename(self, *args, ext: str) -> str:
         current_datetime = None
         if self.add_datetime:
             _datetime_format = self.datetime_format or DateTimeFmt.AS_NUM
@@ -151,8 +148,12 @@ class MysqlBackup(BaseLoggerMixin):
             )
             with open(filename, mode="wb") as file:
                 file.write(dump.dump)
+
             self.log.info(
-                "table: %s.%s successfully dumped at: %s", database, table, filename
+                "table: %s.%s successfully dumped at: %s",
+                database,
+                table,
+                filename,
             )
 
     def backup_as_archive(
@@ -175,3 +176,36 @@ class MysqlBackup(BaseLoggerMixin):
                     tarinfo.size = len(dump.dump)
                     file.addfile(tarinfo, fileobj=io.BytesIO(dump.dump))
             self.log.info("database: %s successfully dumped at: %s", database, filename)
+
+
+def cli_wrapper(
+    *,
+    db_url: str,
+    ignore_databases: t.Optional[t.List[str]] = None,
+    folder: str = ".",
+    add_datetime: bool = True,
+    datetime_format: t.Optional[str] = None,
+    as_archive: bool = True,
+    file_prefix: t.Optional[str] = None,
+    db_prefix: t.Optional[str] = None,
+):
+    url = Url.from_raw(db_url)
+    _db_prefix = db_prefix or url.path.strip("/")
+
+    service = MysqlBackup(
+        dumper=MySQLDumper(
+            username=url.username,
+            password=url.password,
+            hostname=url.hostname,
+            port=url.port,
+            ignore_databases=ignore_databases,
+        ),
+        folder=folder,
+        add_datetime=add_datetime,
+        datetime_format=datetime_format,
+    )
+
+    if as_archive is True:
+        service.backup_as_archive(file_prefix, _db_prefix)
+    else:
+        service.backup_single_files(file_prefix, _db_prefix)
