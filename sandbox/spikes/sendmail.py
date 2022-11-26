@@ -1,7 +1,12 @@
 from vbcore.net.sendmail import SendMail, SMTPParams
 
+params = SMTPParams(
+    host="localhost",
+    port=25,
+)
+
 if __name__ == "__main__":
-    client = SendMail(SMTPParams(host="localhost", port=25))
+    client = SendMail(params)
     response = client.send_message(
         subject="TEST MAIL",
         to="test@localhost",

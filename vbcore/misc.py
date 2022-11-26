@@ -32,18 +32,22 @@ class Printer:
         cls.error(*args, **kwargs)
 
 
-def parse_value(v):
+def parse_value(value: t.Any):
     """
 
-    :param v:
+    :param value:
     :return:
     """
+    if value == "":
+        return None
     try:
-        return float(v) if "." in v else int(v)
+        return float(value) if "." in value else int(value)
     except ValueError:
-        if v.lower() in ("true", "false"):
-            return v.lower() == "true"
-    return v
+        if value.lower() in ("true", "false"):
+            return value.lower() == "true"
+        if value.lower() in ("y", "n"):
+            return value.lower() == "y"
+    return value
 
 
 def get_from_dict(d: dict, k, default=None):
