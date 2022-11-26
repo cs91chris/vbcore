@@ -1,9 +1,10 @@
 import os
 import shutil
-import sys
 from pathlib import Path
 
 import click
+
+from vbcore.tools.cli import Cli
 
 
 def replace_in_file(file: str, src: str, dst: str):
@@ -21,8 +22,7 @@ def copy_skeleton(name: str):
         shutil.copytree(source, ".", dirs_exist_ok=True)
         shutil.move("skel", name)
     except OSError as e:
-        print(f"Unable to create new app. Error: {e}", file=sys.stderr)
-        sys.exit(1)
+        Cli.abort(f"Unable to create new app. Error: {e}")
 
 
 def init_app(name: str):
@@ -32,12 +32,11 @@ def init_app(name: str):
 
     for root, _, files in os.walk("."):
         for f in files:
-            file = os.path.join(root, f)
-            replace_in_file(file, "{skeleton}", name)
+            replace_in_file(os.path.join(root, f), "{skeleton}", name)
 
 
 @click.command(name="init")
-@click.argument("name")
+@Cli.argument("name")
 def main(name):
     """Create skeleton for new application"""
     init_app(name)

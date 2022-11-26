@@ -2,6 +2,8 @@ import logging.config
 
 import click
 
+from vbcore.tools.cli import Cli, CliInputFile, CliReqOpt
+
 try:
     from vbcore.standalone.scheduler import APScheduler
 except ImportError:
@@ -13,17 +15,10 @@ main = click.Group(name="scheduler", help="start the scheduler")
 
 
 @main.command("standalone")
-@click.option(
-    "-c",
-    "--config-file",
-    required=True,
-    show_envvar=True,
-    envvar="CONFIG_FILE",
-    type=click.Path(exists=True, readable=True, file_okay=True, dir_okay=False),
-)
+@CliReqOpt.string("-c", "--config-file", envvar="CONFIG_FILE", type=CliInputFile())
 def standalone(config_file):
     if APScheduler is None:
-        raise ImportError("you must install vbcore[scheduler]")
+        Cli.abort("you must install vbcore[scheduler]")
 
     config = load_yaml_file(config_file)
     if "LOGGING" in config:
