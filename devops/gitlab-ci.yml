@@ -56,7 +56,10 @@ dist-build-publish:
   only:
     - tags
   needs:
-    - validate-and-test
+    - format
+    - lint
+    - security
+    - test
   variables:
     TWINE_USERNAME: gitlab-ci-token
     TWINE_PASSWORD: ${CI_JOB_TOKEN}
@@ -71,7 +74,10 @@ image-build-publish:
   only:
     - tags
   needs:
-    - validate-and-test
+    - format
+    - lint
+    - security
+    - test
   image: docker:latest
   services:
     - docker:dind
