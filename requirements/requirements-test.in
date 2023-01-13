@@ -1,4 +1,5 @@
 -c requirements-all.txt
+-c requirements-build.txt
 
 coverage
 pytest

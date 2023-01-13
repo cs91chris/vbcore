@@ -131,7 +131,6 @@ crypto_requires = read_requirements(os.path.join(REQ_PATH, "requirements-crypto.
 http_requires = read_requirements(os.path.join(REQ_PATH, "requirements-http.in"))
 net_requires = read_requirements(os.path.join(REQ_PATH, "requirements-net.in"))
 extra_requires = read_requirements(os.path.join(REQ_PATH, "requirements-extra.in"))
-all_requires = read_requirements(os.path.join(REQ_PATH, "requirements-all.in"))
 scheduler_requires = read_requirements(
     os.path.join(REQ_PATH, "requirements-scheduler.in")
 )
@@ -161,14 +160,15 @@ setup(
         "http": http_requires,
         "net": net_requires,
         "scheduler": scheduler_requires,
+        "extra": extra_requires,
         "all": [
+            *install_requires,
             *db_requires,
             *crypto_requires,
             *http_requires,
             *net_requires,
             *scheduler_requires,
             *extra_requires,
-            *all_requires,
         ],
     },
     cmdclass=dict(test=PyTest),

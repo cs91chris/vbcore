@@ -1,4 +1,5 @@
 -c requirements.txt
+-c requirements-build.txt
 
 email_validator
 pysocks

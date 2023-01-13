@@ -1,4 +1,5 @@
 -c requirements-all.txt
+-c requirements-build.txt
 -c requirements-test.txt
 
 black
@@ -26,3 +27,8 @@ types-backports
 types-paramiko
 types-pytz
 types-chardet
+
+
+# constraints
+#
+safety<2.3.5

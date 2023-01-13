@@ -1,5 +1,5 @@
 PACKAGE=vbcore
-PYVER=39
+PYVER=310
 LOG_LEVEL=DEBUG
 REQ_PATH=requirements
 
@@ -36,28 +36,28 @@ dev: format lint security test
 
 
 compile-deps:
-	$(call req_compile,requirements)
 	$(call req_compile,requirements-build)
-	$(call req_compile,requirements-all)
+	$(call req_compile,requirements)
 	$(call req_compile,requirements-db)
 	$(call req_compile,requirements-http)
 	$(call req_compile,requirements-crypto)
 	$(call req_compile,requirements-net)
 	$(call req_compile,requirements-scheduler)
 	$(call req_compile,requirements-extra)
+	$(call req_compile,requirements-all)
 	$(call req_compile,requirements-test)
 	$(call req_compile,requirements-dev)
 
 upgrade-deps:
-	$(call req_compile,requirements,--upgrade)
 	$(call req_compile,requirements-build,--upgrade)
-	$(call req_compile,requirements-all,--upgrade)
+	$(call req_compile,requirements,--upgrade)
 	$(call req_compile,requirements-db,--upgrade)
 	$(call req_compile,requirements-http,--upgrade)
 	$(call req_compile,requirements-crypto,--upgrade)
 	$(call req_compile,requirements-net,--upgrade)
 	$(call req_compile,requirements-scheduler,--upgrade)
 	$(call req_compile,requirements-extra,--upgrade)
+	$(call req_compile,requirements-all,--upgrade)
 	$(call req_compile,requirements-test,--upgrade)
 	$(call req_compile,requirements-dev,--upgrade)
 
@@ -142,6 +142,7 @@ test-coverage:
 
 safety:
 	safety check \
+		-i 51668 \
 		-r ${REQ_PATH}/requirements.txt \
 		-r ${REQ_PATH}/requirements-all.txt \
 		-r ${REQ_PATH}/requirements-db.txt \

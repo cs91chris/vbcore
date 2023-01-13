@@ -1,17 +1,10 @@
 -c requirements.txt
 -c requirements-build.txt
 
-apscheduler
-argon2-cffi
-sqlalchemy
-sqlalchemy_schemadisplay
-chardet
-gunicorn
-jsonschema
-rule_engine
-aiohttp
-requests
-user_agents
-email_validator
-pysocks
-paramiko
+-r requirements.txt
+-r requirements-crypto.txt
+-r requirements-db.txt
+-r requirements-extra.txt
+-r requirements-http.txt
+-r requirements-net.txt
+-r requirements-scheduler.txt

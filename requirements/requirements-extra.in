@@ -1,5 +1,7 @@
--c requirements-all.txt
+-c requirements.txt
+-c requirements-build.txt
 
 chardet
 jsonschema
 rule_engine
+gunicorn

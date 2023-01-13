@@ -1,3 +1,4 @@
--c requirements-all.txt
+-c requirements.txt
+-c requirements-build.txt
 
 argon2-cffi
