@@ -9,16 +9,40 @@ cache:
     - "${PIP_CACHE_DIR}"
 
 stages:
+  - validate
   - test
   - build
 
 before_script:
-  - pip install -r requirements/requirements-build.txt
+  - make install-deps
 
-validate-and-test:
-  stage: test
+format:
+  stage: validate
   script:
-    - tox -e ${PY_VER}
+    - make format
+
+lint:
+  stage: validate
+  needs:
+    - format
+  script:
+    - make lint
+
+security:
+  stage: validate
+  needs:
+    - format
+  script:
+    - make security
+
+test:
+  stage: validate
+  needs:
+    - format
+    - lint
+    - security
+  script:
+    - make test
   artifacts:
     when: always
     reports:
