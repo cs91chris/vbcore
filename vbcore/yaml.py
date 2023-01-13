@@ -32,7 +32,7 @@ IMPLICIT_ENV_VAR_MATCHER = re.compile(
 
 
 def loads(data, loader=None, as_object: bool = True):
-    data = yaml.load(data, Loader=loader or yaml.Loader)
+    data = yaml.load(data, Loader=loader or yaml.Loader)  # nosec
     if as_object:
         return ObjectDict.normalize(data)
     return data

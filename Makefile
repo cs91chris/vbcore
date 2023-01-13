@@ -30,7 +30,7 @@ endef
 
 all: clean run-tox
 lint: flake pylint mypy
-security: safety liccheck
+security: bandit bandit-report safety liccheck
 format: autoflake black isort
 dev: format lint security test
 
@@ -139,6 +139,18 @@ test-coverage:
 		--junitxml=junit-report.xml \
 		--cov=${PACKAGE} --cov-report=xml --cov-config .coveragerc \
 		tests
+
+bandit:
+	bandit \
+		--skip B101 \
+		-r ${PACKAGE}
+
+bandit-report:
+	bandit -f html \
+		--ignore-nosec \
+		--exit-zero \
+		--silent \
+		-r ${PACKAGE} > bandit-report.html
 
 safety:
 	safety check \

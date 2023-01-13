@@ -88,9 +88,9 @@ ConvertingList = logging.config.ConvertingList  # type: ignore
 
 class QueueListenerHandler(QueueHandler):
     def __init__(
-        self, handlers, respect_handler_level=False, auto_run=True, queue=Queue(-1)
+        self, handlers, respect_handler_level=False, auto_run=True, queue=None
     ):
-        queue = self._resolve_queue(queue)
+        queue = self._resolve_queue(queue or Queue(-1))
         super().__init__(queue)
         handlers = self._resolve_handlers(handlers)
         # noinspection PyUnresolvedReferences

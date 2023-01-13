@@ -146,3 +146,4 @@ settings.ini
 pip.conf
 *.c
 junit-report.xml
+bandit-report.html

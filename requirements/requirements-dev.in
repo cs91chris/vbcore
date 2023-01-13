@@ -2,31 +2,33 @@
 -c requirements-build.txt
 -c requirements-test.txt
 
-black
-flake8
-pip-tools
-pylint
-bump2version
-pipdeptree
-mypy
-coloredlogs
-safety
-liccheck
-isort
 autoflake
+bandit
+black
+bump2version
+coloredlogs
+flake8
+flake8-bugbear
+isort
+liccheck
+mypy
+pip-tools
+pipdeptree
+pylint
+safety
 
 sqlalchemy-stubs
 sqlalchemy[mypy]
 
-types-PyYAML
+types-backports
+types-chardet
+types-paramiko
 types-python-dateutil
+types-pytz
+types-PyYAML
+types-requests
 types-setuptools
 types-toml
-types-requests
-types-backports
-types-paramiko
-types-pytz
-types-chardet
 
 
 # constraints

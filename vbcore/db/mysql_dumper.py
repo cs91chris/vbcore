@@ -5,7 +5,7 @@ import typing as t
 from dataclasses import dataclass
 from datetime import datetime
 from itertools import groupby
-from subprocess import CompletedProcess, PIPE, run as run_subprocess
+from subprocess import CompletedProcess, PIPE, run as run_subprocess  # nosec
 
 from vbcore.base import BaseLoggerMixin
 from vbcore.date_helper import DateTimeFmt
@@ -81,7 +81,7 @@ class MySQLDumper:
 
     @classmethod
     def execute_binary(cls, cmdline: CmdLine, **kwargs) -> CompletedProcess:
-        return run_subprocess(cmdline, check=True, stdout=PIPE, **kwargs)
+        return run_subprocess(cmdline, check=True, stdout=PIPE, **kwargs)  # nosec
 
     @classmethod
     def execute_text(cls, cmdline: CmdLine) -> t.Iterator[str]:
