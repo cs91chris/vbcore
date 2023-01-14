@@ -23,15 +23,10 @@ format:
   script:
     - make format
 
-safety:
+security:
   stage: prerequisites
   script:
-    - make safety
-
-liccheck:
-  stage: prerequisites
-  script:
-    - make liccheck
+    - make security
 
 flake:
   stage: lint
@@ -84,8 +79,12 @@ test:
   stage: test
   script:
     - make test-coverage
+  coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     when: always
+    paths:
+      - junit-report.xml
+      - coverage.xml
     reports:
       junit: junit-report.xml
       coverage_report:
@@ -98,8 +97,7 @@ dist-build-publish:
     - tags
   needs:
     - test
-    - liccheck
-    - safety
+    - security
   variables:
     TWINE_USERNAME: gitlab-ci-token
     TWINE_PASSWORD: ${CI_JOB_TOKEN}
@@ -115,8 +113,7 @@ image-build-publish:
     - tags
   needs:
     - test
-    - liccheck
-    - safety
+    - security
   image: docker:latest
   services:
     - docker:dind
