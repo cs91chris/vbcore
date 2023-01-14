@@ -1,5 +1,5 @@
-PACKAGE=vbcore
 PYVER=310
+PACKAGE=vbcore
 LOG_LEVEL=DEBUG
 REQ_PATH=requirements
 
@@ -30,7 +30,8 @@ endef
 
 all: clean run-tox
 lint: flake pylint mypy
-security: bandit bandit-report safety liccheck
+security: safety liccheck
+cqa: radon-cc-report bandit-report radon bandit
 format: autoflake black isort
 dev: format lint security test
 
@@ -175,6 +176,35 @@ liccheck:
 		-r ${REQ_PATH}/requirements-crypto.txt \
 		-r ${REQ_PATH}/requirements-net.txt \
 		-r ${REQ_PATH}/requirements-scheduler.txt
+
+radon-cc:
+	# cyclomatic complexity
+	radon cc \
+		--total-average \
+		--show-complexity \
+		--min b ${PACKAGE}
+
+radon-cc-report:
+	# cyclomatic complexity
+	radon cc \
+		--md \
+		--total-average \
+		--show-complexity \
+		${PACKAGE} > radon-cc-report.md
+
+radon-mi:
+	# maintainability index
+	radon mi --show ${PACKAGE}
+
+radon-hal:
+	# halstead metrics
+	radon hal ${PACKAGE}
+
+radon-raw:
+	# raw metrics
+	radon raw -s ${PACKAGE}
+
+radon: radon-cc radon-hal radon-mi radon-raw
 
 build-dist:
 	python setup.py sdist bdist_wheel

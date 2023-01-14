@@ -15,6 +15,7 @@ mypy
 pip-tools
 pipdeptree
 pylint
+radon
 safety
 
 sqlalchemy-stubs
