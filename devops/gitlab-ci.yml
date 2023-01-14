@@ -9,7 +9,10 @@ cache:
     - "${PIP_CACHE_DIR}"
 
 stages:
-  - validate
+  - format
+  - lint
+  - security
+  - cqa
   - test
   - build
 
@@ -17,32 +20,67 @@ before_script:
   - make install-deps
 
 format:
-  stage: validate
+  stage: format
   script:
     - make format
 
-lint:
-  stage: validate
+flake:
+  stage: lint
   needs:
     - format
   script:
-    - make lint
+    - make flake
 
-security:
-  stage: validate
+pylint:
+  stage: lint
   needs:
     - format
   script:
-    - make security
+    - make pylint
+
+mypy:
+  stage: lint
+  needs:
+    - format
+  script:
+    - make mypy
+
+safety:
+  stage: security
+  needs:
+    - format
+  script:
+    - make safety
+
+liccheck:
+  stage: security
+  needs:
+    - format
+  script:
+    - make liccheck
+
+bandit:
+  stage: cqa
+  script:
+    - make bandit-report bandit
+  artifacts:
+    when: always
+    paths:
+      - bandit-report.html
+
+radon:
+  stage: cqa
+  script:
+    - make radon-cc-report radon
+  artifacts:
+    when: always
+    paths:
+      - radon-cc-report.md
 
 test:
-  stage: validate
-  needs:
-    - format
-    - lint
-    - security
+  stage: test
   script:
-    - make test
+    - make test-coverage
   artifacts:
     when: always
     reports:
@@ -56,9 +94,6 @@ dist-build-publish:
   only:
     - tags
   needs:
-    - format
-    - lint
-    - security
     - test
   variables:
     TWINE_USERNAME: gitlab-ci-token
@@ -74,9 +109,6 @@ image-build-publish:
   only:
     - tags
   needs:
-    - format
-    - lint
-    - security
     - test
   image: docker:latest
   services:
