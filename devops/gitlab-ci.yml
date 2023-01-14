@@ -26,41 +26,37 @@ format:
 
 flake:
   stage: lint
-  needs:
-    - format
   script:
     - make flake
 
 pylint:
   stage: lint
   needs:
-    - format
+    - flake
   script:
     - make pylint
 
 mypy:
   stage: lint
   needs:
-    - format
+    - pylint
   script:
     - make mypy
 
 safety:
   stage: security
-  needs:
-    - format
   script:
     - make safety
 
 liccheck:
   stage: security
-  needs:
-    - format
   script:
     - make liccheck
 
 bandit:
   stage: cqa
+  needs:
+    - mypy
   script:
     - make bandit-report bandit
   artifacts:
@@ -70,6 +66,8 @@ bandit:
 
 radon:
   stage: cqa
+  needs:
+    - mypy
   script:
     - make radon-cc-report radon
   artifacts:
@@ -79,6 +77,8 @@ radon:
 
 test:
   stage: test
+  needs:
+    - mypy
   script:
     - make test-coverage
   artifacts:
