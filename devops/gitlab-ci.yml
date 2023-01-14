@@ -9,9 +9,8 @@ cache:
     - "${PIP_CACHE_DIR}"
 
 stages:
-  - format
+  - prerequisites
   - lint
-  - security
   - cqa
   - test
   - build
@@ -20,38 +19,40 @@ before_script:
   - make install-deps
 
 format:
-  stage: format
+  stage: prerequisites
   script:
     - make format
 
+safety:
+  stage: prerequisites
+  script:
+    - make safety
+
+liccheck:
+  stage: prerequisites
+  script:
+    - make liccheck
+
 flake:
   stage: lint
+  needs:
+    - format
   script:
     - make flake
 
 pylint:
   stage: lint
   needs:
-    - flake
+    - format
   script:
     - make pylint
 
 mypy:
   stage: lint
   needs:
-    - pylint
+    - format
   script:
     - make mypy
-
-safety:
-  stage: security
-  script:
-    - make safety
-
-liccheck:
-  stage: security
-  script:
-    - make liccheck
 
 bandit:
   stage: cqa
@@ -95,6 +96,8 @@ dist-build-publish:
     - tags
   needs:
     - test
+    - liccheck
+    - safety
   variables:
     TWINE_USERNAME: gitlab-ci-token
     TWINE_PASSWORD: ${CI_JOB_TOKEN}
@@ -110,6 +113,8 @@ image-build-publish:
     - tags
   needs:
     - test
+    - liccheck
+    - safety
   image: docker:latest
   services:
     - docker:dind
