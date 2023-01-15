@@ -1,5 +1,4 @@
 import abc
-import asyncio
 import dataclasses
 import logging
 import threading
@@ -8,20 +7,12 @@ from contextlib import contextmanager
 from enum import auto
 from queue import Queue
 
+from vbcore import aio
 from vbcore.datastruct import StrEnum
-
-try:
-    import nest_asyncio
-except ImportError:
-    nest_asyncio = None
 
 
 class BatchExecutor:
     def __init__(self, tasks: t.Optional[list] = None, **__):
-        """
-
-        :param tasks:
-        """
         self._tasks = tasks or []
 
     @staticmethod
@@ -57,35 +48,20 @@ class AsyncBatchExecutor(BatchExecutor):
         super().__init__(**kwargs)
         self._return_exceptions = return_exceptions
 
-    @staticmethod
-    async def _executor(fun: t.Callable, **kwargs):
-        return fun(**kwargs)  # pragma: no cover
-
-    @staticmethod
-    def is_async(fun: t.Callable):
-        return asyncio.iscoroutinefunction(fun)
-
     async def batch(self):
         tasks = []
         for task in self._tasks:
             func, args = self.prepare_task(task)
-            if not self.is_async(func):
-                tasks.append(self._executor(func, **args))  # pragma: no cover
-            else:
-                tasks.append(func(**args))
+            tasks.append(
+                aio.wrap_callable(func, **args)
+                if not aio.is_async(func)
+                else func(**args)
+            )
 
-        return await asyncio.gather(*tasks, return_exceptions=self._return_exceptions)
+        return await aio.collect(*tasks, return_exc=self._return_exceptions)
 
     def run(self) -> t.List:
-        try:
-            asyncio.get_running_loop()
-            if nest_asyncio is not None:
-                # noinspection PyUnresolvedReferences
-                nest_asyncio.apply()  # pragma: no cover
-        except RuntimeError:
-            asyncio.set_event_loop(asyncio.new_event_loop())
-
-        loop = asyncio.get_event_loop()
+        loop = aio.get_event_loop()
         return loop.run_until_complete(self.batch())
 
 
