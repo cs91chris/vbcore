@@ -63,17 +63,28 @@ class HTTPBase(LazyHTTPDumper):
         self._timeout = timeout
         self._endpoint = endpoint
         self._raise_on_exc = raise_on_exc
-        self._dump_body = self._normalize_dump_flag(dump_body)
+        self._dump_body = self._normalize_dump_flags(dump_body)
         self._logger = logger or logging.getLogger(self.__module__)
 
     @staticmethod
-    def _normalize_dump_flag(
+    def _normalize_dump_flags(
         dump_body: t.Optional[DumpBodyType] = None,
     ) -> t.Tuple[bool, bool]:
         if isinstance(dump_body, bool):
             return dump_body, dump_body
         if not dump_body:
             return False, False
+        return dump_body
+
+    def dump_body_flags(
+        self, dump_body: t.Optional[DumpBodyType] = None, **kwargs
+    ) -> t.Tuple[bool, bool]:
+        if dump_body is None:
+            dump_body = self._dump_body
+        else:
+            dump_body = self._normalize_dump_flags(dump_body)
+        if kwargs.get("stream") is True:  # if stream not dump response body
+            dump_body = (dump_body[0], False)
         return dump_body
 
     def normalize_url(self, url: str) -> str:
@@ -136,13 +147,7 @@ class HTTPClient(HTTPBase):
         **kwargs,
     ) -> ResponseData:
         kwargs["auth"] = self.get_auth()
-
-        if dump_body is None:
-            dump_body = self._dump_body
-        else:
-            dump_body = self._normalize_dump_flag(dump_body)
-        if kwargs.get("stream") is True:  # if stream not dump response body
-            dump_body = (dump_body[0], False)
+        dump_body = self.dump_body_flags(dump_body, **kwargs)
 
         try:
             url = self.normalize_url(uri)

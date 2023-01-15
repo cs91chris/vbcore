@@ -28,10 +28,7 @@ class HTTPBatch(HTTPBase, AsyncBatchExecutor):
         timeout: t.Optional[int] = None,
         **kwargs,
     ) -> ResponseData:
-        if dump_body is None:
-            dump_body = self._dump_body
-        else:
-            dump_body = self._normalize_dump_flag(dump_body)
+        dump_body = self.dump_body_flags(dump_body, **kwargs)
 
         try:
             self._logger.info(
