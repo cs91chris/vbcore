@@ -7,6 +7,8 @@ from dataclasses import asdict, dataclass, fields
 from threading import RLock
 
 T = t.TypeVar("T")
+D = t.TypeVar("D", bound="IDict")
+OD = t.TypeVar("OD", bound="ObjectDict")
 BytesType = t.Union[bytes, bytearray, memoryview]
 CallableDictType = t.Callable[[t.List[t.Tuple[str, t.Any]]], t.Any]
 
@@ -16,27 +18,39 @@ class HashableDict(dict):
         return hash(tuple(sorted(self.items())))
 
 
-class ObjectDict(dict):
-    def __init__(self, seq=None, **kwargs):
+class IDict(dict):
+    def patch(self: D, __dict: D, **kwargs) -> D:
+        super().update(__dict, **kwargs)
+        return self
+
+    def get_namespace(
+        self: D,
+        prefix: str,
+        lowercase: bool = True,
+        trim: bool = True,
+    ) -> D:
+        """
+        Returns a dictionary containing a subset of configuration options
+        that match the specified prefix.
+
+        :param prefix: a configuration prefix
+        :param lowercase: a flag indicating if the keys should be lowercase
+        :param trim: a flag indicating if the keys should include the namespace
+        """
+        data: D = self.__class__()
+        for k, v in self.items():
+            if k.startswith(prefix):
+                key = k[len(prefix) :] if trim else k
+                data[key.lower() if lowercase else key] = v
+        return data
+
+
+class ObjectDict(IDict):
+    def __init__(self: OD, seq=None, **kwargs):
         super().__init__()
         self.__setstate__(kwargs if seq is None else dict(seq))
 
-    def __dict__(self):
-        data: t.Dict = {}
-        for k, v in self.items():
-            if hasattr(v, "__dict__"):
-                data[k] = v.__dict__()
-            elif isinstance(v, list):
-                data[k] = [i.__dict__() if hasattr(i, "__dict__") else i for i in v]
-            else:
-                data[k] = v
-
-        return data
-
-    def __getstate__(self):
-        return self.__dict__()  # pylint: disable=not-callable
-
-    def __setstate__(self, state):
+    def __setstate__(self, state: dict):
         for k, v in state.items():
             self.__setattr__(k, v)
 
@@ -52,38 +66,25 @@ class ObjectDict(dict):
         if name in self:
             del self[name]
 
-    def patch(self, __dict, **kwargs) -> "ObjectDict":
-        super().update(__dict, **kwargs)
-        return self
+    @classmethod
+    def normalize(cls: t.Type[OD], data: t.Any, raise_exc: bool = False):
+        # TODO using cls instead of ObjectDict
+        def normalize_iterable(_data: t.Any):
+            for r in _data:
+                yield ObjectDict(**r) if isinstance(r, dict) else r
 
-    @staticmethod
-    def normalize(data: t.Any, raise_exc: bool = False):
         try:
-            if isinstance(data, (list, tuple, set)):
-                return [ObjectDict(**r) if isinstance(r, dict) else r for r in data]
-            return ObjectDict(**data)
+            if isinstance(data, t.Mapping):
+                return ObjectDict(**data)
+
+            if isinstance(data, (tuple, list, set)):
+                return list(normalize_iterable(data))
+
+            raise TypeError(f"can not convert '{type(data)}' into {cls}")
         except (TypeError, ValueError, AttributeError):
             if raise_exc is True:
                 raise
             return data
-
-    def get_namespace(
-        self, prefix: str, lowercase: bool = True, trim: bool = True
-    ) -> "ObjectDict":
-        """
-        Returns a dictionary containing a subset of configuration options
-        that match the specified prefix.
-
-        :param prefix: a configuration prefix
-        :param lowercase: a flag indicating if the keys should be lowercase
-        :param trim: a flag indicating if the keys should include the namespace
-        """
-        data = ObjectDict()
-        for k, v in self.items():
-            if k.startswith(prefix):
-                key = k[len(prefix) :] if trim else k
-                data[key.lower() if lowercase else key] = v
-        return data
 
 
 class IntEnum(enum.IntEnum):
@@ -146,7 +147,7 @@ class LStrEnum(StrEnum):
 
 
 class IStrEnum(LStrEnum):
-    """StrEnum with lower values and case insensitive"""
+    """StrEnum with lower values and case-insensitive"""
 
     def _comparable_values(self, other) -> t.Tuple[str, str]:
         other_value = other if isinstance(other, str) else other.value
