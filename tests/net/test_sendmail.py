@@ -13,6 +13,9 @@ from vbcore.net.sendmail import MessageAddresses, MessageData, SendMail, SMTPPar
 class MockSmtp(SendMail):
     smtp_class = MagicMock()
 
+    def get_smtp_class(self):
+        return self.smtp_class
+
     @staticmethod
     def is_valid_rfc_2822_date(date):
         return bool(parsedate(date))

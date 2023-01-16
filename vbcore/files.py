@@ -15,18 +15,18 @@ OptStr = t.Optional[str]
 @dataclass(frozen=True)
 class EncodingData:
     confidence: float
-    encoding: t.Optional[str]
-    language: t.Optional[str] = None
+    encoding: OptStr
+    language: OptStr = None
 
 
 class VBEncodingError(Exception):
     def __init__(
         self,
         filename: str,
-        encoding: t.Optional[str],
+        encoding: OptStr,
         supported: t.List[str],
         confidence: t.Optional[float] = None,
-        language: t.Optional[str] = None,
+        language: OptStr = None,
     ):
         self.filename = filename
         self.encoding = encoding
@@ -62,9 +62,12 @@ class FileHandler:
         self.encoding = encoding or "utf-8"
         self.supporter_encodings = supporter_encodings
 
-    def open(self, filename: OptStr = None, **kwargs):
+    def open(self, filename: OptStr = None, **kwargs) -> t.IO:
         encoding = kwargs.pop("encoding", self.encoding)
         return open(filename or self.filename, encoding=encoding, **kwargs)
+
+    def open_binary(self, filename: OptStr = None, **kwargs) -> t.IO:
+        return open(filename or self.filename, mode="rb", **kwargs)
 
     def num_lines(self, filename: OptStr = None) -> int:
         with self.open(filename) as file:
@@ -82,11 +85,10 @@ class FileHandler:
         with self.open(filename, **kwargs) as file:
             return file.read()
 
-    @classmethod
-    def detect_encoding(cls, filename: str) -> EncodingData:
+    def detect_encoding(self, filename: OptStr = None) -> EncodingData:
         assert Detector is not None, "'chardet' required, install it!"
         detector = Detector()
-        with open(filename, "rb") as file:
+        with self.open_binary(filename) as file:
             for line in file:
                 detector.feed(line)
                 if detector.done:
@@ -95,7 +97,9 @@ class FileHandler:
 
         return EncodingData(**detector.result)
 
-    def check_encoding(self, filename: str, *extra_supported):
+    def check_encoding(
+        self, filename: OptStr = None, extra_supported: t.Sequence[str] = ()
+    ):
         encoding = self.detect_encoding(filename)
         supported_encodings = [
             self.encoding,

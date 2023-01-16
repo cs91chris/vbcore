@@ -50,9 +50,7 @@ class TestLoggers(TestCase):
         self.assertTrue(captured.records[0].message.startswith("TIME: 0:00:00.01"))
 
     def test_reload(self):
-        loggers = Loggers(
-            LoggingSettings(listen_for_reload=True, logger_name=LOGGER_NAME)
-        )
+        loggers = Loggers(LoggingSettings(listen_for_reload=True))
 
         with tempfile.NamedTemporaryFile(delete=False) as file:
             file.write(json.dumps(log_config).encode())

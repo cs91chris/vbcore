@@ -8,10 +8,10 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formatdate, make_msgid, parseaddr
-from smtplib import SMTP
 
 from email_validator import caching_resolver, validate_email, ValidatedEmail
 
+from vbcore.files import FileHandler
 from vbcore.misc import CommonRegex
 from vbcore.uuid import get_uuid
 
@@ -58,8 +58,6 @@ class MessageAddresses:
 
 
 class SendMail:
-    smtp_class: t.Type[smtplib.SMTP] = smtplib.SMTP
-
     def __init__(self, params: SMTPParams, **kwargs):
         self.params = params
         self._smtp_args = kwargs
@@ -78,7 +76,7 @@ class SendMail:
     @classmethod
     def add_attachments(cls, message: MIMEBase, files: t.List[str]):
         for filename in files:
-            with open(filename, "rb") as file:
+            with FileHandler(filename).open_binary() as file:
                 attach = MIMEApplication(file.read())
                 filename = os.path.basename(filename)
                 attach.add_header(
@@ -117,11 +115,13 @@ class SendMail:
         cls.add_attachments(message, data.attachments or [])
         return message
 
-    def get_instance(self, **kwargs) -> SMTP:
-        params = self.params
-        smtp_class = smtplib.SMTP_SSL if params.is_ssl else self.smtp_class
+    def get_smtp_class(self) -> t.Union[t.Type[smtplib.SMTP_SSL], t.Type[smtplib.SMTP]]:
+        return smtplib.SMTP_SSL if self.params.is_ssl else smtplib.SMTP
+
+    def get_instance(self, **kwargs) -> t.Union[smtplib.SMTP_SSL, smtplib.SMTP]:
+        smtp_class = self.get_smtp_class()
         smtp_options = {**self._smtp_args, **kwargs}
-        return smtp_class(params.host, params.port, **smtp_options)  # type: ignore
+        return smtp_class(self.params.host, self.params.port, **smtp_options)
 
     def send(self, message: MIMEMultipart, **kwargs) -> SMTPResponse:
         params = self.params

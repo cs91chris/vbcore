@@ -10,6 +10,8 @@ from datetime import datetime
 from logging.handlers import QueueHandler, QueueListener
 from queue import Queue
 
+from vbcore.files import FileHandler
+
 DEFAULT_FORMAT = "[%(asctime)s][%(levelname)s][%(name)s]: %(message)s"
 DEFAULT_LISTENER_PORT = logging.config.DEFAULT_LOGGING_CONFIG_PORT
 
@@ -18,7 +20,6 @@ DEFAULT_LISTENER_PORT = logging.config.DEFAULT_LOGGING_CONFIG_PORT
 class LoggingSettings:
     level: str = "INFO"
     config_file: t.Optional[str] = None
-    logger_name: t.Optional[str] = None
     listen_for_reload: bool = False
     listener_daemon: bool = True
     listener_port: int = DEFAULT_LISTENER_PORT
@@ -31,7 +32,7 @@ class Loggers:
     def __init__(self, config: t.Optional[LoggingSettings] = None, **kwargs):
         self.config = config or LoggingSettings()
         if self.config.config_file:
-            with open(self.config.config_file, encoding="utf-8") as file:
+            with FileHandler(self.config.config_file).open() as file:
                 logging.config.dictConfig(json.load(file))
         else:
             kwargs.setdefault("level", self.config.level)
@@ -69,7 +70,7 @@ class Loggers:
         host: str = "localhost",
         port: int = DEFAULT_LISTENER_PORT,
     ):
-        with open(config_file, "rb") as file:
+        with FileHandler(config_file).open_binary() as file:
             configuration = file.read()
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
