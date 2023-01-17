@@ -3,7 +3,7 @@ import re
 import sys
 import typing as t
 
-from pkg_resources import parse_requirements
+from pkg_resources import Requirement, yield_lines
 from setuptools import find_packages as base_find_packages, setup
 from setuptools.command.test import test
 
@@ -78,7 +78,21 @@ def readme(file):
 
 
 def read_requirements(filename):
-    return [str(req) for req in parse_requirements(read(filename))]
+    reqs = []
+    lines = iter(yield_lines(read(filename)))
+    for line in lines:
+        if line.startswith("-c"):
+            continue
+        if " #" in line:
+            line = line[: line.find(" #")]
+        if line.endswith("\\"):
+            line = line[:-2].strip()
+            try:
+                line += next(lines)
+            except StopIteration:
+                break
+        reqs.append(str(Requirement(line)))
+    return reqs
 
 
 class PyTest(test):

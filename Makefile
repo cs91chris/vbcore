@@ -31,6 +31,7 @@ endef
 all: clean run-tox
 lint: flake pylint mypy
 security: safety liccheck
+radon: radon-cc radon-hal radon-mi radon-raw
 cqa: radon-cc-report bandit-report radon bandit
 format: autoflake black isort
 dev: format lint security test
@@ -203,8 +204,6 @@ radon-hal:
 radon-raw:
 	# raw metrics
 	radon raw -s ${PACKAGE}
-
-radon: radon-cc radon-hal radon-mi radon-raw
 
 build-dist:
 	python setup.py sdist bdist_wheel

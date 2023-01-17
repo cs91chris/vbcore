@@ -1,5 +1,6 @@
 [run]
 omit =
+    {skeleton}/version.py
     {skeleton}/__main__.py
 
 [report]

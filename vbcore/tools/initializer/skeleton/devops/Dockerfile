@@ -1,4 +1,4 @@
-FROM python:3.9 AS builder
+FROM python:3.10 AS builder
 
 WORKDIR /tmp
 
@@ -10,7 +10,7 @@ COPY ./devops/scripts/build.sh ./build.sh
 RUN bash build.sh
 
 
-FROM python:3.9-slim as {skeleton}
+FROM python:3.10-slim as {skeleton}
 
 RUN groupadd -g 1000 vbuser \
     && useradd -m -d /app -s /bin/bash -g vbuser -u 1000 vbuser

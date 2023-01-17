@@ -1,15 +1,19 @@
 -c requirements.txt
+-c requirements-build.txt
 -c requirements-test.txt
 
-black
-flake8
-pip-tools
-pylint
-bump2version
-pipdeptree
-mypy
-coloredlogs
-safety
-liccheck
-isort
 autoflake
+bandit
+black
+bump2version
+coloredlogs
+flake8
+flake8-bugbear
+isort
+liccheck
+mypy
+pip-tools
+pipdeptree
+pylint
+radon
+safety

@@ -146,6 +146,7 @@ cython_debug/
 settings.ini
 pip.conf
 *.c
+
 junit-report.xml
 bandit-report.html
 radon-cc-report.md
