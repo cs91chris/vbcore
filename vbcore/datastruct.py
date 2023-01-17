@@ -60,25 +60,25 @@ class ObjectDict(IDict):
         return None
 
     def __setattr__(self, name, value):
-        self[name] = self.normalize(value)
+        self[name] = self.normalize(value, raise_exc=False)
 
     def __delattr__(self, name):
         if name in self:
             del self[name]
 
     @classmethod
-    def normalize(cls: t.Type[OD], data: t.Any, raise_exc: bool = False):
+    def normalize(cls, data, raise_exc=True):
         # TODO using cls instead of ObjectDict
         def normalize_iterable(_data: t.Any):
             for r in _data:
-                yield ObjectDict(**r) if isinstance(r, dict) else r
+                yield ObjectDict(**r) if isinstance(r, t.Mapping) else r
 
         try:
             if isinstance(data, t.Mapping):
                 return ObjectDict(**data)
 
             if isinstance(data, (tuple, list, set)):
-                return list(normalize_iterable(data))
+                return type(data)(normalize_iterable(data))
 
             raise TypeError(f"can not convert '{type(data)}' into {cls}")
         except (TypeError, ValueError, AttributeError):
