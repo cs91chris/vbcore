@@ -115,7 +115,7 @@ class TestHttpApi(TestHttpCall):
             ):
                 return self.response.get_json()
         except json.decoder.JSONDecodeError as exc:
-            assert False, f"Test that json is valid failed, got: {exc}"  # noqa: B011
+            raise AssertionError(f"Test that json is valid failed, got: {exc}") from exc
         return None
 
     def assert_response(self, **kwargs):

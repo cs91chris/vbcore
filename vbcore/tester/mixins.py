@@ -10,22 +10,49 @@ try:
 except ImportError:
     JSONSchema = object  # type: ignore
 
+CallBackType = t.Callable[[t.Any, t.Any], bool]
+
 
 class BaseAssert:
-    assert_fail_message = "Test that {that} failed: got {actual}, expected {expected}"
+    assert_exception = AssertionError
+
+    assert_fail_message = (
+        "Test that {that} failed: got '{actual}', expected '{expected}'"
+    )
 
     @classmethod
-    def assert_that(
+    def format_message(
         cls,
-        func: t.Callable,
         actual: t.Any,
         expected: t.Optional[t.Any] = None,
         that: str = "",
         error: t.Optional[str] = None,
     ):
-        assert func(actual, expected), error or cls.assert_fail_message.format(
+        return error or cls.assert_fail_message.format(
             that=that, actual=actual, expected=expected
         )
+
+    @classmethod
+    def fail(
+        cls,
+        actual: t.Any,
+        expected: t.Optional[t.Any] = None,
+        that: str = "",
+        error: t.Optional[str] = None,
+    ):
+        raise cls.assert_exception(cls.format_message(actual, expected, that, error))
+
+    @classmethod
+    def assert_that(
+        cls,
+        func: CallBackType,
+        actual: t.Any,
+        expected: t.Optional[t.Any] = None,
+        that: str = "",
+        error: t.Optional[str] = None,
+    ):
+        if not func(actual, expected):
+            cls.fail(actual, expected, that, error)
 
     @classmethod
     def assert_true(cls, actual, error: t.Optional[str] = None):
