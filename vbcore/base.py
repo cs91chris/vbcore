@@ -101,4 +101,4 @@ class Static(type):
     """
 
     def __call__(cls):
-        raise TypeError(f"Can't instantiate class {cls.__name__}")
+        raise TypeError(f"Can't instantiate Static class {cls.__name__}")

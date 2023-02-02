@@ -4,7 +4,6 @@ from functools import partial
 import click
 
 from vbcore.date_helper import DateFmt, DateTimeFmt
-from vbcore.misc import parse_value
 
 
 def option_as_dict(ctx, param, value):
@@ -13,7 +12,7 @@ def option_as_dict(ctx, param, value):
     for opt in value:
         tokens = opt.split("=", 2)
         key, val = tokens if len(tokens) > 1 else (tokens, None)
-        option[key] = parse_value(val)
+        option[key] = val
     return option
 
 
@@ -50,7 +49,7 @@ class CliOpt:
         boolean, is_flag=True, default=False, help="[default: False]"
     )
     dict: t.ClassVar = partial(
-        multi, default={}, multiple=True, callback=option_as_dict, metavar="KEY=VAL"
+        multi, default={}, callback=option_as_dict, metavar="KEY[=VAL]"
     )
     verbose: t.ClassVar = partial(Cli.option, "-v", "--verbose", count=True)
 

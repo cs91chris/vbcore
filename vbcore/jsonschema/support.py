@@ -167,7 +167,7 @@ class Fields:
         cls,
         required: t.Union[t.List[str], t.Tuple[str, ...]] = (),
         not_required: t.Union[t.List[str], t.Tuple[str, ...]] = (),
-        properties: t.Dict[str, t.Any] = None,
+        properties: t.Optional[t.Dict[str, t.Any]] = None,
         all_required: bool = True,
         additional: bool = False,
         **kwargs,

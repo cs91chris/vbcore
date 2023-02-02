@@ -23,6 +23,8 @@ def get_uuid(
         _uuid = uuid.uuid4()
     elif ver == 5:
         _uuid = uuid.uuid5(ns or uuid.NAMESPACE_DNS, name)
+    else:
+        raise TypeError(f"invalid uuid version {ver}")
 
     return _uuid.hex if hexify else _uuid
 
