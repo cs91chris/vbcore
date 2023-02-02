@@ -9,6 +9,7 @@ from threading import RLock
 T = t.TypeVar("T")
 D = t.TypeVar("D", bound="IDict")
 OD = t.TypeVar("OD", bound="ObjectDict")
+
 BytesType = t.Union[bytes, bytearray, memoryview]
 CallableDictType = t.Callable[[t.List[t.Tuple[str, t.Any]]], t.Any]
 
