@@ -1,5 +1,5 @@
 from vbcore import json
-from vbcore.lazy import Dumper
+from vbcore.datastruct.lazy import Dumper
 
 
 class BaseHTTPDumper:
