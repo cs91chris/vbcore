@@ -2,11 +2,20 @@ import dataclasses
 import logging
 from abc import ABC, abstractmethod
 from functools import cached_property
-from typing import Any, Dict, Generic, Tuple, Type, TypeVar
+from typing import Any, Dict, Generic, Tuple, Type, TYPE_CHECKING, TypeVar
 
 from vbcore.types import CallableDictType
 
 LogClass = TypeVar("LogClass", bound=logging.Logger)
+
+if TYPE_CHECKING:
+    # prevent mypy issue
+
+    # noinspection PyPep8Naming
+    from dataclasses import dataclass as Data
+else:
+    # TODO at the moment this is not used because pycharm issue
+    Data = dataclasses.dataclass(frozen=True, kw_only=False)
 
 
 class LoggerMixin(Generic[LogClass], ABC):
@@ -33,17 +42,17 @@ class BaseDTO:
 
     >>> from dataclasses import dataclass
 
-    >>> @dataclass(frozen=True)
+    >>> @Data
     ... class MyDTO(BaseDTO):
     ...     name: str
     ...     age: int
     ...
     >>> data = {"name": "pippo", "age": 12}
-    >>> dto = MyDTO(name="pippo", age=12)
+    >>> instance = MyDTO(name="pippo", age=12)
 
-    >>> dto == MyDTO.from_dict(**data)
+    >>> instance == MyDTO.from_dict(**data)
     True
-    >>> dto.to_dict() == data
+    >>> instance.to_dict() == data
     True
     """
 
