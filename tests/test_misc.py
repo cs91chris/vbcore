@@ -3,7 +3,7 @@ import string
 import pytest
 
 from vbcore import misc, uuid
-from vbcore.misc import CommonRegex
+from vbcore.misc import CommonRegex, split_kwargs
 from vbcore.tester.mixins import Asserter
 
 
@@ -72,3 +72,9 @@ def test_random_string():
 def test_common_regex_valid_email(email, expected):
     assert_that = Asserter.assert_true if expected else Asserter.assert_false
     assert_that(CommonRegex.is_valid_email(email))
+
+
+def test_split_kwargs():
+    wanted, unwanted = split_kwargs(("a", "b"), a=1, b=2, c=3)
+    Asserter.assert_equals(wanted, {"a": 1, "b": 2})
+    Asserter.assert_equals(unwanted, {"c": 3})

@@ -107,21 +107,20 @@ class Importer:
 class ImporterFactory:
     def __init__(
         self,
-        base_class: t.Optional[t.Type] = None,
         package: t.Optional[str] = None,
+        base_class: t.Optional[t.Type] = None,
         classes: t.Optional[t.Dict[str, str]] = None,
     ):
-        self.base_class = base_class
         self.package = package
+        self.base_class = base_class
         self.classes: t.Optional[t.Dict[str, str]] = {}
-        if classes:
-            self.register_classes(classes)
+        self.register_classes(classes or {})
 
-    def register_classes(self, classes: t.Optional[t.Dict[str, str]]):
+    def register_classes(self, classes: t.Optional[t.Dict[str, str]]) -> None:
         for key, value in classes.items():
             self.register_class(key, value)
 
-    def register_class(self, name: str, module_class: str):
+    def register_class(self, name: str, module_class: str) -> None:
         self.classes[name] = f".{module_class}" if self.package else module_class
 
     def get_instance(self, name: str, *args, **kwargs):

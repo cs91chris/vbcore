@@ -90,6 +90,28 @@ def to_float(n) -> t.Optional[float]:
         return None
 
 
+def split_kwargs(
+    options: t.Iterable[str], **kwargs
+) -> t.Tuple[t.Dict[str, t.Any], t.Dict[str, t.Any]]:
+    """
+    split kwargs into 2 dict:
+        one with only `options` keys and another with the others
+
+    :param options: wanted keys
+    :param kwargs: all params
+    :return: 2 dict: wanted and unwanted
+    """
+    wanted = {}
+
+    for opt in options:
+        try:
+            wanted[opt] = kwargs.pop(opt)
+        except KeyError:
+            pass
+
+    return wanted, kwargs
+
+
 def format_decimal(value: Decimal, precision: int = 8) -> str:
     if value.is_zero():
         return "0"
