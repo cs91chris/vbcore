@@ -1,6 +1,5 @@
-import logging
 from datetime import date, datetime
-from typing import Any, Callable, List, Optional, Tuple, TypeVar, Union
+from typing import Any, Callable, List, Optional, Tuple, Union
 
 OptStr = Optional[str]
 OptInt = Optional[int]
@@ -13,4 +12,5 @@ CallableDictType = Callable[[List[Tuple[str, Any]]], Any]
 DateType = Union[date, datetime]
 AnyDateType = Union[DateType, str]
 
-LogClass = TypeVar("LogClass", bound=logging.Logger)
+CoupleStr = Tuple[str, str]
+TripleStr = Tuple[str, str, str]

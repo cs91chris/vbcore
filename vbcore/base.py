@@ -2,9 +2,11 @@ import dataclasses
 import logging
 from abc import ABC, abstractmethod
 from functools import cached_property
-from typing import Any, Dict, Generic, Tuple, Type
+from typing import Any, Dict, Generic, Tuple, Type, TypeVar
 
-from vbcore.types import LogClass
+from vbcore.types import CallableDictType
+
+LogClass = TypeVar("LogClass", bound=logging.Logger)
 
 
 class LoggerMixin(Generic[LogClass], ABC):
@@ -53,8 +55,13 @@ class BaseDTO:
     def field_names(cls) -> Tuple[str, ...]:
         return tuple(f.name for f in dataclasses.fields(cls))
 
-    def to_dict(self, *_, **__) -> dict:
-        return dataclasses.asdict(self)
+    @classmethod
+    def field_types(cls) -> dict:
+        # noinspection PyDataclass
+        return {item.name: item.type.__name__ for item in dataclasses.fields(cls)}
+
+    def to_dict(self, *_, factory: CallableDictType = dict, **__) -> dict:
+        return dataclasses.asdict(self, dict_factory=factory)
 
     @classmethod
     def from_dict(cls, *_, **kwargs):
