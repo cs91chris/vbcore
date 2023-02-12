@@ -1,6 +1,6 @@
 import enum
 
-from vbcore.enum import StrEnum
+from vbcore.enums import StrEnum
 
 
 class HttpMethod(StrEnum):

@@ -2,8 +2,10 @@ import importlib
 import typing as t
 from types import ModuleType
 
+from vbcore.exceptions import VBException
 
-class ImporterError(Exception):
+
+class ImporterError(VBException):
     pass
 
 

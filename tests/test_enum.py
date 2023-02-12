@@ -1,6 +1,6 @@
 import enum
 
-from vbcore.enum import IStrEnum, StrEnum
+from vbcore.enums import IStrEnum, StrEnum
 from vbcore.tester.mixins import Asserter
 
 

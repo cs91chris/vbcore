@@ -1,8 +1,9 @@
 from vbcore.datastruct import ObjectDict
+from vbcore.exceptions import VBException
 from vbcore.http import httpcode
 
 
-class RPCError(Exception):
+class RPCError(VBException):
     def __init__(self, code: int, message: str, data=None):
         super().__init__(code, message)
         self.code = code

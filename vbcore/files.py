@@ -3,6 +3,7 @@ import tempfile
 import typing as t
 from dataclasses import dataclass
 
+from vbcore.exceptions import VBException
 from vbcore.types import OptStr
 
 try:
@@ -18,7 +19,7 @@ class EncodingData:
     language: OptStr = None
 
 
-class VBEncodingError(Exception):
+class VBEncodingError(VBException):
     def __init__(
         self,
         filename: str,
