@@ -7,7 +7,7 @@ from apscheduler.job import Job
 from apscheduler.schedulers.base import BaseScheduler
 from apscheduler.schedulers.blocking import BlockingScheduler
 
-from vbcore.datastruct import Dumper, LazyDump
+from vbcore.lazy import Dumper, LazyDump
 from vbcore.uuid import get_uuid
 
 

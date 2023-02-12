@@ -3,11 +3,12 @@ import typing as t
 
 import psutil
 
-from vbcore.datastruct import DataClassDictable, ObjectDict
+from vbcore.base import BaseDTO
+from vbcore.datastruct import ObjectDict
 
 
 @dataclasses.dataclass(frozen=True)
-class SwapStat(DataClassDictable):
+class SwapStat(BaseDTO):
     total: int
     percent: float
     used: int
@@ -17,7 +18,7 @@ class SwapStat(DataClassDictable):
 
 
 @dataclasses.dataclass(frozen=True)
-class MemoryStat(DataClassDictable):  # pylint: disable=too-many-instance-attributes
+class MemoryStat(BaseDTO):  # pylint: disable=too-many-instance-attributes
     total: int
     available: int
     percent: float
@@ -33,14 +34,14 @@ class MemoryStat(DataClassDictable):  # pylint: disable=too-many-instance-attrib
 
 
 @dataclasses.dataclass(frozen=True)
-class CpuFreq(DataClassDictable):
+class CpuFreq(BaseDTO):
     current: float
     min: float
     max: float
 
 
 @dataclasses.dataclass(frozen=True)
-class CpuTimes(DataClassDictable):
+class CpuTimes(BaseDTO):
     user: float
     nice: float
     system: float
@@ -54,7 +55,7 @@ class CpuTimes(DataClassDictable):
 
 
 @dataclasses.dataclass(frozen=True)
-class CpuStat(DataClassDictable):
+class CpuStat(BaseDTO):
     count: int
     percent: float
     freq: CpuFreq
@@ -62,7 +63,7 @@ class CpuStat(DataClassDictable):
 
 
 @dataclasses.dataclass(frozen=True)
-class DiskStat(DataClassDictable):
+class DiskStat(BaseDTO):
     total: int
     percent: float
     used: int
@@ -70,7 +71,7 @@ class DiskStat(DataClassDictable):
 
 
 @dataclasses.dataclass(frozen=True)
-class NetStat(DataClassDictable):
+class NetStat(BaseDTO):
     bytes_sent: int
     bytes_recv: int
     packets_sent: int

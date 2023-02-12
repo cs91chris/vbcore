@@ -1,12 +1,11 @@
-import enum
 import itertools
 import time
 import typing as t
 from collections import OrderedDict
-from dataclasses import asdict, dataclass, fields
+from dataclasses import dataclass
 from threading import RLock
 
-from vbcore.types import BytesType, CallableDictType
+from vbcore.base import BaseDTO
 
 T = t.TypeVar("T")
 D = t.TypeVar("D", bound="IDict")
@@ -67,7 +66,7 @@ class ObjectDict(IDict):
             del self[name]
 
     @classmethod
-    def normalize(cls, data, raise_exc=True):
+    def normalize(cls, data, raise_exc=True) -> t.Any:
         # TODO using cls instead of ObjectDict
         def normalize_iterable(_data: t.Any):
             for r in _data:
@@ -85,131 +84,6 @@ class ObjectDict(IDict):
             if raise_exc is True:
                 raise
             return data
-
-
-class IntEnum(enum.IntEnum):
-    @classmethod
-    def to_list(cls):
-        return [
-            ObjectDict(id=getattr(cls, m).value, label=getattr(cls, m).name)
-            for m in cls.__members__
-        ]
-
-    def to_dict(self):
-        return ObjectDict(id=self.value, label=self.name)
-
-    def __repr__(self):
-        return f"<{self.value}: {self.name}>"
-
-    def __str__(self):
-        return self.name
-
-
-class StrEnum(str, enum.Enum):
-    """
-    StrEnum is at the same time ``enum.Enum`` and ``str``.
-    The ``auto()`` behavior uses the member name as its value.
-
-        >>> import enum
-
-        >>> class MyEnum(StrEnum):
-        >>>    EXAMPLE = enum.auto()
-
-        >>> assert MyEnum.EXAMPLE == "example"
-        >>> assert MyEnum.EXAMPLE.upper() == "EXAMPLE"
-    """
-
-    def __str__(self):
-        return self.value
-
-    def __hash__(self):
-        return hash(self._name_)  # pylint: disable=no-member
-
-    @classmethod
-    def _missing_(cls, value):
-        return cls(cls.__members__.get(str(value).upper()))
-
-    def _generate_next_value_(self, *_):  # pylint: disable=arguments-differ
-        return self
-
-
-class LStrEnum(StrEnum):
-    """StrEnum with lower values"""
-
-    def _generate_next_value_(self, *_):
-        return self.lower()
-
-    def __str__(self):
-        return self.value.lower()
-
-    def __hash__(self):
-        return hash(self._name_)  # pylint: disable=no-member
-
-
-class IStrEnum(LStrEnum):
-    """StrEnum with lower values and case-insensitive"""
-
-    def _comparable_values(self, other) -> t.Tuple[str, str]:
-        other_value = other if isinstance(other, str) else other.value
-        return self.value.lower(), other_value.lower()
-
-    def __hash__(self):
-        return hash(self._name_)  # pylint: disable=no-member
-
-    def __eq__(self, other):
-        value, other = self._comparable_values(other)
-        return value == other
-
-    def __ne__(self, other):
-        value, other = self._comparable_values(other)
-        return value != other
-
-    def __gt__(self, other):
-        value, other = self._comparable_values(other)
-        return value > other
-
-
-class Lazy:
-    def __init__(self, callback: t.Callable, *args, **kwargs):
-        self._args = args
-        self._kwargs = kwargs
-        self._callback = callback
-
-    def __call__(self, *args, **kwargs):
-        return self._callback(*self._args, **self._kwargs)
-
-
-class LazyDump(Lazy):
-    def __str__(self):
-        return self()
-
-
-class Dumper(Lazy):
-    def __init__(
-        self, data: t.Any, *args, callback: t.Optional[t.Callable] = None, **kwargs
-    ):
-        super().__init__(callback or str, data, *args, **kwargs)
-        self.data = data
-
-    def dump(self) -> str:
-        return self(self.data)
-
-    def __str__(self):
-        return self.dump()
-
-
-class BytesWrap(Dumper):
-    def __init__(self, data: BytesType, encoding: str = "utf-8"):
-        super().__init__(data)
-        self.encoding = encoding
-
-    def dump(self) -> str:
-        if isinstance(self.data, memoryview):
-            return self.data.hex()
-        return self.data.decode(encoding=self.encoding)
-
-    def __repr__(self) -> str:
-        return self.__str__()
 
 
 class BDict(dict):
@@ -256,19 +130,8 @@ class LRUCache(OrderedDict):
         return self.__setitem__(key, value)
 
 
-class DataClassDictable:
-    def to_dict(self, factory: CallableDictType = ObjectDict) -> dict:
-        # noinspection PyDataclass
-        return asdict(self, dict_factory=factory)
-
-    @classmethod
-    def field_types(cls) -> dict:
-        # noinspection PyDataclass
-        return {item.name: item.type.__name__ for item in fields(cls)}
-
-
 @dataclass
-class GeoJsonPoint(DataClassDictable):
+class GeoJsonPoint(BaseDTO):
     coordinates: t.List[float]
     type: str
 

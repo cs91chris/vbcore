@@ -3,11 +3,11 @@ from dataclasses import dataclass
 
 from user_agents import parsers
 
-from vbcore.datastruct import DataClassDictable
+from vbcore.base import BaseDTO
 
 
 @dataclass(frozen=True)
-class Version(DataClassDictable):
+class Version(BaseDTO):
     string: str
     number: int
 
@@ -16,7 +16,7 @@ class Version(DataClassDictable):
 
 
 @dataclass(frozen=True)
-class Client(DataClassDictable):
+class Client(BaseDTO):
     family: str
     version: Version
 
@@ -25,7 +25,7 @@ class Client(DataClassDictable):
 
 
 @dataclass(frozen=True)
-class DeviceType(DataClassDictable):
+class DeviceType(BaseDTO):
     computer: bool
     bot: bool
     mobile: bool
@@ -35,7 +35,7 @@ class DeviceType(DataClassDictable):
 
 
 @dataclass(frozen=True)
-class Device(DataClassDictable):
+class Device(BaseDTO):
     family: str
     brand: str
     model: str
@@ -43,7 +43,7 @@ class Device(DataClassDictable):
 
 
 @dataclass(frozen=True)
-class UserAgent(DataClassDictable):
+class UserAgent(BaseDTO):
     parser_class: t.ClassVar[t.Type[parsers.UserAgent]] = parsers.UserAgent
 
     raw: str

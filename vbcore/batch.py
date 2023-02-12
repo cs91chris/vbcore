@@ -8,7 +8,7 @@ from enum import auto
 from queue import Queue
 
 from vbcore import aio
-from vbcore.datastruct import StrEnum
+from vbcore.enum import StrEnum
 
 
 class BatchExecutor:

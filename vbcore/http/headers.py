@@ -1,6 +1,6 @@
 import enum
 
-from vbcore.datastruct import IStrEnum, LStrEnum, StrEnum
+from vbcore.enum import IStrEnum, LStrEnum, StrEnum
 
 
 class TypeEnum(LStrEnum):
