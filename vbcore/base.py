@@ -2,9 +2,9 @@ import dataclasses
 import logging
 from abc import ABC, abstractmethod
 from functools import cached_property
-from typing import Any, Dict, Generic, Tuple, Type, TypeVar
+from typing import Any, Dict, Generic, Tuple, Type
 
-LogClass = TypeVar("LogClass", bound=logging.Logger)
+from vbcore.types import LogClass
 
 
 class LoggerMixin(Generic[LogClass], ABC):

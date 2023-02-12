@@ -1,12 +1,10 @@
 import typing as t
-from datetime import date as datetime_date, datetime
+from datetime import datetime
 
 from dateutil.parser import parse as date_parse
 
 from vbcore.base import Static
-
-DateType = t.Union[datetime_date, datetime]
-AnyDateType = t.Union[DateType, str]
+from vbcore.types import AnyDateType, DateType
 
 
 class Millis(metaclass=Static):

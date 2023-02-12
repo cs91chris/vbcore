@@ -3,13 +3,12 @@ import tempfile
 import typing as t
 from dataclasses import dataclass
 
+from vbcore.types import OptStr
+
 try:
     from chardet import UniversalDetector as Detector
 except ImportError:
     Detector = None  # type: ignore
-
-
-OptStr = t.Optional[str]
 
 
 @dataclass(frozen=True)

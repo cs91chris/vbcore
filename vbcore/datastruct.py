@@ -6,12 +6,11 @@ from collections import OrderedDict
 from dataclasses import asdict, dataclass, fields
 from threading import RLock
 
+from vbcore.types import BytesType, CallableDictType
+
 T = t.TypeVar("T")
 D = t.TypeVar("D", bound="IDict")
 OD = t.TypeVar("OD", bound="ObjectDict")
-
-BytesType = t.Union[bytes, bytearray, memoryview]
-CallableDictType = t.Callable[[t.List[t.Tuple[str, t.Any]]], t.Any]
 
 
 class HashableDict(dict):

@@ -2,9 +2,8 @@ import csv
 import typing as t
 from contextlib import contextmanager
 
-from vbcore.files import FileHandler
+from vbcore.files import FileHandler, OptStr
 
-OptStr = t.Optional[str]
 RecordType = t.Union[dict, t.Iterable[dict]]
 WriterCoroutineType = t.Generator[None, RecordType, None]
 
