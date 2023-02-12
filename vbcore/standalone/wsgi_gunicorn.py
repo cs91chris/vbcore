@@ -1,5 +1,6 @@
 import os
 import typing as t
+from dataclasses import MISSING
 from functools import partial
 from multiprocessing import cpu_count
 
@@ -7,7 +8,7 @@ from decouple import Choices, Csv, UndefinedValueError
 from gunicorn import util
 from gunicorn.app.base import BaseApplication  # type: ignore
 
-from vbcore.configurator import config, load_dotenv, MISSING
+from vbcore.configurator import config, load_dotenv
 from vbcore.importer import Importer
 
 # Supported env vars:
