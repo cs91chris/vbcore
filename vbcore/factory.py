@@ -56,7 +56,7 @@ class ItemEnumMixin(t.Generic[T]):
 class Item(abc.ABC, t.Generic[T]):
     __slots__ = ("options",)
 
-    def __init__(self, *_, options: T, **__):
+    def __init__(self, options: T, *_, **__):
         self.options = options
 
 
@@ -72,8 +72,8 @@ class ItemFactory(t.Generic[E, P], metaclass=Static):
     products: t.Type[E]
 
     @classmethod
-    def instance(cls, name: str, *args, **kwargs) -> P:
-        product = cls.products(name)
+    def instance(cls, name: t.Union[str, E], *args, **kwargs) -> P:
+        product = cls.products(name) if isinstance(name, str) else name
         field_names = product.option_class.field_names()
         _options, _kwargs = cls._split_kwargs(field_names, kwargs)
         options = product.option_class(**_options)

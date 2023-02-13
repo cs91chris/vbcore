@@ -1,39 +1,29 @@
+from functools import partial
+
 import click
 
+from vbcore.crypto.factory import CryptoEnum, CryptoFactory
 from vbcore.tools.cli import Cli, CliReqOpt
-
-try:
-    from vbcore.crypto.argon import Argon2
-except ImportError:
-    Argon2 = None  # type: ignore
-
-
-HASHERS = {
-    "argon2": None if Argon2 is None else Argon2(),
-}
 
 main = click.Group(name="crypto", help="tools for cryptography")
 
-
-def check_dependency(hasher):
-    if hasher is None:
-        Cli.abort("you must install vbcore[crypto]")
+crypto_type_option = partial(
+    CliReqOpt.choice, "-t", "--type", "crypto_class", values=CryptoEnum.products()
+)
 
 
 @main.command(name="hash-encode")
 @Cli.argument("data")
-@CliReqOpt.choice("-t", "--hasher-type", values=list(HASHERS.keys()))
-def hash_encode(hasher_type, data):
-    hasher = HASHERS[hasher_type]
-    check_dependency(hasher)
+@crypto_type_option()
+def hash_encode(crypto_class, data):
+    hasher = CryptoFactory.instance(crypto_class)
     Cli.print(hasher.hash(data))
 
 
 @main.command(name="hash-verify")
 @Cli.argument("hash_value")
 @Cli.argument("data")
-@CliReqOpt.choice("-t", "--hasher-type", values=list(HASHERS.keys()))
-def hash_verify(hasher_type, hash_value, data):
-    hasher = HASHERS[hasher_type]
-    check_dependency(hasher)
-    Cli.print(hasher.verify(hash_value, data))
+@crypto_type_option()
+def hash_verify(crypto_class, hash_value, data):
+    hasher = CryptoFactory.instance(crypto_class)
+    hasher.verify(hash_value, data, exc=True)

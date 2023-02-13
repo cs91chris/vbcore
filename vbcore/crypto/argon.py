@@ -1,19 +1,33 @@
-from argon2 import PasswordHasher
+from dataclasses import dataclass, field
+from functools import cached_property
+
+import argon2
 from argon2.exceptions import Argon2Error, InvalidHash
 
-from vbcore.crypto.base import Hasher
+from vbcore.base import BaseDTO
+from vbcore.crypto.base import Crypto
 
 
-class Argon2(Hasher):
-    def __init__(self, **kwargs):
-        self._ph = PasswordHasher(**kwargs)
+@dataclass(frozen=True)
+class Argon2Options(BaseDTO):
+    time_cost: int = field(default=argon2.DEFAULT_TIME_COST)
+    memory_cost: int = field(default=argon2.DEFAULT_MEMORY_COST)
+    parallelism: int = field(default=argon2.DEFAULT_PARALLELISM)
+    hash_len: int = field(default=argon2.DEFAULT_HASH_LENGTH)
+    salt_len: int = field(default=argon2.DEFAULT_RANDOM_SALT_LENGTH)
+
+
+class Argon2(Crypto[Argon2Options]):
+    @cached_property
+    def hasher(self) -> argon2.PasswordHasher:
+        return argon2.PasswordHasher(**self.options.to_dict())
 
     def hash(self, data: str) -> str:
-        return self._ph.hash(data)
+        return self.hasher.hash(data)
 
     def verify(self, given_hash: str, data: str, exc: bool = False) -> bool:
         try:
-            return self._ph.verify(given_hash, data)
+            return self.hasher.verify(given_hash, data)
         except (Argon2Error, InvalidHash):
             if exc is True:
                 raise  # pragma: no cover
