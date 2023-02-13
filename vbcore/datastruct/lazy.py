@@ -13,6 +13,24 @@ class Lazy:
         return self._callback(*self._args, **self._kwargs)
 
 
+class LazyException(Lazy):
+    def __init__(self, exception: Exception):
+        super().__init__(callback=self.trigger)
+        self.exception = exception
+
+    def trigger(self):
+        raise self.exception
+
+    def __str__(self) -> str:
+        return str(self.exception)
+
+    def __getattr__(self, item):
+        self(item)
+
+    def __getitem__(self, item):
+        self(item)
+
+
 class LazyDump(Lazy):
     def __str__(self):
         return self()
