@@ -1,10 +1,21 @@
 import traceback
+import typing as t
 from types import TracebackType
-
-from vbcore.types import StrDict
 
 
 class VBException(Exception):
+    def __init__(
+        self,
+        message: str,
+        *args,
+        orig: t.Optional[Exception] = None,
+        **kwargs,
+    ) -> None:
+        super().__init__(message, args)
+        self.orig = orig
+        self.message = message
+        self.kwargs = kwargs
+
     @property
     def error_type(self) -> str:
         return self.__class__.__name__
@@ -19,10 +30,3 @@ class VBException(Exception):
 
     def dump_traceback(self) -> str:
         return "\n".join(traceback.format_exception(self))
-
-    def to_dict(self) -> StrDict:
-        return {
-            "error": self.error_type,
-            "message": str(self),
-            "traceback": self.dump_traceback(),
-        }

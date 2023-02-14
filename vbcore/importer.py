@@ -13,7 +13,7 @@ class ImporterModuleError(ImporterError):
     def __init__(self, name, exc: Exception):
         self.exception = exc
         self.name = name
-        super().__init__(exc)
+        super().__init__(f"unable to import module: {name}", orig=exc)
 
 
 class ImporterValueError(ImporterError):

@@ -6,6 +6,7 @@ from argon2.exceptions import Argon2Error, InvalidHash
 
 from vbcore.base import BaseDTO
 from vbcore.crypto.base import Crypto
+from vbcore.crypto.exceptions import VBInvalidHashError
 
 
 @dataclass(frozen=True)
@@ -25,10 +26,10 @@ class Argon2(Crypto[Argon2Options]):
     def hash(self, data: str) -> str:
         return self.hasher.hash(data)
 
-    def verify(self, given_hash: str, data: str, exc: bool = False) -> bool:
+    def verify(self, given_hash: str, data: str, raise_exc: bool = False) -> bool:
         try:
             return self.hasher.verify(given_hash, data)
-        except (Argon2Error, InvalidHash):
-            if exc is True:
-                raise  # pragma: no cover
+        except (Argon2Error, InvalidHash) as exc:
+            if raise_exc is True:
+                raise VBInvalidHashError(given_hash, orig=exc) from exc
             return False

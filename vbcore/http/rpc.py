@@ -5,7 +5,7 @@ from vbcore.http import httpcode
 
 class RPCError(VBException):
     def __init__(self, code: int, message: str, data=None):
-        super().__init__(code, message)
+        super().__init__(message, code)
         self.code = code
         self.message = message
         self.data = data

@@ -1,7 +1,9 @@
+import sys
 from functools import partial
 
 import click
 
+from vbcore.crypto.exceptions import VBInvalidHashError
 from vbcore.crypto.factory import CryptoEnum, CryptoFactory
 from vbcore.tools.cli import Cli, CliReqOpt
 
@@ -26,4 +28,8 @@ def hash_encode(crypto_class, data):
 @crypto_type_option()
 def hash_verify(crypto_class, hash_value, data):
     hasher = CryptoFactory.instance(crypto_class)
-    hasher.verify(hash_value, data, exc=True)
+    try:
+        hasher.verify(hash_value, data, raise_exc=True)
+    except VBInvalidHashError as exc:
+        Cli.print(exc)
+        sys.exit(1)
