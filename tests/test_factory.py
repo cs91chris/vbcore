@@ -32,7 +32,7 @@ class MyItemFactory(ItemFactory[MyItemEnum, MyItem]):
 
 
 def test_products_list():
-    Asserter.assert_equals(MyItemEnum.products(), ["DUMMY", "ITEM"])
+    Asserter.assert_equals(MyItemEnum.items(), ["DUMMY", "ITEM"])
 
 
 def test_instance():

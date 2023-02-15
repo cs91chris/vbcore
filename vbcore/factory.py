@@ -49,7 +49,7 @@ class ItemEnumMixin(t.Generic[T]):
         return getattr(cls, value, None)
 
     @classmethod
-    def products(cls) -> t.List[str]:
+    def items(cls) -> t.List[str]:
         return list(cls.__members__.keys())
 
 

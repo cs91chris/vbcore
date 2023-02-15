@@ -10,7 +10,7 @@ from vbcore.tools.cli import Cli, CliReqOpt
 main = click.Group(name="crypto", help="tools for cryptography")
 
 crypto_type_option = partial(
-    CliReqOpt.choice, "-t", "--type", "crypto_class", values=CryptoEnum.products()
+    CliReqOpt.choice, "-t", "--type", "crypto_class", values=CryptoEnum.items()
 )
 
 

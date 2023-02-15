@@ -50,10 +50,14 @@ class SHA512(Hash):
     ALGO = "sha512"
 
 
+# pylint: disable=invalid-name
+# noinspection PyPep8Naming
 class SHA3_256(Hash):
     ALGO = "sha3_256"
 
 
+# pylint: disable=invalid-name
+# noinspection PyPep8Naming
 class SHA3_512(Hash):
     ALGO = "sha3_512"
 
