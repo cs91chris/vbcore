@@ -98,8 +98,8 @@ class ItemFactory(t.Generic[E, P], metaclass=Static):
 
 class ClassLoader(abc.ABC, t.Generic[C]):
     BASE_CLASS: t.Type[C]
-    ATTR_LABEL: t.ClassVar[str] = "LABEL"
-    PACKAGE: t.ClassVar[types.ModuleType]
+    ATTR_LABEL: str = "LABEL"
+    PACKAGE: types.ModuleType
 
     def __init__(self) -> None:
         self._class_map: t.Dict[str, t.Type[C]] = {
@@ -107,8 +107,8 @@ class ClassLoader(abc.ABC, t.Generic[C]):
         }
 
     @classmethod
-    def pkg_path(cls) -> str:
-        return str(cls.PACKAGE.__path__)
+    def pkg_path(cls) -> t.MutableSequence[str]:
+        return cls.PACKAGE.__path__
 
     @classmethod
     def pkg_name(cls) -> str:

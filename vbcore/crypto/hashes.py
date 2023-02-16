@@ -1,7 +1,7 @@
 import hashlib
+import hmac
 import typing as t
 from dataclasses import dataclass, field
-from functools import cached_property
 
 from vbcore.base import BaseDTO
 from vbcore.crypto.base import Crypto
@@ -16,16 +16,11 @@ class HashOptions(BaseDTO):
 class Hash(Crypto[HashOptions]):
     ALGO: t.ClassVar[str]
 
-    @cached_property
-    def instance(self):
-        return hashlib.new(self.ALGO)
-
     def hash(self, data: str) -> str:
-        self.instance.update(data.encode())
-        return self.instance.hexdigest()
+        return hashlib.new(self.ALGO, data=data.encode()).hexdigest()
 
     def verify(self, given_hash: str, data: str, raise_exc: bool = False) -> bool:
-        if given_hash == self.hash(data):
+        if hmac.compare_digest(given_hash, self.hash(data)):
             return True
 
         if raise_exc:

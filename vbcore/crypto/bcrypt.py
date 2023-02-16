@@ -28,12 +28,12 @@ class Bcrypt(Crypto[BcryptOptions]):
         return self.to_string(hashed)
 
     def verify(self, given_hash: str, data: str, raise_exc: bool = False) -> bool:
-        result = bcrypt.checkpw(
-            self.to_bytes(data),
-            self.to_bytes(given_hash),
-        )
-
-        if raise_exc:
-            raise VBInvalidHashError(given_hash)
-
-        return result
+        try:
+            return bcrypt.checkpw(
+                self.to_bytes(data),
+                self.to_bytes(given_hash),
+            )
+        except ValueError as exc:
+            if raise_exc:
+                raise VBInvalidHashError(given_hash, orig=exc) from exc
+            return False
