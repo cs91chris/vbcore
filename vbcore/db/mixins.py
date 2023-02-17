@@ -4,8 +4,8 @@ import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr
 
 from vbcore import json
-from vbcore.crypto.base import Crypto
-from vbcore.crypto.factory import CryptoEnum, CryptoFactory
+from vbcore.crypto.base import Hasher
+from vbcore.crypto.factory import CryptoFactory
 
 if t.TYPE_CHECKING:
     hybrid_property = property  # pylint: disable=C0103
@@ -39,7 +39,7 @@ class CatalogMixin(BaseMixin):
 
 
 class UserMixin(StandardMixin):
-    _hasher: Crypto = CryptoFactory.instance(CryptoEnum.ARGON2)
+    _hasher: Hasher = CryptoFactory.instance("ARGON2")
     _password = sa.Column("password", sa.String(128), nullable=False)
 
     email = sa.Column(sa.String(255), unique=True, nullable=False)

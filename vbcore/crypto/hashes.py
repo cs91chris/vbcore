@@ -1,25 +1,21 @@
 import hashlib
 import hmac
 import typing as t
-from dataclasses import dataclass, field
 
-from vbcore.base import BaseDTO
-from vbcore.crypto.base import Crypto
+from vbcore.crypto.base import HashableType, Hasher, HashOptions
 from vbcore.crypto.exceptions import VBInvalidHashError
 
 
-@dataclass(frozen=True)
-class HashOptions(BaseDTO):
-    encoding: str = field(default="utf-8")
-
-
-class Hash(Crypto[HashOptions]):
+class BuiltinHash(Hasher[HashOptions]):
     ALGO: t.ClassVar[str]
 
-    def hash(self, data: str) -> str:
-        return hashlib.new(self.ALGO, data=data.encode()).hexdigest()
+    def hash(self, data: HashableType) -> str:
+        data = self.to_bytes(data) if isinstance(data, str) else data
+        return hashlib.new(self.ALGO, data=data).hexdigest()
 
-    def verify(self, given_hash: str, data: str, raise_exc: bool = False) -> bool:
+    def verify(
+        self, given_hash: str, data: HashableType, raise_exc: bool = False
+    ) -> bool:
         if hmac.compare_digest(given_hash, self.hash(data)):
             return True
 
@@ -29,37 +25,37 @@ class Hash(Crypto[HashOptions]):
         return False
 
 
-class MD5(Hash):
+class MD5(BuiltinHash):
     ALGO = "md5"
 
 
-class SHA1(Hash):
+class SHA1(BuiltinHash):
     ALGO = "sha1"
 
 
-class SHA256(Hash):
+class SHA256(BuiltinHash):
     ALGO = "sha256"
 
 
-class SHA512(Hash):
+class SHA512(BuiltinHash):
     ALGO = "sha512"
 
 
 # pylint: disable=invalid-name
 # noinspection PyPep8Naming
-class SHA3_256(Hash):
+class SHA3_256(BuiltinHash):
     ALGO = "sha3_256"
 
 
 # pylint: disable=invalid-name
 # noinspection PyPep8Naming
-class SHA3_512(Hash):
+class SHA3_512(BuiltinHash):
     ALGO = "sha3_512"
 
 
-class BLAKE2B(Hash):
+class BLAKE2B(BuiltinHash):
     ALGO = "blake2b"
 
 
-class BLAKE2S(Hash):
+class BLAKE2S(BuiltinHash):
     ALGO = "blake2s"

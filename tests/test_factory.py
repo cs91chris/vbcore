@@ -28,7 +28,7 @@ class MyItemEnum(
 
 
 class MyItemFactory(ItemFactory[MyItemEnum, MyItem]):
-    products = MyItemEnum
+    items = MyItemEnum
 
 
 def test_products_list():

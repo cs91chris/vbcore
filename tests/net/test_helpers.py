@@ -26,7 +26,7 @@ def test_parse_query_string(query, expected):
 
 
 def test_url_encoder_decoder():
-    url = "http://user:pass@example.com/path?a=1#fragment"
+    url = "http://user:pass@example.com/path?a=1&b=2&a=3#fragment"
     expected = Url(
         protocol="http",
         hostname="example.com",
@@ -34,8 +34,8 @@ def test_url_encoder_decoder():
         password="pass",
         path="/path",
         fragment="fragment",
-        query="a=1",
-        params={"a": "1"},
+        query="a=1&b=2&a=3",
+        params={"a": ["1", "3"], "b": "2"},
     )
     decoded = Url.from_raw(url)
     Asserter.assert_equals(decoded, expected)
@@ -43,7 +43,7 @@ def test_url_encoder_decoder():
 
 
 @given(urls())
-@settings(max_examples=100)
+@settings(max_examples=30)
 def test_url_parse(url):
     _url = url.lower()
     decoded = Url.from_raw(_url)

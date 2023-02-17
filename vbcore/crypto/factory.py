@@ -2,7 +2,7 @@ import enum
 
 from vbcore.base import BaseDTO
 from vbcore.crypto import hashes
-from vbcore.crypto.base import Crypto
+from vbcore.crypto.base import Hasher
 from vbcore.crypto.bcrypt import Bcrypt, BcryptOptions
 from vbcore.datastruct.lazy import LazyException
 from vbcore.factory import ItemEnumMeta, ItemEnumMixin, ItemFactory
@@ -15,7 +15,7 @@ except ImportError:
     Argon2 = Argon2Options = LazyException(Error)  # type: ignore
 
 
-class CryptoEnum(
+class HasherEnum(
     ItemEnumMixin[BaseDTO],
     enum.Enum,
     metaclass=ItemEnumMeta,
@@ -32,5 +32,5 @@ class CryptoEnum(
     BLAKE2S = hashes.BLAKE2S, hashes.HashOptions
 
 
-class CryptoFactory(ItemFactory[CryptoEnum, Crypto]):
-    products = CryptoEnum
+class CryptoFactory(ItemFactory[HasherEnum, Hasher]):
+    items = HasherEnum

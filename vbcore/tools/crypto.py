@@ -4,13 +4,13 @@ from functools import partial
 import click
 
 from vbcore.crypto.exceptions import VBInvalidHashError
-from vbcore.crypto.factory import CryptoEnum, CryptoFactory
+from vbcore.crypto.factory import CryptoFactory, HasherEnum
 from vbcore.tools.cli import Cli, CliReqOpt
 
 main = click.Group(name="crypto", help="tools for cryptography")
 
 crypto_type_option = partial(
-    CliReqOpt.choice, "-t", "--type", "crypto_class", values=CryptoEnum.items()
+    CliReqOpt.choice, "-t", "--type", "crypto_class", values=HasherEnum.items()
 )
 
 

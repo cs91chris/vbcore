@@ -1,17 +1,34 @@
 import abc
 import typing as t
+from dataclasses import dataclass, field
 
 from vbcore.base import BaseDTO
 from vbcore.factory import Item
+from vbcore.types import BytesType
 
-T = t.TypeVar("T", bound=BaseDTO)
+T = t.TypeVar("T", bound="HashOptions")
+
+HashableType = t.Union[str, BytesType]
 
 
-class Crypto(Item[T], t.Generic[T]):
+@dataclass(frozen=True)
+class HashOptions(BaseDTO):
+    encoding: str = field(default="utf-8")
+
+
+class Hasher(Item[T], t.Generic[T]):
     @abc.abstractmethod
-    def hash(self, data: str) -> str:
-        pass
+    def hash(self, data: HashableType) -> str:
+        raise NotImplementedError  # pragma: no cover
 
     @abc.abstractmethod
-    def verify(self, given_hash: str, data: str, raise_exc: bool = False) -> bool:
-        pass
+    def verify(
+        self, given_hash: str, data: HashableType, raise_exc: bool = False
+    ) -> bool:
+        raise NotImplementedError  # pragma: no cover
+
+    def to_bytes(self, data: str) -> bytes:
+        return data.encode(encoding=self.options.encoding)
+
+    def to_string(self, data: bytes) -> str:
+        return data.decode(encoding=self.options.encoding)

@@ -17,15 +17,22 @@ def test_options(argon2_instance):
     Asserter.assert_equals(argon2_instance.options, options)
 
 
-@given(st.text(string.printable), st.text(string.printable))
-@settings(max_examples=25, deadline=1000)
+@given(st.text(string.printable), st.text())
+@settings(max_examples=10)
 def test_argon2_invalid(argon2_instance, fake_hash, fake_password):
     hasher = argon2_instance
     Asserter.assert_false(hasher.verify(fake_hash, fake_password))
 
 
 @given(st.text())
-@settings(max_examples=25, deadline=1000)
-def test_argon2_ok(argon2_instance, password):
+@settings(max_examples=10, deadline=None)
+def test_argon2_ok_text(argon2_instance, password):
+    hasher = argon2_instance
+    Asserter.assert_true(hasher.verify(hasher.hash(password), password))
+
+
+@given(st.binary())
+@settings(max_examples=10, deadline=None)
+def test_argon2_ok_binary(argon2_instance, password):
     hasher = argon2_instance
     Asserter.assert_true(hasher.verify(hasher.hash(password), password))

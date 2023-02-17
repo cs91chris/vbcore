@@ -69,15 +69,15 @@ class DummyItem(Item[BaseDTO]):
 
 
 class ItemFactory(t.Generic[E, P], metaclass=Static):
-    products: t.Type[E]
+    items: t.Type[E]
 
     @classmethod
     def instance(cls, name: t.Union[str, E], *args, **kwargs) -> P:
-        product = cls.products(name) if isinstance(name, str) else name
-        field_names = product.option_class.field_names()
+        item = cls.items(name) if isinstance(name, str) else name
+        field_names = item.option_class.field_names()
         _options, _kwargs = cls._split_kwargs(field_names, kwargs)
-        options = product.option_class(**_options)
-        return product.value(*args, options=options, **_kwargs)
+        options = item.option_class(**_options)
+        return item.value(*args, options=options, **_kwargs)
 
     @classmethod
     def _split_kwargs(

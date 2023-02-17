@@ -1,12 +1,12 @@
 import traceback
 
-from vbcore.crypto import CryptoFactory, CryptoEnum
+from vbcore.crypto import CryptoFactory, HasherEnum
 
 
 def try_all():
     password = "password"
 
-    for algo in CryptoEnum.items():
+    for algo in HasherEnum.items():
         print()
         try:
             instance = CryptoFactory.instance(algo)

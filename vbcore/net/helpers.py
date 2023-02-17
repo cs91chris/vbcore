@@ -44,7 +44,7 @@ class Url(BaseDTO):
             params=parse_query_string(parsed_url.query),
         )
 
-    def encode(self):
+    def encode(self) -> str:
         auth = f"{self.username}:{self.password}@" if self.username else ""
         port = f":{self.port}" if self.port is not None else ""
         query = f"?{self.query}" if self.query else ""
