@@ -82,6 +82,15 @@ class BaseAssert:
         )
 
     @classmethod
+    def assert_not_none(cls, actual, error: t.Optional[str] = None):
+        cls.assert_that(
+            lambda a, _: a is not None,
+            error=error,
+            that=f"'{actual}' is not None",
+            actual=actual,
+        )
+
+    @classmethod
     def assert_equals(cls, actual, expected, error: t.Optional[str] = None):
         cls.assert_that(
             lambda a, e: a == e,
@@ -117,6 +126,26 @@ class BaseAssert:
             lambda a, e: a not in e,
             error=error,
             that=f"'{actual}' is not in '{expected}'",
+            actual=actual,
+            expected=expected,
+        )
+
+    @classmethod
+    def assert_is(cls, actual, expected, error: t.Optional[str] = None):
+        cls.assert_that(
+            lambda a, e: a is e,
+            error=error,
+            that=f"'{actual}' is '{expected}'",
+            actual=actual,
+            expected=expected,
+        )
+
+    @classmethod
+    def assert_is_not(cls, actual, expected, error: t.Optional[str] = None):
+        cls.assert_that(
+            lambda a, e: a is not e,
+            error=error,
+            that=f"'{actual}' is not '{expected}'",
             actual=actual,
             expected=expected,
         )

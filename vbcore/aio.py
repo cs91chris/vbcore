@@ -4,7 +4,7 @@ import typing as t
 
 try:
     import nest_asyncio
-except ImportError:
+except ImportError:  # pragma: no cover
     nest_asyncio = None
 
 
@@ -12,18 +12,18 @@ def is_async(fun: t.Callable) -> bool:
     return asyncio.iscoroutinefunction(fun)
 
 
-async def wrap_callable(fun: t.Callable, **kwargs) -> t.Any:
+async def async_wrapper(fun: t.Callable, **kwargs) -> t.Any:
     return fun(**kwargs)
 
 
-async def collect(*args, return_exc: bool = True):
+async def collect(*args, return_exc: bool = True) -> t.Any:
     return await asyncio.gather(*args, return_exceptions=return_exc)
 
 
-def get_event_loop() -> asyncio.AbstractEventLoop:
+def get_event_loop(*, nested: bool = False) -> asyncio.AbstractEventLoop:
     try:
         loop = asyncio.get_running_loop()
-        if nest_asyncio is not None:
+        if loop and nest_asyncio is not None and nested is True:
             nest_asyncio.apply(loop)
     except RuntimeError:
         loop = None

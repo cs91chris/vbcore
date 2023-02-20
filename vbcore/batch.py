@@ -53,7 +53,7 @@ class AsyncBatchExecutor(BatchExecutor):
         for task in self._tasks:
             func, args = self.prepare_task(task)
             tasks.append(
-                aio.wrap_callable(func, **args)
+                aio.async_wrapper(func, **args)
                 if not aio.is_async(func)
                 else func(**args)
             )
