@@ -116,13 +116,19 @@ isort:
 		${PACKAGE} tests setup.py
 
 flake:
-	flake8 --config=.flake8 --statistics ${PACKAGE} sandbox tests setup.py
+	flake8 \
+		--config=.flake8 --statistics \
+		${PACKAGE} sandbox tests setup.py
 
 pylint:
-	pylint -j0 --rcfile=.pylintrc --reports=y ${PACKAGE} sandbox tests setup.py
+	pylint \
+		-j0 --rcfile=.pylintrc --reports=y \
+		${PACKAGE} sandbox tests setup.py
 
 mypy:
-	mypy --warn-unused-configs --no-strict-optional ${PACKAGE} sandbox tests
+	mypy \
+		--warn-unused-configs --no-strict-optional \
+		${PACKAGE} sandbox tests
 
 run-tox:
 	tox --verbose --parallel all
@@ -131,7 +137,9 @@ test:
 	PYTHONPATH=. pytest -v -rf --strict-markers \
 		-p ${PACKAGE}.tester.plugins.fixtures \
 		-p ${PACKAGE}.tester.plugins.startup \
-		--cov=${PACKAGE} --cov-report=html --cov-config .coveragerc \
+		--cov=${PACKAGE} --cov-config .coveragerc \
+		--cov-report=html \
+		--cov-report=term-missing \
 		tests
 
 test-coverage:
@@ -139,7 +147,9 @@ test-coverage:
 		-p ${PACKAGE}.tester.plugins.fixtures \
 		-p ${PACKAGE}.tester.plugins.startup \
 		--junitxml=junit-report.xml \
-		--cov=${PACKAGE} --cov-report=xml --cov-config .coveragerc \
+		--cov=${PACKAGE} --cov-config .coveragerc \
+		--cov-report=xml \
+		--cov-report=term-missing \
 		tests
 
 bandit:
