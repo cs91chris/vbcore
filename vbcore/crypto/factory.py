@@ -10,7 +10,7 @@ from vbcore.factory import ItemEnumMeta, ItemEnumMixin, ItemFactory
 # TODO test me
 try:
     from vbcore.crypto.argon import Argon2, Argon2Options
-except ImportError:
+except ImportError:  # pragma: no cover
     Error = ImportError("you must install argon2")
     Argon2 = Argon2Options = LazyException(Error)  # type: ignore
 

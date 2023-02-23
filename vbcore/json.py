@@ -12,7 +12,7 @@ try:
     # noinspection PyUnresolvedReferences
     from bson import ObjectId
     from bson.errors import InvalidId
-except ImportError:
+except ImportError:  # pragma: no cover
     ObjectId = str
     InvalidId = ValueError
 

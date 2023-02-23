@@ -2,52 +2,54 @@ import string
 
 import pytest
 
-from vbcore import misc, uuid
+from vbcore import misc
 from vbcore.misc import CommonRegex, split_kwargs
 from vbcore.tester.mixins import Asserter
 
 
-def test_all_uuid_versions():
-    Asserter.assert_false(uuid.check_uuid("fake uuid"))
-    Asserter.assert_true(uuid.check_uuid(uuid.get_uuid(hexify=False)))
-    Asserter.assert_true(uuid.check_uuid(uuid.get_uuid()))
-    Asserter.assert_true(uuid.check_uuid(uuid.get_uuid(1), ver=1))
-    Asserter.assert_true(uuid.check_uuid(uuid.get_uuid(3, name="test"), ver=3))
-    Asserter.assert_true(uuid.check_uuid(uuid.get_uuid(5, name="test"), ver=5))
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        ("1", 1.0),
+        ("1.1", 1.1),
+        ("1,1", None),
+        ("aaa", None),
+    ],
+)
+def test_to_float(value, expected):
+    Asserter.assert_equals(misc.to_float(value), expected)
 
 
-def test_misc():
-    Asserter.assert_less(1, 2)
-    Asserter.assert_greater(2, 1)
-    Asserter.assert_range(2, (1, 3))
-    Asserter.assert_occurrence("abacca", r"a", 3)
-    Asserter.assert_occurrence("abacca", r"a", 4, less=True)
-    Asserter.assert_occurrence("abacca", r"a", 2, greater=True)
-    Asserter.assert_true(misc.to_float("1.1"))
-    Asserter.assert_none(misc.to_float("1,1"))
-    Asserter.assert_true(misc.to_int("1"))
-    Asserter.assert_none(misc.to_int("1,1"))
-    Asserter.assert_true(misc.parse_value("true"))
-    Asserter.assert_equals("test", misc.parse_value("test"))
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        ("1", 1),
+        ("1.1", None),
+        ("1,1", None),
+        ("aaa", None),
+    ],
+)
+def test_to_int(value, expected):
+    Asserter.assert_equals(misc.to_int(value), expected)
 
 
-def test_assert_range():
-    Asserter.assert_range(3, [1, 5])
-    Asserter.assert_range(1, [1, 5], closed=True)
-    Asserter.assert_range(5, [1, 5], closed=True)
-    Asserter.assert_range(1, [1, 5], left=True)
-    Asserter.assert_range(5, [1, 5], right=True)
-
-    with pytest.raises(AssertionError):
-        Asserter.assert_range(6, [1, 5])
-    with pytest.raises(AssertionError):
-        Asserter.assert_range(5, [1, 5])
-    with pytest.raises(AssertionError):
-        Asserter.assert_range(1, [1, 5])
-    with pytest.raises(AssertionError):
-        Asserter.assert_range(5, [1, 5], left=True)
-    with pytest.raises(AssertionError):
-        Asserter.assert_range(1, [1, 5], right=True)
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        ("1", 1),
+        ("1.1", 1.1),
+        ("true", True),
+        ("test", "test"),
+    ],
+    ids=[
+        "int",
+        "float",
+        "bool",
+        "string",
+    ],
+)
+def test_parse_value(value, expected):
+    Asserter.assert_equals(misc.parse_value(value), expected)
 
 
 def test_random_string():

@@ -8,7 +8,7 @@ from vbcore.types import OptStr
 
 try:
     from chardet import UniversalDetector as Detector
-except ImportError:
+except ImportError:  # pragma: no cover
     Detector = None  # type: ignore
 
 

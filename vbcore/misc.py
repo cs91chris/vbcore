@@ -5,11 +5,8 @@ import signal
 import string
 import sys
 import typing as t
-from decimal import Decimal
 from random import SystemRandom
 from threading import Lock
-
-T = t.TypeVar("T")
 
 
 class Printer:
@@ -112,14 +109,6 @@ def split_kwargs(
     return wanted, kwargs
 
 
-def format_decimal(value: Decimal, precision: int = 8) -> str:
-    if value.is_zero():
-        return "0"
-
-    str_fmt = f"{{:.{precision}f}}"
-    return str_fmt.format(value).rstrip("0").rstrip(".")
-
-
 def static_attr(name: str, value):
     def wrapper(func):
         setattr(func, name, value)
@@ -131,23 +120,6 @@ def static_attr(name: str, value):
         return inner
 
     return wrapper
-
-
-def chunk_iterator(
-    iterable: t.Iterable[T], chunk_size: int
-) -> t.Generator[t.List[T], None, None]:
-    _iterable = iter(iterable)
-
-    while True:
-        chunk = []
-        try:
-            for _ in range(chunk_size):
-                chunk.append(next(_iterable))
-            yield chunk
-        except StopIteration:
-            if chunk:
-                yield chunk
-            break
 
 
 def random_string(length: int, alphabet: str = string.printable) -> str:

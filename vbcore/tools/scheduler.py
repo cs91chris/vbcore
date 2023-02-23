@@ -6,7 +6,7 @@ from vbcore.tools.cli import Cli, CliInputFile, CliReqOpt
 
 try:
     from vbcore.standalone.scheduler import APScheduler
-except ImportError:
+except ImportError:  # pragma: no cover
     APScheduler = None  # type: ignore
 
 from vbcore.yaml import load_yaml_file

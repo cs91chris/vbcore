@@ -6,7 +6,7 @@ from vbcore.tools.cli import Cli, CliOpt, CliOutputDir, CliReqOpt
 
 try:
     from vbcore.db.schema import db_to_schema, dump_model_ddl, model_to_uml
-except ImportError:
+except ImportError:  # pragma: no cover
     db_to_schema = dump_model_ddl = model_to_uml = None
 
 

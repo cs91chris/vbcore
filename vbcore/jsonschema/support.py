@@ -8,7 +8,7 @@ from vbcore.http.client import HTTPClient
 
 try:
     import jsonschema as json_schema
-except ImportError as _exc:
+except ImportError as _exc:  # pragma: no cover
     raise ImportError("you must install 'jsonschema'") from _exc
 
 SchemaError = (json_schema.ValidationError, json_schema.SchemaError)
