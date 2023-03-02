@@ -3,7 +3,7 @@ import responses
 
 from vbcore.http import httpcode
 from vbcore.http.client import HTTPClient
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 
 @responses.activate

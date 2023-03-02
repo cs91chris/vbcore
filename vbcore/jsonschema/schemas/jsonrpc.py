@@ -45,7 +45,7 @@ class JSONRPC:
                 properties={
                     "jsonrpc": Fields.enum("2.0"),
                     "id": Fields.type("string", "number", "null"),
-                    "result": Fields.type("array", "object", "null"),
+                    "result": Fields.any,
                     "error": Fields.type(
                         "array",
                         "object",

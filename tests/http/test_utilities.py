@@ -1,28 +1,32 @@
 import pytest
 
-from vbcore.datastruct import ObjectDict
 from vbcore.http import httpcode, HttpMethod, useragent, WebDavMethod
 from vbcore.http.headers import ContentTypeEnum, HeaderEnum
+from vbcore.tester.asserter import Asserter
 from vbcore.tester.helpers import do_not_dump_long_string
-from vbcore.tester.mixins import Asserter
 
 
-def test_http_status():
-    Asserter.assert_true(httpcode.is_informational(httpcode.PROCESSING))
-    Asserter.assert_true(httpcode.is_success(httpcode.CREATED))
-    Asserter.assert_false(httpcode.is_success(httpcode.MULTIPLE_CHOICES))
-    Asserter.assert_true(httpcode.is_redirection(httpcode.SEE_OTHER))
-    Asserter.assert_false(httpcode.is_redirection(httpcode.BAD_REQUEST))
-    Asserter.assert_true(httpcode.is_client_error(httpcode.UNAUTHORIZED))
-    Asserter.assert_false(httpcode.is_client_error(httpcode.INTERNAL_SERVER_ERROR))
-    Asserter.assert_true(httpcode.is_server_error(httpcode.NOT_IMPLEMENTED))
-    Asserter.assert_false(httpcode.is_server_error(httpcode.NOT_MODIFIED))
-    Asserter.assert_true(httpcode.is_ok(httpcode.FOUND))
-    Asserter.assert_false(httpcode.is_ko(httpcode.SUCCESS))
-    Asserter.assert_status_code(ObjectDict(status=201), code=(201, 203), is_in=True)
-    Asserter.assert_status_code(ObjectDict(status=201), code=(200, 299), in_range=True)
-    Asserter.assert_status_code(ObjectDict(status=400), code=300, greater=True)
-    Asserter.assert_status_code(ObjectDict(status=200), code=300, less=True)
+@pytest.mark.parametrize(
+    "callback, status, expected",
+    [
+        (httpcode.is_informational, httpcode.PROCESSING, True),
+        (httpcode.is_informational, httpcode.REQUEST_TIMEOUT, False),
+        (httpcode.is_success, httpcode.CREATED, True),
+        (httpcode.is_success, httpcode.MULTIPLE_CHOICES, False),
+        (httpcode.is_redirection, httpcode.SEE_OTHER, True),
+        (httpcode.is_redirection, httpcode.BAD_REQUEST, False),
+        (httpcode.is_client_error, httpcode.UNAUTHORIZED, True),
+        (httpcode.is_client_error, httpcode.INTERNAL_SERVER_ERROR, False),
+        (httpcode.is_server_error, httpcode.NOT_IMPLEMENTED, True),
+        (httpcode.is_server_error, httpcode.NOT_MODIFIED, False),
+        (httpcode.is_ok, httpcode.FOUND, True),
+        (httpcode.is_ok, httpcode.GONE, False),
+        (httpcode.is_ko, httpcode.CONFLICT, True),
+        (httpcode.is_ko, httpcode.SUCCESS, False),
+    ],
+)
+def test_http_status_type(callback, status, expected):
+    Asserter.assert_is(callback(status), expected)
 
 
 @pytest.mark.parametrize(

@@ -1,7 +1,7 @@
 import pytest
 
 from vbcore.files import FileHandler, VBEncodingError
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 
 def test_count_lines(tmpdir):

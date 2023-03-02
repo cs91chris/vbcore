@@ -1,7 +1,7 @@
 import enum
 
 from vbcore.enums import IStrEnum, StrEnum
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 
 def test_str_enum():

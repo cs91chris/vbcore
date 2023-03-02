@@ -6,7 +6,7 @@ from hypothesis import given, settings, strategies as st
 from vbcore import crypto
 from vbcore.crypto.hashes import BuiltinHash, HashOptions
 from vbcore.factory import ClassLoader
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 
 class HashClassLoader(ClassLoader):

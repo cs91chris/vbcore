@@ -1,7 +1,7 @@
 import pytest
 
 from vbcore.lambdas import Op
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 
 @pytest.mark.parametrize(

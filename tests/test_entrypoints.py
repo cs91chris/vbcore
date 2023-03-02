@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 from vbcore.tools.entrypoint import main
 from vbcore.tools.initializer.init import init_app
 

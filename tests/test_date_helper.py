@@ -3,7 +3,7 @@ import datetime
 from hypothesis import given, strategies as st
 
 from vbcore.date_helper import DateHelper, DateTimeFmt
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 ISO_DATE = "2020-12-28T19:53:00"
 NOT_ISO_DATE = "28 December 2020 07:53 PM"

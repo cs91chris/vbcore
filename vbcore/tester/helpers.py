@@ -21,7 +21,7 @@ def build_url(url: str, **params) -> t.Tuple[str, str]:
     return url, ""
 
 
-def do_not_dump_long_string(field: str):
-    if field and len(field) < 20:
+def do_not_dump_long_string(field: str, limit: int = 20) -> str:
+    if field and len(field) < limit:
         return field
-    return "None" if not field else ""
+    return "None" if not field else field[:limit]

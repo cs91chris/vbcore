@@ -3,7 +3,7 @@ import string
 from hypothesis import given, settings, strategies as st
 
 from vbcore.crypto.bcrypt import BcryptOptions
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 
 def test_options(bcrypt_instance):

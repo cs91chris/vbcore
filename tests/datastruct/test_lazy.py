@@ -1,7 +1,7 @@
 import pytest
 
 from vbcore.datastruct.lazy import BytesWrap, Dumper, LazyException
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 
 def test_lazy_exception():

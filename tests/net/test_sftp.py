@@ -2,7 +2,7 @@ import re
 from functools import partial
 from unittest.mock import patch
 
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 REMOTE_FILE = "remote.txt"
 LOCAL_FILE = "local.txt"

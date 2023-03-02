@@ -5,7 +5,7 @@ import pytest
 
 from vbcore import yaml
 from vbcore.datastruct import ObjectDict
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 USER_ENV = "USER_ENV"
 

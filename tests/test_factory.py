@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from vbcore.base import BaseDTO
 from vbcore.factory import DummyItem, Item, ItemEnumMeta, ItemEnumMixin, ItemFactory
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 
 @dataclass

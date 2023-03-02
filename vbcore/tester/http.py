@@ -6,15 +6,15 @@ from requests import request as http_client
 
 from vbcore.datastruct import ObjectDict
 from vbcore.http import httpcode, HttpMethod
+from vbcore.http.headers import ContentTypeEnum, HeaderEnum
 from vbcore.http.httpdumper import BaseHTTPDumper as HTTPDumper
 from vbcore.jsonschema.schemas.jsonrpc import JSONRPC
 
-from ..http.headers import ContentTypeEnum, HeaderEnum
+from .asserter import Asserter
 from .helpers import basic_auth_header
-from .mixins import JSONValidatorMixin, RegexMixin
 
 
-class TestHttpCall(HTTPDumper, JSONValidatorMixin, RegexMixin):
+class TestHttpCall(HTTPDumper):
     __test__ = False
     default_status_code = (httpcode.SUCCESS, 299)
     default_content_type = ContentTypeEnum.HTML
@@ -47,22 +47,22 @@ class TestHttpCall(HTTPDumper, JSONValidatorMixin, RegexMixin):
         status_code = self.response.status_code
         if type(code) in (list, tuple):
             if in_range:
-                self.assert_range(status_code, code)
+                Asserter.assert_range(status_code, code)
             if is_in:
-                self.assert_in(status_code, code)
+                Asserter.assert_in(status_code, code)
         else:
-            self.assert_equals(status_code, code)
+            Asserter.assert_equals(status_code, code)
 
     def assert_header(
         self, name: str, value: str, is_in: bool = False, regex: bool = False
     ):
         header = self.response.headers.get(name)
         if is_in:
-            self.assert_in(value, header)
+            Asserter.assert_in(value, header)
         elif regex:
-            self.assert_match(value, header)
+            Asserter.assert_match(value, header)
         else:
-            self.assert_equals(header, value)
+            Asserter.assert_equals(header, value)
 
     def assert_response(self, **kwargs):
         code = kwargs.get("status") or {
@@ -121,7 +121,7 @@ class TestHttpApi(TestHttpCall):
     def assert_response(self, **kwargs):
         super().assert_response(**kwargs)
         if kwargs.get("schema") is not None:
-            self.assert_schema(self.json, kwargs.get("schema"))
+            Asserter.assert_json_schema(self.json, kwargs.get("schema"))
 
 
 class TestJsonRPC(TestHttpApi):

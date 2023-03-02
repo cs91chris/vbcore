@@ -1,7 +1,7 @@
 import pytest
 
 from vbcore.datastruct.orderer_set import OrderedSet
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 
 def test_ordered_set_add():

@@ -1,5 +1,5 @@
 from vbcore.csvfile import CSVHandler
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 SAMPLE_CSV = """code;name
 code-1;name-1

@@ -1,5 +1,5 @@
 from vbcore.datastruct.dictionaries import ObjectDict
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 
 def test_object_dict_constructor():

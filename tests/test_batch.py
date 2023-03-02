@@ -1,7 +1,7 @@
 from unittest.mock import call, MagicMock, patch
 
 from vbcore.batch import BatchSize, PCTask, ProducerConsumerBatchExecutor
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 
 class FakeTask(PCTask):

@@ -4,7 +4,7 @@ import pytest
 
 from vbcore import misc
 from vbcore.misc import CommonRegex, split_kwargs
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 
 @pytest.mark.parametrize(

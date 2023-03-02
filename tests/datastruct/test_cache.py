@@ -2,7 +2,7 @@ from time import sleep
 from unittest.mock import Mock, patch
 
 from vbcore.datastruct.cache import ExpiringCache
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 
 def test_expiring_cache_getter_setter():

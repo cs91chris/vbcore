@@ -1,7 +1,7 @@
 from vbcore.datastruct import ObjectDict
 from vbcore.http import httpcode, HttpMethod
 from vbcore.http.batch import HTTPBatch
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 HOSTS = ObjectDict(
     apitester="http://httpbin.org",

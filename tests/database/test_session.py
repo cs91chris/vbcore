@@ -1,7 +1,7 @@
 import sqlalchemy as sa
 
 from vbcore.db.sqla import LoaderModel
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 
 def test_connection(local_session):

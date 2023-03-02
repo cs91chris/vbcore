@@ -1,7 +1,7 @@
 import pytest
 
 from vbcore.db import exceptions as exc
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 
 @pytest.mark.parametrize(

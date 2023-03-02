@@ -1,7 +1,7 @@
 import pytest
 
 from vbcore import uuid
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 
 def test_uuid_valid():

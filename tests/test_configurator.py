@@ -3,7 +3,7 @@ import os
 import pytest
 
 from vbcore.configurator import config, load_dotenv
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 TEST_ENV_BOOL = "TEST_ENV_BOOL"
 TEST_ENV_FLOAT = "TEST_ENV_FLOAT"

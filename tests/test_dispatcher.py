@@ -3,7 +3,7 @@ import typing as t
 
 from vbcore.aio import get_event_loop
 from vbcore.dispatcher import AsyncDispatcher, Dispatcher
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 
 def test_dispatcher():

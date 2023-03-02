@@ -1,6 +1,6 @@
 from vbcore.http import httpcode
+from vbcore.tester.asserter import Asserter
 from vbcore.tester.http import TestHttpApi
-from vbcore.tester.mixins import Asserter
 
 
 def test_http_api():

@@ -144,11 +144,15 @@ class Fields:
 
     @classmethod
     def oneof(cls, *args, **kwargs) -> ObjectDict:
-        return ObjectDict(oneOf=args if len(args) > 1 else (*args, cls.null), **kwargs)
+        return ObjectDict(
+            oneOf=list(args) if len(args) > 1 else [*args, cls.null], **kwargs
+        )
 
     @classmethod
     def anyof(cls, *args, **kwargs) -> ObjectDict:
-        return ObjectDict(anyOf=args if len(args) > 1 else (*args, cls.null), **kwargs)
+        return ObjectDict(
+            anyOf=list(args) if len(args) > 1 else [*args, cls.null], **kwargs
+        )
 
     @classmethod
     def ref(cls, path: str, **kwargs) -> ObjectDict:
@@ -156,11 +160,11 @@ class Fields:
 
     @classmethod
     def enum(cls, *args, **kwargs) -> ObjectDict:
-        return ObjectDict(enum=args, **kwargs)
+        return ObjectDict(enum=list(args), **kwargs)
 
     @classmethod
     def type(cls, *args, **kwargs) -> ObjectDict:
-        return ObjectDict(type=args, **kwargs)
+        return ObjectDict(type=list(args), **kwargs)
 
     @classmethod
     def object(

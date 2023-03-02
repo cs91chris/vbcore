@@ -15,6 +15,26 @@ def op_not_in(a, b) -> bool:
     return a not in b
 
 
+def op_allin(a, b) -> bool:
+    return all(i in b for i in a)
+
+
+def op_is_true(a) -> bool:
+    return bool(a) is True
+
+
+def op_is_false(a) -> bool:
+    return bool(a) is False
+
+
+def op_is_none(a) -> bool:
+    return a is None
+
+
+def op_is_not_none(a) -> bool:
+    return a is not None
+
+
 def op_in_range(
     value: t.Any,
     range_: CoupleAny,
@@ -43,12 +63,32 @@ class OpMeta(type):
 
 class Op(metaclass=OpMeta):
     @classmethod
-    def in_(cls, a, b) -> bool:
+    def is_true(cls, a, *_, **__) -> bool:
+        return op_is_true(a)
+
+    @classmethod
+    def is_false(cls, a, *_, **__) -> bool:
+        return op_is_false(a)
+
+    @classmethod
+    def is_none(cls, a, *_, **__) -> bool:
+        return op_is_none(a)
+
+    @classmethod
+    def is_not_none(cls, a, *_, **__) -> bool:
+        return op_is_not_none(a)
+
+    @classmethod
+    def in_(cls, a, b, *_, **__) -> bool:
         return op_in(a, b)
 
     @classmethod
-    def not_in(cls, a, b) -> bool:
+    def not_in(cls, a, b, *_, **__) -> bool:
         return op_not_in(a, b)
+
+    @classmethod
+    def allin(cls, a, b, *_, **__) -> bool:
+        return op_allin(a, b)
 
     @classmethod
     def in_range(

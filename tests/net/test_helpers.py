@@ -3,7 +3,7 @@ from hypothesis import given, settings
 from hypothesis.provisional import urls
 
 from vbcore.net.helpers import parse_query_string, Url
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 
 @pytest.mark.parametrize(

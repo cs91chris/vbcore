@@ -10,7 +10,7 @@ from vbcore.importer import (
     ImporterSubclassError,
     ImporterValueError,
 )
-from vbcore.tester.mixins import Asserter
+from vbcore.tester.asserter import Asserter
 
 
 class Base:

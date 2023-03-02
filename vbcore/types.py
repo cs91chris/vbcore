@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Pattern, Tuple, Union
 
 OptAny = Optional[Any]
 OptStr = Optional[str]
@@ -22,3 +22,5 @@ CoupleStr = Tuple[str, str]
 TripleStr = Tuple[str, str, str]
 CoupleInt = Tuple[int, int]
 TripleInt = Tuple[int, int, int]
+
+RegexType = Union[str, Pattern]
