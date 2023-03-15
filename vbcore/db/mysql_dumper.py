@@ -10,6 +10,7 @@ from subprocess import CompletedProcess, PIPE, run as run_subprocess  # nosec
 from vbcore.base import BaseLoggerMixin
 from vbcore.date_helper import DateTimeFmt
 from vbcore.net.helpers import Url
+from vbcore.types import CoupleStr, OptInt, OptStr
 
 CmdLine = t.List[str]
 
@@ -26,8 +27,8 @@ class MySQLDumper:
         self,
         username: str,
         password: str,
-        hostname: t.Optional[str] = None,
-        port: t.Optional[int] = None,
+        hostname: OptStr = None,
+        port: OptInt = None,
         ignore_databases: t.Optional[t.List[str]] = None,
     ):
         self.username = username
@@ -52,8 +53,8 @@ class MySQLDumper:
     def mysql_cmdline(
         self,
         statement: str,
-        *args,
-        database: t.Optional[str] = None,
+        *args: str,
+        database: OptStr = None,
     ) -> CmdLine:
         return [
             "mysql",
@@ -67,9 +68,9 @@ class MySQLDumper:
 
     def mysqldump_cmdline(
         self,
-        *args,
-        database: t.Optional[str] = None,
-        table: t.Optional[str] = None,
+        *args: str,
+        database: OptStr = None,
+        table: OptStr = None,
     ) -> CmdLine:
         dump_args: t.Tuple[str, ...]
         if database:
@@ -88,9 +89,7 @@ class MySQLDumper:
         result = cls.execute_binary(cmdline, text=True)
         return filter(None, result.stdout.split(os.linesep))
 
-    def get_databases(
-        self, prefix: t.Optional[str] = None
-    ) -> t.Generator[str, None, None]:
+    def get_databases(self, prefix: OptStr = None) -> t.Generator[str, None, None]:
         filter_arg = f"like '{prefix}%'" if prefix else ""
         cmdline = self.mysql_cmdline(f"show databases {filter_arg}")
         for database in self.execute_text(cmdline):
@@ -102,8 +101,8 @@ class MySQLDumper:
         return self.execute_text(cmdline)
 
     def all_tables(
-        self, db_prefix: t.Optional[str] = None
-    ) -> t.Generator[t.Tuple[str, str], None, None]:
+        self, db_prefix: OptStr = None
+    ) -> t.Generator[CoupleStr, None, None]:
         for database in self.get_databases(db_prefix):
             for table in self.get_tables(database):
                 yield database, table
@@ -120,14 +119,14 @@ class MysqlBackup(BaseLoggerMixin):
         dumper: MySQLDumper,
         folder: str = ".",
         add_datetime: bool = True,
-        datetime_format: t.Optional[str] = None,
+        datetime_format: OptStr = None,
     ):
         self.dumper = dumper
         self.folder = folder
         self.add_datetime = add_datetime
         self.datetime_format = datetime_format
 
-    def prepare_filename(self, *args, ext: str) -> str:
+    def prepare_filename(self, *args: str, ext: str) -> str:
         current_datetime = None
         if self.add_datetime:
             _datetime_format = self.datetime_format or DateTimeFmt.AS_NUM
@@ -135,11 +134,7 @@ class MysqlBackup(BaseLoggerMixin):
         filename = "_".join(filter(None, (*args, current_datetime)))
         return os.path.join(self.folder, f"{filename}.{ext}")
 
-    def backup_single_files(
-        self,
-        file_prefix: t.Optional[str] = None,
-        db_prefix: t.Optional[str] = None,
-    ):
+    def backup_single_files(self, file_prefix: OptStr = None, db_prefix: OptStr = None):
         for database, table in self.dumper.all_tables(db_prefix):
             self.log.info("dumping table: %s.%s ......", database, table)
             dump = self.dumper.dump_table(database, table)
@@ -158,10 +153,10 @@ class MysqlBackup(BaseLoggerMixin):
 
     def backup_as_archive(
         self,
-        file_prefix: t.Optional[str] = None,
-        db_prefix: t.Optional[str] = None,
-        mode: t.Optional[str] = None,
-        ext: t.Optional[str] = None,
+        file_prefix: OptStr = None,
+        db_prefix: OptStr = None,
+        mode: OptStr = None,
+        ext: OptStr = None,
     ):
         _mode = mode or "w:gz"
         _ext = ext or "tar.gz"
@@ -184,10 +179,10 @@ def cli_wrapper(
     ignore_databases: t.Optional[t.List[str]] = None,
     folder: str = ".",
     add_datetime: bool = True,
-    datetime_format: t.Optional[str] = None,
+    datetime_format: OptStr = None,
     as_archive: bool = True,
-    file_prefix: t.Optional[str] = None,
-    db_prefix: t.Optional[str] = None,
+    file_prefix: OptStr = None,
+    db_prefix: OptStr = None,
 ):
     url = Url.from_raw(db_url)
     _db_prefix = db_prefix or url.path.strip("/")

@@ -1,4 +1,5 @@
 import typing as t
+from functools import partial
 
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr
@@ -6,11 +7,20 @@ from sqlalchemy.ext.declarative import declared_attr
 from vbcore import json
 from vbcore.crypto.base import Hasher
 from vbcore.crypto.factory import CryptoFactory
+from vbcore.uuid import get_uuid
 
 if t.TYPE_CHECKING:
     hybrid_property = property  # pylint: disable=C0103
 else:
     from sqlalchemy.ext.hybrid import hybrid_property
+
+
+class Column:
+    uuid = partial(sa.Column, sa.String(32), primary_key=True, default=lambda: get_uuid)
+    auto = partial(sa.Column, sa.Integer, primary_key=True, autoincrement=True)
+    date_created = partial(sa.Column, sa.DateTime, server_default=sa.func.now())
+    date_updated = partial(sa.Column, sa.DateTime, onupdate=sa.func.now())
+    description = partial(sa.Column, sa.Text(), nullable=True)
 
 
 class BaseMixin:
@@ -21,9 +31,9 @@ class BaseMixin:
 
 
 class StandardMixin(BaseMixin):
-    id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
-    created_at = sa.Column(sa.DateTime, server_default=sa.func.now())
-    updated_at = sa.Column(sa.DateTime, onupdate=sa.func.now())
+    id = Column.auto()
+    created_at = Column.date_created()
+    updated_at = Column.date_updated()
 
 
 class CatalogMixin(BaseMixin):

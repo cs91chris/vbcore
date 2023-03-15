@@ -15,7 +15,6 @@ class SampleUser(Model):
 
 def db_session(conn):
     with conn.connection() as session:
-        session.execute("PRAGMA case_sensitive_like=ON;")
         conn.create_all()
         return session
 

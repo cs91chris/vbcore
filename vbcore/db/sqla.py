@@ -10,6 +10,7 @@ from sqlalchemy.orm import declarative_base  # type: ignore
 from sqlalchemy.orm import scoped_session, Session, sessionmaker
 
 from ..base import BaseDTO
+from ..types import StrDict
 from .events import Listener
 
 SessionType = t.Union[scoped_session, Session]
@@ -32,7 +33,7 @@ class BaseModel:
 
     # noinspection PyArgumentList
     @classmethod
-    def from_dto(cls, dto):
+    def from_dto(cls, dto: t.Union[BaseDTO, dict]):
         if isinstance(dto, BaseDTO):
             return cls(**dto.to_dict())
         return cls(**dto)
@@ -110,7 +111,7 @@ Model = declarative_base(
 class LoaderModel(Model):  # type: ignore
     __abstract__ = True
 
-    values: t.Tuple[t.Dict[str, t.Any], ...] = ()
+    values: t.Tuple[StrDict, ...] = ()
 
     @classmethod
     def load_values(cls, session: Session, *_, **__):

@@ -7,6 +7,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import class_mapper
 from sqlalchemy_schemadisplay import create_schema_graph, create_uml_graph
 
+from vbcore.types import OptStr
+
 
 def model_to_uml(
     module: str,
@@ -56,7 +58,7 @@ def db_to_schema(
     )
 
 
-def dump_model_ddl(metadata: MetaData, dialect: t.Optional[str] = None):
+def dump_model_ddl(metadata: MetaData, dialect: OptStr = None):
     dialect = dialect or "sqlite"
 
     def executor(sql, *_, **__):

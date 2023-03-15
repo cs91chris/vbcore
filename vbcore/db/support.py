@@ -11,6 +11,7 @@ from sqlalchemy.sql import text as text_sql
 
 from vbcore.db.events import register_engine_events
 from vbcore.db.sqla import Model
+from vbcore.files import FileHandler
 
 
 class SQLASupport:
@@ -111,8 +112,8 @@ class SQLASupport:
         columns = fields or (self.model,)
         return self.session.query(*columns).filter(*args).filter_by(**kwargs)
 
-    def delete(self, *args, synchronize_session: str = "evaluate", **kwargs) -> int:
-        row_count = self.fetch(*args, **kwargs).delete(synchronize_session)
+    def delete(self, *args, synchronize: str = "evaluate", **kwargs) -> int:
+        row_count = self.fetch(*args, **kwargs).delete(synchronize)
         if self._commit:
             self.session.commit()
         return row_count
@@ -129,26 +130,24 @@ class SQLASupport:
         )
 
     def bulk_upsert(self, records: t.Iterable[Model]):
-        db_objects = {}
-        for record in records:
-            db_objects[self.get_primary_key(record)] = record
+        entities = {self.get_primary_key(record): record for record in records}
 
-        self.delete(
-            tuple_(*self.get_primary_key()).in_(list(db_objects.keys())),
-            synchronize_session="fetch",
-        )
+        pk_cols = self.get_primary_key()
+        pk_values = list(entities.keys())
+        self.delete(tuple_(*pk_cols).in_(pk_values), synchronize="fetch")
 
         self.session.flush()
-        self.session.add_all(list(db_objects.values()))
+        self.session.add_all(list(entities.values()))
         if self._commit:
             self.session.commit()
 
-    @staticmethod
-    def register_events(engine):
+    @classmethod
+    def register_events(cls, engine):
         register_engine_events(engine)
 
-    @staticmethod
+    @classmethod
     def exec_from_file(
+        cls,
         url: str,
         filename: str,
         echo: bool = False,
@@ -156,10 +155,10 @@ class SQLASupport:
         skip_line_prefixes: tuple = ("--",),
     ):
         engine = create_engine(url, echo=echo)
-        with engine.connect() as conn, open(filename, encoding="utf-8") as f:
+        with engine.connect() as conn, FileHandler().open(filename) as f:
             for statement in f.read().split(separator):
-                for skip_line in skip_line_prefixes:
-                    if statement.startswith(skip_line):
+                for prefix in skip_line_prefixes:
+                    if statement.startswith(prefix):
                         break
                 else:
                     conn.execute(text_sql(statement))

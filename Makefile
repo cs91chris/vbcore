@@ -4,6 +4,7 @@ LOG_LEVEL=DEBUG
 REQ_PATH=requirements
 
 export PIP_CONFIG_FILE=pip.conf
+export SQLALCHEMY_SILENCE_UBER_WARNING=1
 export VERSION="$(shell grep 'current_version' .bumpversion.cfg | sed 's/^[^=]*= *//')"
 
 
