@@ -17,11 +17,6 @@ class BatchExecutor:
 
     @staticmethod
     def prepare_task(task: t.Union[t.Tuple, t.Callable]) -> t.Tuple[t.Callable, dict]:
-        """
-
-        :param task:
-        :return:
-        """
         if callable(task):
             return task, {}
 
@@ -40,11 +35,6 @@ class BatchExecutor:
 
 class AsyncBatchExecutor(BatchExecutor):
     def __init__(self, return_exceptions: bool = False, **kwargs):
-        """
-
-        :param tasks:
-        :param return_exceptions:
-        """
         super().__init__(**kwargs)
         self._return_exceptions = return_exceptions
 
@@ -153,7 +143,10 @@ class PCTask(abc.ABC):
 
     @abc.abstractmethod
     def perform(self, item):
-        pass  # pragma: no cover
+        """
+
+        @param item:
+        """
 
 
 class IProducerConsumerBatchExecutor(abc.ABC):
@@ -184,15 +177,15 @@ class IProducerConsumerBatchExecutor(abc.ABC):
 
     @abc.abstractmethod
     def consumer(self):
-        pass  # pragma: no cover
+        """empty doc"""
 
     @abc.abstractmethod
     def producer(self):
-        pass  # pragma: no cover
+        """empty doc"""
 
     @abc.abstractmethod
     def load(self, item):
-        pass  # pragma: no cover
+        """empty doc"""
 
     def run_on(self, items: t.Iterable):
         with self.runner() as executor:

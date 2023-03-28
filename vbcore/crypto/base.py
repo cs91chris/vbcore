@@ -19,13 +19,21 @@ class HashOptions(BaseDTO):
 class Hasher(Item[T], t.Generic[T]):
     @abc.abstractmethod
     def hash(self, data: HashableType) -> str:
-        raise NotImplementedError  # pragma: no cover
+        """
+
+        @param data:
+        """
 
     @abc.abstractmethod
     def verify(
         self, given_hash: str, data: HashableType, raise_exc: bool = False
     ) -> bool:
-        raise NotImplementedError  # pragma: no cover
+        """
+
+        @param given_hash:
+        @param data:
+        @param raise_exc:
+        """
 
     def to_bytes(self, data: str) -> bytes:
         return data.encode(encoding=self.options.encoding)

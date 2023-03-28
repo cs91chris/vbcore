@@ -101,7 +101,14 @@ class HTTPBase(LazyHTTPDumper):
         raise_on_exc: bool = False,
         **kwargs,
     ) -> ResponseData:
-        raise NotImplementedError  # pragma: no cover
+        """
+
+        @param uri:
+        @param method:
+        @param dump_body:
+        @param raise_on_exc:
+        @param kwargs:
+        """
 
 
 class HTTPClient(HTTPBase):

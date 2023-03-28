@@ -66,7 +66,7 @@ class CollectionsEncoderMixin(json.JSONEncoder):
             # check for namedtuple compliant
             # noinspection PyProtectedMember
             return o._asdict()
-        except (AttributeError, TypeError):
+        except AttributeError:
             pass
 
         return super().default(o)

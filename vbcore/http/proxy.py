@@ -24,31 +24,31 @@ class Response(t.NamedTuple):
     exception: t.Optional[Exception] = None
 
 
-class IncomingRequestData(ABC):
+class IncomingRequestData(ABC):  # TODO refactor this
     @classmethod
     @abstractmethod
     def url(cls) -> str:
-        pass
+        """empty doc"""
 
     @classmethod
     @abstractmethod
     def method(cls) -> str:
-        pass
+        """empty doc"""
 
     @classmethod
     @abstractmethod
     def body(cls):
-        pass
+        """empty doc"""
 
     @classmethod
     @abstractmethod
     def headers(cls) -> t.Dict[str, str]:
-        pass
+        """empty doc"""
 
     @classmethod
     @abstractmethod
     def params(cls) -> t.Dict[str, t.Any]:
-        pass
+        """empty doc"""
 
 
 class ProxyRequest(ABC):
@@ -57,7 +57,7 @@ class ProxyRequest(ABC):
     @property
     @abstractmethod
     def request_dto(self) -> t.Type[IncomingRequestData]:
-        ...
+        """empty doc"""
 
     def __init__(
         self,
