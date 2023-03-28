@@ -20,8 +20,8 @@ class Role(LoaderModel):
     name = sa.Column(sa.String(200))
 
     values = (
-        dict(id=1, name="ADMIN"),
-        dict(id=2, name="GUEST"),
+        {"id": 1, "name": "ADMIN"},
+        {"id": 2, "name": "GUEST"},
     )
 
 

@@ -62,8 +62,7 @@ class SQLASupport:
                     query = query.with_for_update()
                     obj = query.one()
                 return obj, False
-            else:
-                return obj, True
+            return obj, True
 
     def get_or_create(
         self, defaults: t.Optional[dict] = None, **kwargs

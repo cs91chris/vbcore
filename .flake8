@@ -1,7 +1,7 @@
 [flake8]
 max-line-length = 110
 max-complexity = 10
-extend-ignore = E203, W503, E501
+extend-ignore = E203, W503, E501, B907
 extend-select = B9
 per-file-ignores =
     __init__.py:F401

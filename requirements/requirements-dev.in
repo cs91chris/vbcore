@@ -11,7 +11,7 @@ flake8
 flake8-bugbear
 isort
 liccheck
-mypy
+mypy<1
 pip-tools
 pipdeptree
 pylint

@@ -11,7 +11,7 @@ def fetch_emails(subject: str, recipient: t.Optional[str] = None, **kwargs):
 
 def basic_auth_header(username: str, password: str) -> t.Dict[str, str]:
     token = b64encode(f"{username}:{password}".encode()).decode()
-    return dict(Authorization=f"Basic {token}")
+    return {"Authorization": f"Basic {token}"}
 
 
 def build_url(url: str, **params) -> t.Tuple[str, str]:

@@ -13,16 +13,16 @@ def test_http_client_batch():
     client = HTTPBatch(dump_body=(True, False))
     responses = client.request(
         [
-            dict(
-                url=f"{HOSTS.apitester}/anything",
-                method=HttpMethod.GET,
-                headers={"HDR1": "HDR1"},
-            ),
-            dict(
-                url=f"{HOSTS.apitester}/status/{httpcode.NOT_FOUND}",
-                method=HttpMethod.GET,
-            ),
-            dict(url=HOSTS.fake, method=HttpMethod.GET, timeout=0.1),
+            {
+                "url": f"{HOSTS.apitester}/anything",
+                "method": HttpMethod.GET,
+                "headers": {"HDR1": "HDR1"},
+            },
+            {
+                "url": f"{HOSTS.apitester}/status/{httpcode.NOT_FOUND}",
+                "method": HttpMethod.GET,
+            },
+            {"url": HOSTS.fake, "method": HttpMethod.GET, "timeout": 0.1},
         ]
     )
     Asserter.assert_equals(responses[0].body.headers.Hdr1, "HDR1")

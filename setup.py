@@ -171,6 +171,6 @@ setup(
             *extra_requires,
         ],
     },
-    cmdclass=dict(test=PyTest),
+    cmdclass={"test": PyTest},
     classifiers=[],
 )

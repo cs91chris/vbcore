@@ -241,12 +241,12 @@ class JsonRPCClient(HTTPClient):
         resp = super().request(
             self._uri,
             method=HttpMethod.POST,
-            json=dict(
-                jsonrpc=self._version,
-                method=method,
-                params=params or {},
-                id=self._request_id,
-            ),
+            json={
+                "jsonrpc": self._version,
+                "method": method,
+                "params": params or {},
+                "id": self._request_id,
+            },
             **kwargs,
         )
 

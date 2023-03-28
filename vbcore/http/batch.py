@@ -49,7 +49,7 @@ class HTTPBatch(HTTPBase, AsyncBatchExecutor):
                     response = ResponseData(
                         body=body,
                         status=resp.status,
-                        headers=dict(**resp.headers),
+                        headers={**resp.headers},
                     )
                     log_resp = response
                     log_resp.text = response.body

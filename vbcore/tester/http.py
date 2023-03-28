@@ -198,13 +198,13 @@ class TestRestApi(TestHttpApi):
         req, res = self._normalize(request, response)
         res.setdefault(
             "status",
-            dict(code=(httpcode.SUCCESS, httpcode.PARTIAL_CONTENT), is_in=True),
+            {"code": (httpcode.SUCCESS, httpcode.PARTIAL_CONTENT), "is_in": True},
         )
         self.perform(req, res)
 
     def test_post(self, request=None, response=None):
         req, res = self._normalize(request, response, HttpMethod.POST)
-        res.setdefault("status", dict(code=httpcode.CREATED))
+        res.setdefault("status", {"code": httpcode.CREATED})
         self.perform(req, res)
 
     def test_get(self, res_id, request=None, response=None):
@@ -221,7 +221,7 @@ class TestRestApi(TestHttpApi):
         req, res = self._normalize(
             request, response, HttpMethod.DELETE, self.resource_url(res_id)
         )
-        res.setdefault("status", dict(code=httpcode.NO_CONTENT))
+        res.setdefault("status", {"code": httpcode.NO_CONTENT})
         res.setdefault("headers", {})
         res["headers"][HeaderEnum.CONTENT_TYPE] = None
         self.perform(req, res)

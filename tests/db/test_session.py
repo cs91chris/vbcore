@@ -28,9 +28,9 @@ def test_loaders(connector):
         name = sa.Column(sa.String(200), unique=True)
 
         values = (
-            dict(id=1, name="name-1"),
-            dict(id=2, name="name-2"),
-            dict(id=3, name="name-3"),
+            {"id": 1, "name": "name-1"},
+            {"id": 2, "name": "name-2"},
+            {"id": 3, "name": "name-3"},
         )
 
     connector.create_all(loaders=(SampleLoader,))
