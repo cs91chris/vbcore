@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from urllib.parse import parse_qs, urlparse
 
 from vbcore.base import BaseDTO
+from vbcore.types import OptInt, OptStr
 
 ParamsT = t.Dict[str, t.Union[None, str, t.List[str]]]
 
@@ -19,37 +20,40 @@ def parse_query_string(qs: str, allow_multi: bool = True) -> ParamsT:
 
 @dataclass(frozen=True)
 class Url(BaseDTO):
-    protocol: str
-    hostname: str
-    port: t.Optional[int] = None
-    username: t.Optional[str] = None
-    password: t.Optional[str] = None
-    path: t.Optional[str] = None
-    fragment: t.Optional[str] = None
-    query: t.Optional[str] = None
+    protocol: OptStr = None
+    hostname: OptStr = None
+    port: OptInt = None
+    username: OptStr = None
+    password: OptStr = None
+    path: OptStr = None
+    fragment: OptStr = None
+    query: OptStr = None
     params: dict = field(default_factory=dict)
 
     @classmethod
     def from_raw(cls, url: str) -> "Url":
         parsed_url = urlparse(url)
         return cls(
-            protocol=parsed_url.scheme,
-            hostname=parsed_url.hostname,
-            port=parsed_url.port,
+            protocol=parsed_url.scheme or None,
+            hostname=parsed_url.hostname or None,
+            port=parsed_url.port or None,
             username=parsed_url.username or None,
             password=parsed_url.password or None,
             path=parsed_url.path or None,
             fragment=parsed_url.fragment or None,
             query=parsed_url.query or None,
-            params=parse_query_string(parsed_url.query),
+            params=cls.parse_query(parsed_url.query),
         )
+
+    @classmethod
+    def parse_query(cls, qs: str, allow_multi: bool = True) -> ParamsT:
+        return parse_query_string(qs, allow_multi=allow_multi)
 
     def encode(self) -> str:
         auth = f"{self.username}:{self.password}@" if self.username else ""
+        host = f"{self.hostname}" if self.hostname is not None else ""
         port = f":{self.port}" if self.port is not None else ""
         query = f"?{self.query}" if self.query else ""
-        fragment = f"#{self.fragment}" if self.fragment else ""
-        return (
-            f"{self.protocol}://{auth}{self.hostname}{port}"
-            f"{self.path or ''}{query}{fragment}"
-        )
+        frag = f"#{self.fragment}" if self.fragment else ""
+        protocol = f"{self.protocol}://" if self.protocol else ""
+        return f"{protocol}{auth}{host}{port}{self.path or ''}{query}{frag}"

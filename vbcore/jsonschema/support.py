@@ -4,7 +4,10 @@ from functools import partial
 
 from vbcore import json
 from vbcore.datastruct import ObjectDict
+from vbcore.files import FileHandler
 from vbcore.http.client import HTTPClient
+from vbcore.net.helpers import Url
+from vbcore.types import StrDict, StrList, StrTuple
 
 try:
     import jsonschema as json_schema
@@ -12,6 +15,7 @@ except ImportError as _exc:  # pragma: no cover
     raise ImportError("you must install 'jsonschema'") from _exc
 
 SchemaError = (json_schema.ValidationError, json_schema.SchemaError)
+SchemaErrorType = t.Union[json_schema.ValidationError, json_schema.SchemaError]
 
 
 class JSONSchema:
@@ -29,12 +33,9 @@ class JSONSchema:
         return t.cast(ObjectDict, res.body)
 
     @classmethod
-    def load_from_file(cls, file: str, encoding: str = "utf-8", **kwargs) -> dict:
-        if file.startswith("file://"):
-            file = file[7:]
-
-        with open(file, encoding=encoding, **kwargs) as f:
-            return cls.loader(f.read())
+    def load_from_file(cls, filename: str, **kwargs) -> dict:
+        with FileHandler(filename).open(**kwargs) as file:
+            return cls.loader(file.read())
 
     @classmethod
     def validate(
@@ -46,10 +47,11 @@ class JSONSchema:
         checker=None,
     ) -> bool:
         if isinstance(schema, str):
-            if schema.startswith("https://") or schema.startswith("http://"):
+            url_schema = Url.from_raw(schema)
+            if url_schema.protocol in ("https", "http"):
                 schema = cls.load_from_url(schema)
-            elif schema.startswith("file://"):
-                schema = cls.load_from_file(schema)
+            elif url_schema.protocol in (None, "file"):
+                schema = cls.load_from_file(url_schema.path)
 
         try:
             checker = checker or cls.service.FormatChecker()
@@ -64,7 +66,11 @@ class JSONSchema:
 
     @classmethod
     def error_report(
-        cls, e, json_object: dict, lines_before: int = 8, lines_after: int = 8
+        cls,
+        e: SchemaErrorType,
+        json_object: dict,
+        lines_before: int = 8,
+        lines_after: int = 8,
     ) -> str:
         """
         From: https://github.com/ccpgames/jsonschema-errorprinter/blob/master/jsonschemaerror.py
@@ -169,9 +175,9 @@ class Fields:
     @classmethod
     def object(
         cls,
-        required: t.Union[t.List[str], t.Tuple[str, ...]] = (),
-        not_required: t.Union[t.List[str], t.Tuple[str, ...]] = (),
-        properties: t.Optional[t.Dict[str, t.Any]] = None,
+        required: t.Union[StrList, StrTuple] = (),
+        not_required: t.Union[StrList, StrTuple] = (),
+        properties: t.Optional[StrDict] = None,
         all_required: bool = True,
         additional: bool = False,
         **kwargs,

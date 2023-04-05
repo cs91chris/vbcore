@@ -2,7 +2,7 @@ import pytest
 from hypothesis import given, settings
 from hypothesis.provisional import urls
 
-from vbcore.net.helpers import parse_query_string, Url
+from vbcore.net.helpers import Url
 from vbcore.tester.asserter import Asserter
 
 
@@ -22,7 +22,7 @@ from vbcore.tester.asserter import Asserter
     ],
 )
 def test_parse_query_string(query, expected):
-    Asserter.assert_equals(parse_query_string(query), expected)
+    Asserter.assert_equals(Url.parse_query(query), expected)
 
 
 def test_url_encoder_decoder():
@@ -39,6 +39,28 @@ def test_url_encoder_decoder():
     )
     decoded = Url.from_raw(url)
     Asserter.assert_equals(decoded, expected)
+    Asserter.assert_equals(url, decoded.encode())
+
+
+def test_url_encoder_decoder_file():
+    url = "file:///home/data/file.txt"
+    expected = Url(protocol="file", path="/home/data/file.txt")
+    decoded = Url.from_raw(url)
+    Asserter.assert_equals(decoded, expected)
+    Asserter.assert_equals(url, decoded.encode())
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "/home/data/file.txt",
+        "file.txt",
+        "file",
+    ],
+)
+def test_url_encoder_decoder_file_simple(url):
+    decoded = Url.from_raw(url)
+    Asserter.assert_equals(decoded, Url(path=url))
     Asserter.assert_equals(url, decoded.encode())
 
 
