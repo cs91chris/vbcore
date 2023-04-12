@@ -52,5 +52,5 @@ class RuleInfo:
     evaluate: bool = False
     action: t.Optional[ActionRule] = NoneActionRule()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"<{self.id} - {self.rule}>"

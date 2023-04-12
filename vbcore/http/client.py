@@ -7,6 +7,7 @@ from vbcore.datastruct import ObjectDict
 from vbcore.http.headers import HeaderEnum
 from vbcore.uuid import get_uuid
 
+from ..types import OptStr
 from . import httpcode
 from .httpdumper import LazyHTTPDumper
 from .methods import HttpMethod
@@ -34,7 +35,7 @@ class ResponseData(ObjectDict):
 
 
 class HTTPTokenAuth(auth.AuthBase):
-    def __init__(self, token: str, token_type: t.Optional[str] = None):
+    def __init__(self, token: str, token_type: OptStr = None):
         self.token = token
         self.token_type = token_type or "Bearer"
 
@@ -102,7 +103,6 @@ class HTTPBase(LazyHTTPDumper):
         **kwargs,
     ) -> ResponseData:
         """
-
         @param uri:
         @param method:
         @param dump_body:
@@ -115,9 +115,9 @@ class HTTPClient(HTTPBase):
     def __init__(
         self,
         endpoint: str,
-        token: t.Optional[str] = None,
-        username: t.Optional[str] = None,
-        password: t.Optional[str] = None,
+        token: OptStr = None,
+        username: OptStr = None,
+        password: OptStr = None,
         auth_with: t.Optional[auth.AuthBase] = None,
         **kwargs,
     ):
@@ -216,7 +216,7 @@ class HTTPClient(HTTPBase):
 
 
 class JsonRPCClient(HTTPClient):
-    def __init__(self, endpoint, uri, version="2.0", **kwargs):
+    def __init__(self, endpoint: str, uri: str, version: str = "2.0", **kwargs):
         super().__init__(endpoint, raise_on_exc=True, **kwargs)
         self._uri = uri
         self._version = version

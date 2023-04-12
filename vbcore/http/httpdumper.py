@@ -8,9 +8,9 @@ class BaseHTTPDumper:
         """
         dumps http headers: useful for logging
 
-        :param hdr: headers' dictionary
-        :param only: list of headers key to dump
-        :return: string representation of headers
+        @param hdr: headers' dictionary
+        @param only: list of headers key to dump
+        @return: string representation of headers
                 k1: v1
                 k2: v2
         """
@@ -27,8 +27,8 @@ class BaseHTTPDumper:
         get filename from Content-Disposition header.
         i.e.: attachment; filename="<file name.ext>"
 
-        :param headers: http headers dict
-        :return: only the file name
+        @param headers: http headers dict
+        @return: only the file name
         """
         headers = headers or {}
         hdr = headers.get("Content-Disposition")
@@ -46,9 +46,8 @@ class BaseHTTPDumper:
     @classmethod
     def dump_body(cls, resp):
         """
-
-        :param resp: Response instance
-        :return:
+        @param resp: Response instance
+        @return:
         """
         return (
             getattr(resp, "text", None)
@@ -59,9 +58,8 @@ class BaseHTTPDumper:
     @classmethod
     def dump_status(cls, resp):
         """
-
-        :param resp: Response instance
-        :return:
+        @param resp: Response instance
+        @return:
         """
         return getattr(resp, "status_code", None) or getattr(resp, "status", None)
 
@@ -70,10 +68,10 @@ class BaseHTTPDumper:
         """
         dump http request: useful for logging
 
-        :param req: Request instance
-        :param dump_body: flag to enable or disable dump of request's body (overrides default)
-        :param only_hdr: dump only a subset of headers
-        :return: prettified representation of input as string
+        @param req: Request instance
+        @param dump_body: flag to enable or disable dump of request's body (overrides default)
+        @param only_hdr: dump only a subset of headers
+        @return: prettified representation of input as string
         """
         body = ""
         if dump_body is True:
@@ -95,10 +93,10 @@ class BaseHTTPDumper:
         """
         dump http response: useful for logging
 
-        :param resp: Response instance
-        :param dump_body: flag to enable or disable dump of response's body (overrides default)
-        :param only_hdr: dump only a subset of headers
-        :return: prettified representation of input as string
+        @param resp: Response instance
+        @param dump_body: flag to enable or disable dump of response's body (overrides default)
+        @param only_hdr: dump only a subset of headers
+        @return: prettified representation of input as string
         """
         body = ""
         if dump_body is True:

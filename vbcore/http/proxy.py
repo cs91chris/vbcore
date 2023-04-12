@@ -6,6 +6,7 @@ from vbcore.http import httpcode, HttpMethod
 from vbcore.http.client import HTTPBase, HTTPClient, JsonRPCClient
 from vbcore.http.headers import ContentTypeEnum, HeaderEnum
 from vbcore.http.rpc import rpc_error_to_httpcode
+from vbcore.types import OptBool, OptStr
 
 
 class Request(t.NamedTuple):
@@ -61,9 +62,9 @@ class ProxyRequest(ABC):
 
     def __init__(
         self,
-        host: t.Optional[str] = None,
-        url: t.Optional[str] = None,
-        method: t.Optional[str] = None,
+        host: OptStr = None,
+        url: OptStr = None,
+        method: OptStr = None,
         proxy_body: bool = False,
         proxy_headers: bool = False,
         proxy_params: bool = False,
@@ -84,9 +85,7 @@ class ProxyRequest(ABC):
         response = self.proxy(request, **kwargs)
         return self.prepare_response(response)
 
-    def proxy(
-        self, data: Request, stream: t.Optional[bool] = None, **kwargs
-    ) -> ObjectDict:
+    def proxy(self, data: Request, stream: OptBool = None, **kwargs) -> ObjectDict:
         options = {**self._options, **kwargs}
         client = self.client_class(data.host, **options)
         return client.request(
@@ -149,9 +148,7 @@ class JsonRPCProxyRequest(ProxyRequest, ABC):
         kwargs.setdefault("stream", False)
         super().__init__(*args, **kwargs)
 
-    def proxy(
-        self, data: Request, stream: t.Optional[bool] = None, **kwargs
-    ) -> ObjectDict:
+    def proxy(self, data: Request, stream: OptBool = None, **kwargs) -> ObjectDict:
         url = self.upstream_host()
         client = self.client_class(url, url, **kwargs)
 

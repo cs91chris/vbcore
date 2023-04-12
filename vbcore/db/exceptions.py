@@ -21,20 +21,21 @@ from sqlalchemy.exc import SQLAlchemyError
 class DBError(SQLAlchemyError):
     """
     Base exception for all custom database exceptions.
-
-    :kwarg inner_exception: an original exception which was wrapped with
-        DBError or its subclasses.
     """
 
     def __init__(self, inner_exception=None):
+        """
+        @param inner_exception: an original exception which was wrapped
+            with DBError or its subclasses
+        """
         self.inner_exception = inner_exception
         super().__init__(str(inner_exception))
 
     @property
-    def error_type(self):
+    def error_type(self) -> str:
         return self.__class__.__name__
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         return {
             "error": self.error_type,
             "message": (
@@ -55,17 +56,18 @@ class DBDuplicateEntry(DBError):
            instance_type_ref.save()
        except DBDuplicateEntry as e:
            if 'colname' in e.columns:
-               # Handle error.
-
-    :kwarg columns: a list of unique columns have been attempted to write a
-        duplicate entry.
-    :type columns: list
-    :kwarg value: a value which has been attempted to write. The value will
-        be None, if we can't extract it for a particular database backend. Only
-        MySQL and PostgreSQL 9.x are supported right now.
+               # Handle error
     """
 
     def __init__(self, columns=None, value=None, inner_exception=None):
+        """
+        @param columns: a list of unique columns have been attempted to write
+            a duplicate entry.
+        @param value: a value which has been attempted to write. The value will be None,
+            if we can't extract it for a particular database backend.
+            Only MySQL and PostgreSQL 9.x are supported right now.
+        @param inner_exception:
+        """
         self.value = value
         self.columns = columns or []
         super().__init__(inner_exception)
@@ -83,19 +85,19 @@ class DBConstraintError(DBError):
     Check constraint fails for column error.
     Raised when made an attempt to write to a column a value that does not
     satisfy a CHECK constraint.
-
-    :kwarg table: the table name for which the check fails
-    :type table: str
-    :kwarg check_name: the table of the check that failed to be satisfied
-    :type check_name: str
     """
 
     def __init__(self, table, check_name, inner_exception=None):
+        """
+        @param table: the table name for which the check fails
+        @param check_name: the table of the check that failed to be satisfied
+        @param inner_exception:
+        """
         self.table = table
         self.check_name = check_name
         super().__init__(inner_exception)
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         return {
             "error": self.error_type,
             "table": self.table,
@@ -106,25 +108,23 @@ class DBConstraintError(DBError):
 class DBReferenceError(DBError):
     """
     Foreign key violation error.
-
-    :param table: a table name in which the reference is directed.
-    :type table: str
-    :param constraint: a problematic constraint name.
-    :type constraint: str
-    :param key: a broken reference key name.
-    :type key: str
-    :param key_table: a table name which contains the key.
-    :type key_table: str
     """
 
     def __init__(self, table, constraint, key, key_table, inner_exception=None):
+        """
+        @param table: a table name in which the reference is directed.
+        @param constraint: a problematic constraint name.
+        @param key: a broken reference key name.
+        @param key_table: a table name which contains the key.
+        @param inner_exception:
+        """
         self.key = key
         self.table = table
         self.key_table = key_table
         self.constraint = constraint
         super().__init__(inner_exception)
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         return {
             "error": self.error_type,
             "table": self.table,
@@ -137,19 +137,19 @@ class DBReferenceError(DBError):
 class DBNonExistentConstraint(DBError):
     """
     Constraint does not exist.
-
-    :param table: table name
-    :type table: str
-    :param constraint: constraint name
-    :type table: str
     """
 
     def __init__(self, table, constraint, inner_exception=None):
+        """
+        @param table: table name
+        @param constraint: constraint name
+        @param inner_exception:
+        """
         self.table = table
         self.constraint = constraint
         super().__init__(inner_exception)
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         return {
             "error": self.error_type,
             "table": self.table,
@@ -160,16 +160,17 @@ class DBNonExistentConstraint(DBError):
 class DBNonExistentTable(DBError):
     """
     Table does not exist.
-
-    :param table: table name
-    :type table: str
     """
 
     def __init__(self, table, inner_exception=None):
+        """
+        @param table: table name
+        @param inner_exception:
+        """
         self.table = table
         super().__init__(inner_exception)
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         return {
             "error": self.error_type,
             "table": self.table,
@@ -179,16 +180,17 @@ class DBNonExistentTable(DBError):
 class DBNonExistentDatabase(DBError):
     """
     Database does not exist.
-
-    :param database: database name
-    :type database: str
     """
 
     def __init__(self, database, inner_exception=None):
+        """
+        @param database: database name
+        @param inner_exception:
+        """
         self.database = database
         super().__init__(inner_exception)
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         return {
             "error": self.error_type,
             "database": self.database,
@@ -197,7 +199,7 @@ class DBNonExistentDatabase(DBError):
 
 class DBDeadlock(DBError):
     """
-    Database dead lock error.
+    Database deadlock error.
     Deadlock is a situation that occurs when two or more different database
     sessions have some data locked, and each database session requests a lock
     on the data that another, different, session has already locked.

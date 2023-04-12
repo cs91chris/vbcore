@@ -10,7 +10,7 @@ from sqlalchemy.orm import declarative_base  # type: ignore
 from sqlalchemy.orm import scoped_session, Session, sessionmaker
 
 from ..base import BaseDTO
-from ..types import StrDict
+from ..types import StrDict, StrTuple
 from .events import Listener
 
 SessionType = t.Union[scoped_session, Session]
@@ -23,12 +23,12 @@ class BaseModel:
     __table__ = None
     dto_class = None
 
-    def columns(self) -> t.Tuple[str, ...]:
+    def columns(self) -> StrTuple:
         if self.__table__ is None:
             return ()
         return tuple(self.__table__.columns.keys())
 
-    def to_dict(self) -> t.Dict[str, t.Any]:
+    def to_dict(self) -> StrDict:
         return {col: getattr(self, col, None) for col in self.columns()}
 
     # noinspection PyArgumentList

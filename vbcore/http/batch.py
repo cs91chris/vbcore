@@ -6,6 +6,7 @@ import aiohttp
 from vbcore.batch import AsyncBatchExecutor
 from vbcore.datastruct import ObjectDict
 
+from ..types import OptInt, OptStr
 from . import HttpMethod
 from .client import DumpBodyType, HTTPBase, httpcode, ResponseData
 
@@ -13,7 +14,7 @@ from .client import DumpBodyType, HTTPBase, httpcode, ResponseData
 class HTTPBatch(HTTPBase, AsyncBatchExecutor):
     def __init__(
         self,
-        endpoint: t.Optional[str] = None,
+        endpoint: OptStr = None,
         dump_body: DumpBodyType = False,
         timeout: int = 10,
         raise_on_exc: bool = False,
@@ -25,7 +26,7 @@ class HTTPBatch(HTTPBase, AsyncBatchExecutor):
     async def http_request(
         self,
         dump_body: t.Optional[DumpBodyType] = None,
-        timeout: t.Optional[int] = None,
+        timeout: OptInt = None,
         **kwargs,
     ) -> ResponseData:
         dump_body = self.dump_body_flags(dump_body, **kwargs)

@@ -20,19 +20,19 @@ class RuleEngine:
         self._logger: logging.Logger = logging.getLogger(self.__module__)
 
     @property
-    def context(self):
+    def context(self) -> Context:
         return self._context
 
     @context.setter
     def context(self, context: Context):
         self._context = context
 
-    def resolver(self, thing, name):
+    def resolver(self, thing, name: str):
         if self.case_insensitive is True:
             return resolve_item(thing, name.lower())
         return resolve_item(thing, name)
 
-    def prepare_rule(self, rule: t.Union[str, Rule]) -> Rule:
+    def prepare_rule(self, rule: RuleType) -> Rule:
         if isinstance(rule, str):
             return Rule(rule, context=self.context)
         return rule

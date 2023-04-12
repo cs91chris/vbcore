@@ -2,24 +2,23 @@
 import typing as t
 
 from sqlalchemy import create_engine, inspect, tuple_
-from sqlalchemy.exc import (  # type: ignore
-    IntegrityError,
-    NoResultFound as NoResultError,
-)
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Query, Session
+from sqlalchemy.orm.exc import NoResultFound as NoResultError
 from sqlalchemy.sql import text as text_sql
 
 from vbcore.db.events import register_engine_events
 from vbcore.db.sqla import Model
 from vbcore.files import FileHandler
+from vbcore.types import StrTuple
 
 
 class SQLASupport:
     def __init__(self, model: Model, session: Session, commit: bool = True):
         """
-
-        :param model: a model class
-        :param session: a session object
+        @param model: a model class
+        @param session: a session object
+        @param commit: enable auto commit
         """
         self.session = session
         self.model = model
@@ -28,10 +27,9 @@ class SQLASupport:
     @staticmethod
     def _prepare_params(defaults: t.Optional[dict] = None, **kwargs) -> dict:
         """
-
-        :param defaults: overrides kwargs
-        :param kwargs: overridden by defaults
-        :return: merge of kwargs and defaults
+        @param defaults: overrides kwargs
+        @param kwargs: overridden by defaults
+        @return merge of kwargs and defaults
         """
         ret = {}
         defaults = defaults or {}
@@ -43,11 +41,10 @@ class SQLASupport:
         self, lookup: dict, params: dict, lock: bool = False
     ) -> t.Tuple[t.Any, bool]:
         """
-
-        :param lookup: attributes used to find record
-        :param params: attributes used to create record
-        :param lock: flag used for atomic update
-        :return:
+        @param lookup: attributes used to find record
+        @param params: attributes used to create record
+        @param lock: flag used for atomic update
+        @return created object and is_created flag
         """
         obj = self.model(**params)  # type: ignore
         self.session.add(obj)
@@ -68,10 +65,9 @@ class SQLASupport:
         self, defaults: t.Optional[dict] = None, **kwargs
     ) -> t.Tuple[t.Any, bool]:
         """
-
-        :param defaults: attribute used to create record
-        :param kwargs: filters used to fetch record or create
-        :return:
+        @param defaults: attribute used to create record
+        @param kwargs: filters used to fetch record or create
+        @return created object and is_created flag
         """
         try:
             return self.fetch(**kwargs).one(), False
@@ -83,10 +79,9 @@ class SQLASupport:
         self, defaults: t.Optional[dict] = None, **kwargs
     ) -> t.Tuple[t.Any, bool]:
         """
-
-        :param defaults: attribute used to create record
-        :param kwargs: filters used to fetch record or create
-        :return:
+        @param defaults: attribute used to create record
+        @param kwargs: filters used to fetch record or create
+        @return updated object and is_created flag
         """
         defaults = defaults or {}
         with self.session.begin_nested():
@@ -151,7 +146,7 @@ class SQLASupport:
         filename: str,
         echo: bool = False,
         separator: str = ";\n",
-        skip_line_prefixes: tuple = ("--",),
+        skip_line_prefixes: StrTuple = ("--",),
     ):
         engine = create_engine(url, echo=echo)
         with engine.connect() as conn, FileHandler().open(filename) as f:

@@ -20,7 +20,6 @@ class Hasher(Item[T], t.Generic[T]):
     @abc.abstractmethod
     def hash(self, data: HashableType) -> str:
         """
-
         @param data:
         """
 
@@ -29,7 +28,6 @@ class Hasher(Item[T], t.Generic[T]):
         self, given_hash: str, data: HashableType, raise_exc: bool = False
     ) -> bool:
         """
-
         @param given_hash:
         @param data:
         @param raise_exc:

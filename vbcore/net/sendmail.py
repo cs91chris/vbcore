@@ -13,9 +13,11 @@ from email_validator import caching_resolver, validate_email, ValidatedEmail
 
 from vbcore.files import FileHandler
 from vbcore.misc import CommonRegex
+from vbcore.types import OptStr, StrList, StrTuple
 from vbcore.uuid import get_uuid
 
-AddressType = t.Union[str, t.Tuple[str, ...]]
+AddressType = t.Union[str, StrTuple]
+HeadersType = t.Dict[str, str]
 
 
 @dataclasses.dataclass
@@ -32,8 +34,8 @@ class SMTPParams:
     debug: bool = False
     is_ssl: bool = False
     is_tls: bool = False
-    user: t.Optional[str] = None
-    password: t.Optional[str] = None
+    user: OptStr = None
+    password: OptStr = None
     sender: t.Optional[t.Union[str, t.Tuple[str, str]]] = None
 
 
@@ -41,11 +43,11 @@ class SMTPParams:
 class MessageData:
     subject: str
     priority: int = 3
-    html: t.Optional[str] = None
-    text: t.Optional[str] = None
-    headers: t.Optional[t.Dict[str, str]] = None
-    message_id: t.Optional[str] = None
-    attachments: t.Optional[t.List[str]] = None
+    html: OptStr = None
+    text: OptStr = None
+    headers: t.Optional[HeadersType] = None
+    message_id: OptStr = None
+    attachments: t.Optional[StrList] = None
 
 
 @dataclasses.dataclass(frozen=True)
@@ -54,7 +56,7 @@ class MessageAddresses:
     to: AddressType  # pylint: disable=invalid-name
     cc: AddressType = ()  # pylint: disable=invalid-name
     bcc: AddressType = ()
-    reply_to: t.Optional[str] = None
+    reply_to: OptStr = None
 
 
 class SendMail:
@@ -74,7 +76,7 @@ class SendMail:
         return ",".join(addr) if isinstance(addr, tuple) else addr
 
     @classmethod
-    def add_attachments(cls, message: MIMEBase, files: t.List[str]):
+    def add_attachments(cls, message: MIMEBase, files: StrList):
         for filename in files:
             with FileHandler(filename).open_binary() as file:
                 attach = MIMEApplication(file.read())
@@ -142,16 +144,16 @@ class SendMail:
         self,
         subject: str,
         to: AddressType,
-        sender: t.Optional[str] = None,
+        sender: OptStr = None,
         priority: int = 3,
-        html: t.Optional[str] = None,
-        text: t.Optional[str] = None,
-        reply_to: t.Optional[str] = None,
+        html: OptStr = None,
+        text: OptStr = None,
+        reply_to: OptStr = None,
         cc: t.Optional[AddressType] = (),
         bcc: t.Optional[AddressType] = (),
-        headers: t.Optional[t.Dict[str, str]] = None,
-        message_id: t.Optional[str] = None,
-        attachments: t.Optional[t.List[str]] = None,
+        headers: t.Optional[HeadersType] = None,
+        message_id: OptStr = None,
+        attachments: t.Optional[StrList] = None,
         **kwargs,
     ) -> SMTPResponse:
         _sender = sender or str(self.params.sender) or self.params.user

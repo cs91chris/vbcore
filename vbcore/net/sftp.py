@@ -6,14 +6,16 @@ from typing import cast, Generator, Optional
 
 from paramiko import PKey, SFTPClient, Transport
 
+from vbcore.types import OptStr
+
 
 @dataclass(frozen=True)
 class SFTPOptions:
     host: str
     port: int
     user: str
-    password: Optional[str] = None
-    host_key: Optional[str] = None
+    password: OptStr = None
+    host_key: OptStr = None
 
 
 class SFTPHandler:

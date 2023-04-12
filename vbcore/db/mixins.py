@@ -7,6 +7,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from vbcore import json
 from vbcore.crypto.base import Hasher
 from vbcore.crypto.factory import CryptoFactory
+from vbcore.types import StrDict
 from vbcore.uuid import get_uuid
 
 if t.TYPE_CHECKING:
@@ -43,9 +44,15 @@ class StandardMixin(BaseMixin):
     updated_at = Column.date_updated()
 
 
+class StandardUuidMixin(BaseMixin):
+    id = Column.uuid()
+    created_at = Column.date_created()
+    updated_at = Column.date_updated()
+
+
 class CatalogMixin(BaseMixin):
     @declared_attr
-    def __table_args__(self):
+    def __table_args__(self) -> tuple:
         return (sa.UniqueConstraint("code", "type_id"),)
 
     id = sa.Column(sa.Integer, primary_key=True)
@@ -82,7 +89,7 @@ class ExtraMixin(BaseMixin):
         return self._json_class.loads(self._extra) if self._extra else {}
 
     @extra.setter
-    def extra(self, value: t.Optional[t.Dict[str, t.Any]]):
+    def extra(self, value: t.Optional[StrDict]):
         self._extra = None
         if value is not None:
             self._extra = self._json_class.dumps(value)

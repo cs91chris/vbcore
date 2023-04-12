@@ -69,10 +69,10 @@ def filters(
     """
     Mark a function as receiving a filtered exception.
 
-    :param dbname: string database name, e.g. 'mysql'
-    :param exception_type: a SQLAlchemy database exception class, which
+    @param dbname: string database name, e.g. 'mysql'
+    @param exception_type: a SQLAlchemy database exception class, which
              extends from :class:`sqlalchemy.exc.DBAPIError`.
-    :param regex: a string, or a tuple of strings, that will be processed
+    @param regex: a string, or a tuple of strings, that will be processed
             as matching regular expressions.
     """
 
@@ -363,7 +363,7 @@ def _check_constraint_non_existing(
     programming_error, match, engine_name, is_disconnect
 ):
     """
-    Filter for constraint non existing errors
+    Filter for constraint not existing errors
     """
     _ = engine_name, is_disconnect
     raise DBNonExistentConstraint(
@@ -395,7 +395,7 @@ def _check_constraint_non_existing(
 )
 def _check_table_non_existing(programming_error, match, engine_name, is_disconnect):
     """
-    Filter for table non existing errors
+    Filter for table not existing errors
     """
     _ = engine_name, is_disconnect
     raise DBNonExistentTable(match.group("table"), programming_error)
@@ -497,8 +497,7 @@ def _raise_operational_errors_directly_filter(
 ):
     """
     Filter for all remaining OperationalError classes and apply.
-    Filter for all remaining OperationalError classes and apply
-    special rules.
+    Filter for all remaining OperationalError classes and apply special rules.
     """
     _ = match, engine_name
     if is_disconnect:
@@ -649,7 +648,7 @@ def register_engine_events(engine):
         # case here however this is left as a defensive measure.
         del exc_info
 
-    # try to clear the "cause" ASAP outside of savepoints,
+    # try to clear the "cause" ASAP outside savepoints,
     # by grabbing the end of transaction events...
     @event.listens_for(engine, "rollback")
     @event.listens_for(engine, "commit")
@@ -660,7 +659,7 @@ def register_engine_events(engine):
         if not conn.invalidated:
             conn.info.pop(ROLLBACK_CAUSE_KEY, None)
 
-    # .. as well as connection pool checkin (just in case).
+    # ... as well as connection pool checkin (just in case).
     # the .info dictionary lasts as long as the DBAPI connection itself
     # and is cleared out when the connection is recycled or closed
     # due to invalidate etc.

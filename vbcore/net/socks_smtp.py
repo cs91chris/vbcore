@@ -26,14 +26,16 @@ class SocksSMTP(SMTP):
         self.proxy_type = proxy_type
         super().__init__(host, port, local_hostname, timeout, source_address)
 
-    def _get_socket(self, host, port, timeout):
+    def _get_socket(self, host: str, port: int, timeout: int) -> socks.socksocket:
         if self.proxy_type is None:
             # noinspection PyProtectedMember,PyUnresolvedReferences
-            return super()._get_socket(host, port, timeout)
+            get_socket = super()._get_socket  # type: ignore
+            return get_socket(host, port, timeout)
 
         if self.debuglevel > 0:
             # noinspection PyUnresolvedReferences
-            self._print_debug("connect: to", (host, port), self.source_address)
+            print_debug = self._print_debug  # type: ignore
+            print_debug("connect: to", (host, port), self.source_address)
 
         return socks.create_connection(
             (host, port),

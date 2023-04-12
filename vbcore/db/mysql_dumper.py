@@ -10,9 +10,9 @@ from subprocess import CompletedProcess, PIPE, run as run_subprocess  # nosec
 from vbcore.base import BaseLoggerMixin
 from vbcore.date_helper import DateTimeFmt
 from vbcore.net.helpers import Url
-from vbcore.types import CoupleStr, OptInt, OptStr
+from vbcore.types import CoupleStr, OptInt, OptStr, StrList, StrTuple
 
-CmdLine = t.List[str]
+CmdLine = StrList
 
 
 @dataclass(frozen=True)
@@ -29,7 +29,7 @@ class MySQLDumper:
         password: str,
         hostname: OptStr = None,
         port: OptInt = None,
-        ignore_databases: t.Optional[t.List[str]] = None,
+        ignore_databases: t.Optional[StrList] = None,
     ):
         self.username = username
         self.password = password
@@ -72,7 +72,7 @@ class MySQLDumper:
         database: OptStr = None,
         table: OptStr = None,
     ) -> CmdLine:
-        dump_args: t.Tuple[str, ...]
+        dump_args: StrTuple
         if database:
             dump_args = ("--databases", database) if not table else (database, table)
         else:
@@ -176,7 +176,7 @@ class MysqlBackup(BaseLoggerMixin):
 def cli_wrapper(
     *,
     db_url: str,
-    ignore_databases: t.Optional[t.List[str]] = None,
+    ignore_databases: t.Optional[StrList] = None,
     folder: str = ".",
     add_datetime: bool = True,
     datetime_format: OptStr = None,
