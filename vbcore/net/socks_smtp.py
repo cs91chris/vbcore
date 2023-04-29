@@ -35,7 +35,7 @@ class SocksSMTP(SMTP):
         if self.debuglevel > 0:
             # noinspection PyUnresolvedReferences
             print_debug = self._print_debug  # type: ignore
-            print_debug("connect: to", (host, port), self.source_address)
+            print_debug("connect to:", (host, port), self.source_address)
 
         return socks.create_connection(
             (host, port),

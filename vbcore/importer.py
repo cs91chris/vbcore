@@ -11,8 +11,8 @@ class ImporterError(VBException):
 
 class ImporterModuleError(ImporterError):
     def __init__(self, name, exc: Exception):
-        self.exception = exc
         self.name = name
+        self.exception = exc
         super().__init__(f"unable to import module: {name}", orig=exc)
 
 

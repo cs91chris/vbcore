@@ -11,7 +11,7 @@ class VBException(Exception):
         orig: t.Optional[Exception] = None,
         **kwargs,
     ) -> None:
-        super().__init__(message, args)
+        super().__init__(message, *args)
         self.orig = orig
         self.message = message
         self.kwargs = kwargs
