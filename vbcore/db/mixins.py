@@ -1,5 +1,5 @@
 import typing as t
-from functools import partial
+from functools import cached_property, partial
 
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr
@@ -63,10 +63,14 @@ class CatalogMixin(BaseMixin):
 
 
 class UserMixin(StandardMixin):
-    _hasher: Hasher = CryptoFactory.instance("ARGON2")
+    _hasher_type: str = "ARGON2"
     _password = sa.Column("password", sa.String(128), nullable=False)
 
     email = sa.Column(sa.String(255), unique=True, nullable=False)
+
+    @cached_property
+    def hasher_instance(self) -> Hasher:
+        return CryptoFactory.instance(self._hasher_type)
 
     @hybrid_property
     def password(self):
@@ -74,10 +78,10 @@ class UserMixin(StandardMixin):
 
     @password.setter
     def password(self, password):
-        self._password = self._hasher.hash(password)
+        self._password = self.hasher_instance.hash(password)
 
     def check_password(self, password):
-        return self._hasher.verify(self._password, password)
+        return self.hasher_instance.verify(self._password, password)
 
 
 class ExtraMixin(BaseMixin):
