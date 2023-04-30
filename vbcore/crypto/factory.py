@@ -4,15 +4,14 @@ from vbcore.base import BaseDTO
 from vbcore.crypto import hashes
 from vbcore.crypto.base import Hasher
 from vbcore.crypto.bcrypt import Bcrypt, BcryptOptions
-from vbcore.datastruct.lazy import LazyException
+from vbcore.datastruct.lazy import LazyImporter
 from vbcore.factory import ItemEnumMeta, ItemEnumMixin, ItemFactory
 
-# TODO test me
-try:
-    from vbcore.crypto.argon import Argon2, Argon2Options
-except ImportError:  # pragma: no cover
-    Error = ImportError("you must install argon2")
-    Argon2 = Argon2Options = LazyException(Error)  # type: ignore
+Argon2, Argon2Options = LazyImporter.import_many(
+    "vbcore.crypto.argon:Argon2",
+    "vbcore.crypto.argon:Argon2Options",
+    message="you must install 'argon2'",
+)
 
 
 class HasherEnum(

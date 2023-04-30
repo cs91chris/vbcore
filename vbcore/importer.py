@@ -83,7 +83,8 @@ class Importer:
             module = importlib.import_module(mod, package)
         except ModuleNotFoundError as exc:
             if raise_exc:
-                raise ImporterModuleError(mod, exc) from exc
+                name = f"{package}.{mod}" if package else mod
+                raise ImporterModuleError(name, exc) from exc
             return None
 
         if attr is None:

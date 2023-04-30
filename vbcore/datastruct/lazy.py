@@ -1,6 +1,8 @@
 import typing as t
 
-from vbcore.types import BytesType
+from vbcore.exceptions import VBException
+from vbcore.importer import Importer, ImporterError
+from vbcore.types import BytesType, OptStr
 
 
 class Lazy:
@@ -9,7 +11,7 @@ class Lazy:
         self._kwargs = kwargs
         self._callback = callback
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs) -> t.Any:
         return self._callback(*self._args, **self._kwargs)
 
 
@@ -19,6 +21,8 @@ class LazyException(Lazy):
         self.exception = exception
 
     def trigger(self):
+        if isinstance(self.exception, VBException):
+            raise self.exception from self.exception.orig
         raise self.exception
 
     def __str__(self) -> str:
@@ -29,6 +33,42 @@ class LazyException(Lazy):
 
     def __getitem__(self, item):
         self(item)
+
+
+class LazyImporter:
+    @classmethod
+    def do_import(
+        cls,
+        name: str,
+        package: OptStr = None,
+        message: OptStr = None,
+        subclass_of: t.Optional[t.Type] = None,
+        instance_of: t.Optional[t.Type] = None,
+    ) -> t.Any:
+        try:
+            return Importer.from_module(
+                name,
+                package=package,
+                subclass_of=subclass_of,
+                instance_of=instance_of,
+            )
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            exception = ImporterError(message, orig=exc) if message else exc
+            return LazyException(exception)
+
+    @classmethod
+    def import_many(
+        cls,
+        *args,
+        package: OptStr = None,
+        message: OptStr = None,
+        subclass_of: t.Optional[t.Type] = None,
+        instance_of: t.Optional[t.Type] = None,
+    ) -> t.Tuple[t.Any, ...]:
+        return tuple(
+            cls.do_import(name, package, message, subclass_of, instance_of)
+            for name in args
+        )
 
 
 class LazyDump(Lazy):
