@@ -1,6 +1,11 @@
 import time
 from collections import OrderedDict
+from datetime import datetime, timedelta
+from functools import lru_cache, wraps
 from threading import RLock
+from typing import Any, Callable
+
+from vbcore.types import OptInt
 
 
 class LRUCache(OrderedDict):
@@ -149,3 +154,58 @@ class ExpiringCache(OrderedDict):
                 del self[key]
         except KeyError:
             pass
+
+
+class TimedLRUCache:
+    """
+    LRU cache with expiring values to decorate the functions
+    Example:
+
+    >>> cache = TimedLRUCache(seconds=1)
+    >>>
+    >>> @cache
+    ... def sample(data: str):
+    ...     return data.upper()
+    ...
+    >>>
+    """
+
+    def __init__(
+        self,
+        hours: int = 0,
+        minutes: int = 0,
+        seconds: int = 0,
+        milliseconds: int = 0,
+        maxsize: OptInt = 128,
+        typed: bool = False,
+    ):
+        self.maxsize = maxsize
+        self.typed = typed
+        self.lifetime = timedelta(
+            hours=hours,
+            minutes=minutes,
+            seconds=seconds,
+            milliseconds=milliseconds,
+        )
+
+    def expire_at(self) -> datetime:
+        return datetime.utcnow() + self.lifetime
+
+    def prepare(self, func: Callable):
+        decorator = lru_cache(self.maxsize, self.typed)
+        _func: Any = decorator(func)
+        _func.lifetime = self.lifetime
+        _func.expiration = self.expire_at()
+        return _func
+
+    def __call__(self, func: Callable) -> Callable:
+        _func = self.prepare(func)
+
+        @wraps(_func)
+        def wrapped(*args, **kwargs) -> Callable:
+            if datetime.utcnow() >= _func.expiration:
+                _func.cache_clear()
+                _func.expiration = self.expire_at()
+            return _func(*args, **kwargs)
+
+        return wrapped
