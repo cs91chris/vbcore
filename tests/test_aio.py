@@ -1,9 +1,9 @@
 import asyncio
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from vbcore.aio import async_wrapper, collect, get_event_loop, is_async
+from vbcore import aio
 from vbcore.tester.asserter import Asserter
 
 
@@ -27,11 +27,11 @@ async def sample_aio_func():
     ],
 )
 def test_is_async(func, expected):
-    Asserter.assert_is(is_async(func), expected)
+    Asserter.assert_is(aio.is_async(func), expected)
 
 
 def test_async_wrapper():
-    wrapped = async_wrapper(sample_func)
+    wrapped = aio.async_wrapper(sample_func)
 
     Asserter.assert_none(sample_func())
     Asserter.assert_not_none(wrapped)
@@ -47,7 +47,7 @@ def test_collect(mock_asyncio):
     coro3 = sample_aio_func()
 
     async def run_collect():
-        await collect(coro1, coro2, coro3)
+        await aio.collect(coro1, coro2, coro3)
 
     asyncio.run(run_collect())
 
@@ -67,7 +67,7 @@ def test_get_new_event_loop(
 ):
     mock_asyncio.get_running_loop.return_value = None
 
-    get_event_loop()
+    aio.get_event_loop()
 
     mock_asyncio.get_running_loop.assert_called_once()
     mock_nest_asyncio.apply.assert_not_called()
@@ -81,7 +81,7 @@ def test_get_running_loop(
     mock_nest_asyncio,
     mock_asyncio,
 ):
-    get_event_loop()
+    aio.get_event_loop()
 
     mock_asyncio.get_running_loop.assert_called_once()
     mock_nest_asyncio.apply.assert_not_called()
@@ -95,9 +95,32 @@ def test_get_running_loop_nested(
     mock_nest_asyncio,
     mock_asyncio,
 ):
-    loop = get_event_loop(nested=True)
+    loop = aio.get_event_loop(nested=True)
 
     mock_asyncio.get_running_loop.assert_called_once()
     mock_nest_asyncio.apply.assert_called_once_with(loop)
     mock_asyncio.new_event_loop.assert_not_called()
     mock_asyncio.set_event_loop.assert_called_once()
+
+
+@patch("vbcore.aio.asyncio")
+@pytest.mark.parametrize(
+    "debug, expected",
+    [
+        (False, None),
+        (True, True),
+    ],
+    ids=[
+        "debug-false",
+        "debug-true",
+    ],
+)
+def test_execute(mock_asyncio, debug, expected):
+    coro = sample_aio_func()
+    mock_value = MagicMock()
+    mock_asyncio.run.return_value = mock_value
+
+    return_value = aio.execute(coro, debug=debug)
+
+    mock_asyncio.run.assert_called_once_with(coro, debug=expected)
+    Asserter.assert_is(return_value, mock_value)

@@ -34,3 +34,11 @@ def get_event_loop(*, nested: bool = False) -> asyncio.AbstractEventLoop:
     loop = loop or asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     return loop
+
+
+def execute(main: t.Coroutine, *, debug: bool = False) -> t.Any:
+    """
+    It should be used as a main entry point for asyncio programs
+    and should ideally only be called once
+    """
+    return asyncio.run(main, debug=debug or None)
