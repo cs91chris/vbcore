@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, AsyncGenerator, Callable, TYPE_CHECKING, Union
+from typing import Any, AsyncGenerator, Callable, Optional, TYPE_CHECKING, Union
 
 from gql import Client, gql
 from gql.transport import AsyncTransport, Transport
@@ -46,7 +46,7 @@ class GQLClientBase(ABC):
         cls,
         function: Callable,
         statement: str,
-        headers: StrDict | None = None,
+        headers: Optional[StrDict] = None,
         **kwargs,
     ) -> Any:
         return function(
@@ -62,7 +62,7 @@ class GQLClient(GQLClientBase):
         return RequestsHTTPTransport(url=self.endpoint, **kwargs)
 
     def perform(
-        self, statement: str, headers: StrDict | None = None, **kwargs
+        self, statement: str, headers: Optional[StrDict] = None, **kwargs
     ) -> ExecutionResult:
         try:
             func = self.client.execute_sync
@@ -76,7 +76,7 @@ class GQLClientAIO(GQLClientBase):
         return AIOHTTPTransport(url=self.endpoint, **kwargs)
 
     async def perform(
-        self, statement: str, headers: StrDict | None = None, **kwargs
+        self, statement: str, headers: Optional[StrDict] = None, **kwargs
     ) -> ExecutionResult:
         try:
             func = self.client.execute_async
@@ -90,7 +90,7 @@ class GQLClientWS(GQLClientBase):
         return WebsocketsTransport(url=self.endpoint, **kwargs)
 
     async def perform(
-        self, statement: str, headers: StrDict | None = None, **kwargs
+        self, statement: str, headers: Optional[StrDict] = None, **kwargs
     ) -> ExecutionResult:
         try:
             func = self.client.execute_async
@@ -99,7 +99,7 @@ class GQLClientWS(GQLClientBase):
             return self.result_from_error(exc)
 
     async def subscribe(
-        self, statement: str, headers: StrDict | None = None, **kwargs
+        self, statement: str, headers: Optional[StrDict] = None, **kwargs
     ) -> AsyncGenerator[ExecutionResult, None]:
         async with self.client as session:
             try:

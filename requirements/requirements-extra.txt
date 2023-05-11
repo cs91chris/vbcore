@@ -6,14 +6,28 @@
 #
 attrs==22.2.0
     # via jsonschema
+backoff==2.2.1
+    # via gql
 chardet==5.1.0
     # via
     #   -c requirements/requirements-build.txt
     #   -r requirements/requirements-extra.in
+gql==3.4.1
+    # via -r requirements/requirements-extra.in
+graphql-core==3.2.3
+    # via gql
 gunicorn==20.1.0
     # via -r requirements/requirements-extra.in
+idna==3.4
+    # via
+    #   -c requirements/requirements-build.txt
+    #   yarl
 jsonschema==4.17.3
     # via -r requirements/requirements-extra.in
+multidict==6.0.4
+    # via
+    #   -c requirements/requirements-build.txt
+    #   yarl
 ply==3.11
     # via rule-engine
 pyrsistent==0.19.3
@@ -29,6 +43,10 @@ six==1.16.0
     #   -c requirements/requirements-build.txt
     #   -c requirements/requirements.txt
     #   python-dateutil
+yarl==1.9.2
+    # via
+    #   -c requirements/requirements-build.txt
+    #   gql
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

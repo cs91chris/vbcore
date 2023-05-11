@@ -38,7 +38,8 @@ def test_ordered_set_remove():
 
     with pytest.raises(KeyError):
         data.remove(2)
-        Asserter.assert_equals(list(data), [1, 3])
+
+    Asserter.assert_equals(list(data), [1, 3])
 
 
 def test_ordered_set_getitem():

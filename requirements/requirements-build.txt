@@ -31,7 +31,9 @@ filelock==3.10.7
     #   tox
     #   virtualenv
 idna==3.4
-    # via requests
+    # via
+    #   requests
+    #   yarl
 importlib-metadata==6.1.0
     # via
     #   keyring
@@ -50,6 +52,8 @@ mdurl==0.1.2
     # via markdown-it-py
 more-itertools==9.1.0
     # via jaraco-classes
+multidict==6.0.4
+    # via yarl
 packaging==23.0
     # via
     #   pyproject-api
@@ -103,6 +107,8 @@ virtualenv==20.21.0
 webencodings==0.5.1
     # via bleach
 wheel==0.40.0
+    # via -r requirements/requirements-build.in
+yarl==1.9.2
     # via -r requirements/requirements-build.in
 zipp==3.15.0
     # via importlib-metadata
