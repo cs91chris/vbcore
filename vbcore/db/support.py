@@ -1,4 +1,3 @@
-# based on https://github.com/enricobarzetti/sqlalchemy_get_or_create
 import typing as t
 
 from sqlalchemy import create_engine, inspect, tuple_

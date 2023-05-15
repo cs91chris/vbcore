@@ -36,7 +36,7 @@ class Url(BaseDTO):
         return cls(
             protocol=parsed_url.scheme or None,
             hostname=parsed_url.hostname or None,
-            port=parsed_url.port or None,
+            port=parsed_url.port,
             username=parsed_url.username or None,
             password=parsed_url.password or None,
             path=parsed_url.path or None,
