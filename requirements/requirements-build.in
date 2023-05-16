@@ -7,5 +7,3 @@ wheel
 #
 charset-normalizer<3  # because: charset-normalizer==2.1.1 (from -r requirements/requirements-http.txt
 # packaging<22.0  # because: packaging<22.0,>=21.0 (from safety==2.3.5->-r requirements/requirements-dev.in
-
-yarl==1.9.2

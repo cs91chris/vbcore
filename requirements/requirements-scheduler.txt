@@ -6,7 +6,7 @@
 #
 apscheduler==3.10.1
     # via -r requirements/requirements-scheduler.in
-pytz==2023.2
+pytz==2023.3
     # via apscheduler
 pytz-deprecation-shim==0.1.0.post0
     # via tzlocal
@@ -15,7 +15,7 @@ six==1.16.0
     #   -c requirements/requirements-build.txt
     #   -c requirements/requirements.txt
     #   apscheduler
-tzdata==2023.2
+tzdata==2023.3
     # via pytz-deprecation-shim
 tzlocal==4.3
     # via apscheduler
