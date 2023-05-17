@@ -1,8 +1,20 @@
 from time import sleep
 from unittest.mock import Mock, patch
 
+import pytest
+
 from vbcore.datastruct.cache import ExpiringCache
 from vbcore.tester.asserter import Asserter
+
+
+@pytest.mark.skip("implement me")
+def test_lru_cache():
+    pass
+
+
+@pytest.mark.skip("implement me")
+def test_timed_lru_cache_decorator():
+    pass
 
 
 def test_expiring_cache_getter_setter():

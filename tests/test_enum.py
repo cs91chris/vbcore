@@ -1,7 +1,14 @@
 import enum
 
+import pytest
+
 from vbcore.enums import IStrEnum, StrEnum
 from vbcore.tester.asserter import Asserter
+
+
+@pytest.mark.skip("implement me")
+def test_int_enum():
+    pass
 
 
 def test_str_enum():
@@ -18,3 +25,13 @@ def test_str_enum_lower():
 
     Asserter.assert_equals(Sample.EXAMPLE, "example")
     Asserter.assert_equals(Sample.EXAMPLE.upper(), "EXAMPLE")
+
+
+@pytest.mark.skip("implement me")
+def test_lstr_enum():
+    pass
+
+
+@pytest.mark.skip("implement me")
+def test_istr_enum():
+    pass

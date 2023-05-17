@@ -6,6 +6,36 @@ from vbcore.http.client import HTTPClient
 from vbcore.tester.asserter import Asserter
 
 
+@pytest.mark.skip("implement me")
+def test_token_auth_call():
+    pass
+
+
+@pytest.mark.skip("implement me")
+def test_token_auth_equals():
+    pass
+
+
+@pytest.mark.skip("implement me")
+def test_normalize_dump_flags():
+    pass
+
+
+@pytest.mark.skip("implement me")
+def test_dump_body_flags():
+    pass
+
+
+@pytest.mark.skip("implement me")
+def test_normalize_url():
+    pass
+
+
+@pytest.mark.skip("implement me")
+def test_get_auth():
+    pass
+
+
 @responses.activate
 @pytest.mark.parametrize(
     "method, match_method",
@@ -19,7 +49,7 @@ from vbcore.tester.asserter import Asserter
         ("options", responses.OPTIONS),
     ],
 )
-def test_http_client(method, match_method):
+def test_http_client_request(method, match_method):
     params = {"a": "1", "b": "1"}
     responses.add(
         match_method,
@@ -35,3 +65,13 @@ def test_http_client(method, match_method):
     Asserter.assert_status_code(response, httpcode.BAD_REQUEST)
     Asserter.assert_equals(response.body, {})
     Asserter.assert_header(response, "hdr", "value")
+
+
+@pytest.mark.skip("implement me")
+def test_jsonrpc_request():
+    pass
+
+
+@pytest.mark.skip("implement me")
+def test_jsonrpc_notification():
+    pass

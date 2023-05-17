@@ -1,5 +1,7 @@
 from unittest.mock import call, MagicMock, patch
 
+import pytest
+
 from vbcore.batch import BatchSize, PCTask, ProducerConsumerBatchExecutor
 from vbcore.tester.asserter import Asserter
 
@@ -9,8 +11,28 @@ class FakeTask(PCTask):
         return item
 
 
+@pytest.mark.skip("implement me")
+def test_batch_executor():
+    pass
+
+
+@pytest.mark.skip("implement me")
+def test_async_batch_executor():
+    pass
+
+
+@pytest.mark.skip("implement me")
+def test_thread_batch_executor():
+    pass
+
+
+@pytest.mark.skip("implement me")
+def test_linear_executor():
+    pass
+
+
 @patch("vbcore.batch.Thread")
-def test_batch_executor_startup(mock_thread):
+def test_producer_consumer_batch_executor_startup(mock_thread):
     workers = 4
     executor = ProducerConsumerBatchExecutor(
         producer=FakeTask(),
@@ -24,7 +46,7 @@ def test_batch_executor_startup(mock_thread):
     assert mock_thread.return_value.start.call_count == workers + 1
 
 
-def test_batch_load():
+def test_producer_consumer_batch_load():
     producer_task = MagicMock()
     consumer_task = MagicMock()
     # pylint: disable=unnecessary-lambda

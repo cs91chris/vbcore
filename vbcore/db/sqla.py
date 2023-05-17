@@ -6,7 +6,7 @@ from functools import partial
 
 import sqlalchemy as sa
 import sqlalchemy.exc
-from sqlalchemy.orm import declarative_base  # type: ignore
+from sqlalchemy.ext.declarative import as_declarative
 from sqlalchemy.orm import scoped_session, Session, sessionmaker
 
 from ..base import BaseDTO
@@ -17,38 +17,6 @@ SessionType = t.Union[scoped_session, Session]
 LoadersType = t.Tuple[t.Type["LoaderModel"], ...]
 
 logger = logging.getLogger(__name__)
-
-
-class BaseModel:
-    __table__ = None
-    dto_class = None
-
-    def columns(self) -> StrTuple:
-        if self.__table__ is None:
-            return ()
-        return tuple(self.__table__.columns.keys())
-
-    def to_dict(self) -> StrDict:
-        return {col: getattr(self, col, None) for col in self.columns()}
-
-    # noinspection PyArgumentList
-    @classmethod
-    def from_dto(cls, dto: t.Union[BaseDTO, dict]):
-        if isinstance(dto, BaseDTO):
-            return cls(**dto.to_dict())
-        return cls(**dto)
-
-    def to_dto(self):
-        items = tuple((col, getattr(self, col, None)) for col in self.columns())
-        dto_class = self.dto_class
-        if self.dto_class is None:
-            dto_class = make_dataclass(
-                f"{self.__class__.__name__}DTO",
-                [(col, type(value)) for col, value in items],
-                bases=(BaseDTO,),
-                frozen=True,
-            )
-        return dto_class(**dict(items))
 
 
 class SQLAConnector:
@@ -101,14 +69,46 @@ class SQLAConnector:
                 raise
 
 
-Model = declarative_base(
-    metadata=SQLAConnector.metadata,
-    cls=BaseModel,
-    name=BaseModel.__name__,
-)
+class BaseModel:
+    __table__: sa.Table
+    dto_class: t.Type[BaseDTO]
+
+    def __init__(self, *_, **__):
+        """only to avoid warnings"""
+
+    def columns(self) -> StrTuple:
+        if self.__table__ is None:
+            return ()
+        return tuple(self.__table__.columns.keys())
+
+    def to_dict(self) -> StrDict:
+        return {col: getattr(self, col, None) for col in self.columns()}
+
+    @classmethod
+    def from_dto(cls, dto: t.Union[BaseDTO, dict]):
+        if isinstance(dto, BaseDTO):
+            return cls(**dto.to_dict())
+        return cls(**dto)
+
+    def to_dto(self):
+        items = tuple((col, getattr(self, col, None)) for col in self.columns())
+        dto_class = self.dto_class
+        if self.dto_class is None:
+            dto_class = make_dataclass(
+                f"{self.__class__.__name__}DTO",
+                [(col, type(value)) for col, value in items],
+                bases=(BaseDTO,),
+                frozen=True,
+            )
+        return dto_class(**dict(items))
 
 
-class LoaderModel(Model):  # type: ignore
+@as_declarative(metadata=SQLAConnector.metadata)
+class Model(BaseModel):
+    pass
+
+
+class LoaderModel(Model):
     __abstract__ = True
 
     values: t.Tuple[StrDict, ...] = ()

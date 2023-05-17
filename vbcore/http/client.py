@@ -64,11 +64,12 @@ class HTTPBase(LazyHTTPDumper):
         self._timeout = timeout
         self._endpoint = endpoint
         self._raise_on_exc = raise_on_exc
-        self._dump_body = self._normalize_dump_flags(dump_body)
+        self._dump_body = self.normalize_dump_flags(dump_body)
         self._logger = logger or logging.getLogger(self.__module__)
 
-    @staticmethod
-    def _normalize_dump_flags(
+    @classmethod
+    def normalize_dump_flags(
+        cls,
         dump_body: t.Optional[DumpBodyType] = None,
     ) -> t.Tuple[bool, bool]:
         if isinstance(dump_body, bool):
@@ -83,7 +84,7 @@ class HTTPBase(LazyHTTPDumper):
         if dump_body is None:
             dump_body = self._dump_body
         else:
-            dump_body = self._normalize_dump_flags(dump_body)
+            dump_body = self.normalize_dump_flags(dump_body)
         if kwargs.get("stream") is True:  # if stream not dump response body
             dump_body = (dump_body[0], False)
         return dump_body

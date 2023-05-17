@@ -1,5 +1,12 @@
+import pytest
+
 from vbcore.datastruct.dictionaries import ObjectDict
 from vbcore.tester.asserter import Asserter
+
+
+@pytest.mark.skip("implement me")
+def test_idict_get_namespace():
+    pass
 
 
 def test_object_dict_constructor():
@@ -30,3 +37,8 @@ def test_object_dict_normalize_list():
     res = ObjectDict.normalize(data)
     Asserter.assert_equals(res[0].a, data[0]["a"])
     Asserter.assert_equals(res[1].b, data[1]["b"])
+
+
+@pytest.mark.skip("implement me")
+def test_bdict():
+    pass

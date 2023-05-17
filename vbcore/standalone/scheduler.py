@@ -25,7 +25,7 @@ class APScheduler:
         super().__init__(*args, **kwargs)
         self._scheduler = scheduler(gconfig or {})
         self._events = events_to_listen or scheduler_events.EVENT_ALL
-        self._scheduler.add_listener(self._event_listener, self._events)
+        self._scheduler.add_listener(self.event_listener, self._events)
         if auto_start:
             self._scheduler.start()
 
@@ -47,18 +47,18 @@ class APScheduler:
         self._scheduler.print_jobs(out=dump)
         return dump.getvalue()
 
-    @staticmethod
-    def _repr_job_event(event: scheduler_events.SchedulerEvent):
+    @classmethod
+    def repr_job_event(cls, event: scheduler_events.SchedulerEvent):
         if isinstance(event, scheduler_events.JobEvent):
             return f"{repr(event)}-<{event.job_id}>-<{event.jobstore}>"
         return repr(event)
 
-    def _event_listener(self, event):
+    def event_listener(self, event):
         if not event.code & self._events:
             return
 
         self.logger.debug(
-            "received event %s", Dumper(event, callback=self._repr_job_event)
+            "received event %s", Dumper(event, callback=self.repr_job_event)
         )
         if event.code == scheduler_events.EVENT_JOB_ERROR:
             self.logger.error("An error occurred when executing job: %s", event.job_id)

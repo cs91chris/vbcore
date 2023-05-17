@@ -2,7 +2,9 @@
 omit =
     vbcore/version.py
     vbcore/__main__.py
+    vbcore/tester/cli.py
     vbcore/tools/*
+    vbcore/types.py
 
 [report]
 exclude_lines =

@@ -1,4 +1,3 @@
-import atexit
 import json
 import logging.config
 import socket
@@ -7,8 +6,6 @@ import typing as t
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
-from logging.handlers import QueueHandler, QueueListener
-from queue import Queue
 
 from vbcore.files import FileHandler
 
@@ -78,56 +75,3 @@ class Loggers:
         sock.send(bytes(struct.pack(">L", len(configuration))))
         sock.send(configuration)
         sock.close()
-
-
-valid_ident = logging.config.valid_ident
-# noinspection PyUnresolvedReferences
-ConvertingDict = logging.config.ConvertingDict  # type: ignore
-# noinspection PyUnresolvedReferences
-ConvertingList = logging.config.ConvertingList  # type: ignore
-
-
-class QueueListenerHandler(QueueHandler):
-    def __init__(
-        self, handlers, respect_handler_level=False, auto_run=True, queue=None
-    ):
-        queue = self._resolve_queue(queue or Queue(-1))
-        super().__init__(queue)
-        handlers = self._resolve_handlers(handlers)
-        # noinspection PyUnresolvedReferences
-        self._listener = QueueListener(
-            self.queue, *handlers, respect_handler_level=respect_handler_level
-        )
-        if auto_run:
-            self.start()
-            atexit.register(self.stop)
-
-    def start(self):
-        self._listener.start()
-
-    def stop(self):
-        self._listener.stop()
-
-    @staticmethod
-    def _resolve_handlers(h):
-        if not isinstance(h, ConvertingList):
-            return h
-        return [h[i] for i in range(len(h))]
-
-    @staticmethod
-    def _resolve_queue(q):
-        if not isinstance(q, ConvertingDict):
-            return q
-        if "__resolved_value__" in q:
-            return q["__resolved_value__"]
-
-        cname = q.pop("class")
-        klass = q.configurator.resolve(cname)
-        props = q.pop(".", None) or {}
-        kwargs = {k: q[k] for k in q if valid_ident(k)}
-        result = klass(**kwargs)
-        for name, value in props.items():
-            setattr(result, name, value)
-
-        q["__resolved_value__"] = result
-        return result

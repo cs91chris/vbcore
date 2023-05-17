@@ -80,3 +80,23 @@ def test_split_kwargs():
     wanted, unwanted = split_kwargs(("a", "b"), a=1, b=2, c=3)
     Asserter.assert_equals(wanted, {"a": 1, "b": 2})
     Asserter.assert_equals(unwanted, {"c": 3})
+
+
+@pytest.mark.skip("implement me")
+def test_static_attr_decorator():
+    pass
+
+
+@pytest.mark.skip("implement me")
+def test_memory_usage_dump():
+    pass
+
+
+@pytest.mark.skip("implement me")
+def test_signal_register():
+    pass
+
+
+@pytest.mark.skip("implement me")
+def test_signal_handle_terminate():
+    pass

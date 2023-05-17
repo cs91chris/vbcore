@@ -49,7 +49,7 @@ class DateTimeEncoderMixin(json.JSONEncoder):
         return super().default(o)
 
 
-class TypesEncoderMixin(json.JSONEncoder):
+class NamespaceEncoderMixin(json.JSONEncoder):
     def default(self, o, *_, **__):
         if isinstance(o, SimpleNamespace):
             return o.__dict__
@@ -86,7 +86,7 @@ class ObjectIdMixin(json.JSONEncoder):
         return super().default(o)
 
 
-class DictableMethodMixin(json.JSONEncoder):
+class DictableMixin(json.JSONEncoder):
     methods = ("to_dict", "asdict", "dict", "as_dict", "todict")
 
     def default(self, o, *_, **__):
@@ -100,11 +100,11 @@ class DictableMethodMixin(json.JSONEncoder):
 class JsonEncoder(
     BuiltinEncoderMixin,
     DateTimeEncoderMixin,
-    TypesEncoderMixin,
+    NamespaceEncoderMixin,
     CollectionsEncoderMixin,
     HexUUIDMixin,
     ObjectIdMixin,
-    DictableMethodMixin,
+    DictableMixin,
 ):
     """
     Extends all encoders provided with this module

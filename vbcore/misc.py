@@ -47,20 +47,6 @@ def parse_value(value: t.Any):
     return value
 
 
-def get_from_dict(d: dict, k, default=None):
-    """
-    get a value from dict without raising exceptions
-
-    :param d: dict
-    :param k: key
-    :param default: default value if k is missing
-    :return: d[k] or default
-    """
-    if isinstance(d, dict):
-        return d.get(k, default)
-    return default
-
-
 def to_int(n) -> t.Optional[int]:
     """
     cast input to int if an error occurred returns None

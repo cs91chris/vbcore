@@ -26,7 +26,9 @@ class SocksSMTP(SMTP):
         self.proxy_type = proxy_type
         super().__init__(host, port, local_hostname, timeout, source_address)
 
-    def _get_socket(self, host: str, port: int, timeout: int) -> socks.socksocket:
+    def create_socks_connection(
+        self, host: str, port: int, timeout: int
+    ) -> socks.socksocket:
         if self.proxy_type is None:
             # noinspection PyProtectedMember,PyUnresolvedReferences
             get_socket = super()._get_socket  # type: ignore
@@ -44,3 +46,6 @@ class SocksSMTP(SMTP):
             proxy_type=self.proxy_type.value,
             **self.proxy_args,
         )
+
+    def _get_socket(self, host: str, port: int, timeout: int) -> socks.socksocket:
+        return self.create_socks_connection(host, port, timeout)

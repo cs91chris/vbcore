@@ -143,10 +143,7 @@ class PCTask(abc.ABC):
 
     @abc.abstractmethod
     def perform(self, item):
-        """
-
-        @param item:
-        """
+        raise NotImplementedError
 
 
 class IProducerConsumerBatchExecutor(abc.ABC):
@@ -177,15 +174,15 @@ class IProducerConsumerBatchExecutor(abc.ABC):
 
     @abc.abstractmethod
     def consumer(self):
-        """empty doc"""
+        raise NotImplementedError
 
     @abc.abstractmethod
     def producer(self):
-        """empty doc"""
+        raise NotImplementedError
 
     @abc.abstractmethod
     def load(self, item):
-        """empty doc"""
+        raise NotImplementedError
 
     def run_on(self, items: t.Iterable):
         with self.runner() as executor:

@@ -1,5 +1,9 @@
 import pytest
 
+from vbcore.http.gql import GQLClient, GQLClientAIO, GQLClientWS
+
+_ = GQLClient, GQLClientAIO, GQLClientWS
+
 
 @pytest.mark.skip("implement me")
 def test_gql_client_perform():

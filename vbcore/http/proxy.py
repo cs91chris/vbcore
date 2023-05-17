@@ -29,27 +29,27 @@ class IncomingRequestData(ABC):  # TODO refactor this
     @classmethod
     @abstractmethod
     def url(cls) -> str:
-        """empty doc"""
+        raise NotImplementedError
 
     @classmethod
     @abstractmethod
     def method(cls) -> str:
-        """empty doc"""
+        raise NotImplementedError
 
     @classmethod
     @abstractmethod
     def body(cls):
-        """empty doc"""
+        raise NotImplementedError
 
     @classmethod
     @abstractmethod
     def headers(cls) -> t.Dict[str, str]:
-        """empty doc"""
+        raise NotImplementedError
 
     @classmethod
     @abstractmethod
     def params(cls) -> t.Dict[str, t.Any]:
-        """empty doc"""
+        raise NotImplementedError
 
 
 class ProxyRequest(ABC):
@@ -58,7 +58,7 @@ class ProxyRequest(ABC):
     @property
     @abstractmethod
     def request_dto(self) -> t.Type[IncomingRequestData]:
-        """empty doc"""
+        raise NotImplementedError
 
     def __init__(
         self,
