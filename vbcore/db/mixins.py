@@ -32,7 +32,7 @@ class Column:
 
 
 class BaseMixin:
-    __table__ = None
+    __table__: sa.Table
 
     def __init__(self, *args, **kwargs):
         """this is here only to remove pycharm warnings"""

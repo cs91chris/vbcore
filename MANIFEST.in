@@ -1,1 +1,2 @@
 include requirements/*
+include tools/initializer/skeleton/*
