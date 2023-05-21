@@ -6,14 +6,14 @@ from sqlalchemy.orm import Query, Session
 from sqlalchemy.orm.exc import NoResultFound as NoResultError
 from sqlalchemy.sql import text as text_sql
 
-from vbcore.db.events import register_engine_events
+from vbcore.db.events import register_error_handlers
 from vbcore.db.sqla import Model
 from vbcore.files import FileHandler
 from vbcore.types import StrTuple
 
 
 class SQLASupport:
-    def __init__(self, model: Model, session: Session, commit: bool = True):
+    def __init__(self, model: t.Type[Model], session: Session, commit: bool = True):
         """
         @param model: a model class
         @param session: a session object
@@ -135,8 +135,8 @@ class SQLASupport:
             self.session.commit()
 
     @classmethod
-    def register_events(cls, engine):
-        register_engine_events(engine)
+    def register_custom_handlers(cls, engine):
+        register_error_handlers(engine)
 
     @classmethod
     def exec_from_file(

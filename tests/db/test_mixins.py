@@ -26,7 +26,7 @@ def test_extra_mixin(local_session, session_save):
 
 
 def test_catalog_mixin_constraint(connector, support):
-    support.register_events(connector.engine)
+    support.register_custom_handlers(connector.engine)
     with pytest.raises(DBDuplicateEntry) as error:
         support.bulk_insert(
             [

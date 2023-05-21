@@ -103,7 +103,7 @@ def test_custom_exceptions(exception, data):
     ],
 )
 def test_register_events(statement, exception, expected, connector, support):
-    support.register_events(connector.engine)
+    support.register_custom_handlers(connector.engine)
 
     with pytest.raises(exception) as error:
         support.session.execute(statement)
