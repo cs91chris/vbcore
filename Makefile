@@ -31,11 +31,11 @@ endef
 
 all: clean run-tox
 lint: flake pylint mypy
-security: safety liccheck
+security: safety liccheck bandit
 radon: radon-cc radon-hal radon-mi radon-raw
 cqa: radon-cc-report bandit-report radon bandit
 format: autoflake black isort
-dev: format lint security bandit test
+dev: format lint security test
 
 
 compile-deps:
@@ -192,7 +192,9 @@ radon-cc:
 	radon cc \
 		--total-average \
 		--show-complexity \
-		--min b ${PACKAGE}
+		--min C \
+		--order SCORE \
+		${PACKAGE}
 
 radon-cc-report:
 	# cyclomatic complexity
@@ -200,11 +202,13 @@ radon-cc-report:
 		--md \
 		--total-average \
 		--show-complexity \
+		--min C \
+		--order SCORE \
 		${PACKAGE} > radon-cc-report.md
 
 radon-mi:
 	# maintainability index
-	radon mi --show ${PACKAGE}
+	radon mi --min B --show ${PACKAGE}
 
 radon-hal:
 	# halstead metrics
