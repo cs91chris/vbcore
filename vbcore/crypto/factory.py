@@ -3,7 +3,6 @@ import enum
 from vbcore.base import BaseDTO
 from vbcore.crypto import hashes
 from vbcore.crypto.base import Hasher
-from vbcore.crypto.bcrypt import Bcrypt, BcryptOptions
 from vbcore.datastruct.lazy import LazyImporter
 from vbcore.factory import ItemEnumMeta, ItemEnumMixin, ItemFactory
 
@@ -11,6 +10,12 @@ Argon2, Argon2Options = LazyImporter.import_many(
     "vbcore.crypto.argon:Argon2",
     "vbcore.crypto.argon:Argon2Options",
     message="you must install 'argon2'",
+)
+
+Bcrypt, BcryptOptions = LazyImporter.import_many(
+    "vbcore.crypto.bcrypt:Bcrypt",
+    "vbcore.crypto.bcrypt:BcryptOptions",
+    message="you must install 'bcrypt'",
 )
 
 

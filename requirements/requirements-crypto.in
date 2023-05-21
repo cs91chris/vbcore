@@ -2,3 +2,4 @@
 -c requirements-build.txt
 
 argon2-cffi
+bcrypt

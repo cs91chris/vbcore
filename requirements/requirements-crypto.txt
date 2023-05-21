@@ -8,6 +8,8 @@ argon2-cffi==21.3.0
     # via -r requirements/requirements-crypto.in
 argon2-cffi-bindings==21.2.0
     # via argon2-cffi
+bcrypt==4.0.1
+    # via -r requirements/requirements-crypto.in
 cffi==1.15.1
     # via
     #   -c requirements/requirements-build.txt
