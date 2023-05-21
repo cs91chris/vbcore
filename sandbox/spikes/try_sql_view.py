@@ -21,11 +21,12 @@ if __name__ == "__main__":
     connector = SQLAConnector("sqlite:///", echo=True)
     SQLASupport.register_custom_handlers(connector.engine)
 
-    DDLCreateView(
-        name="sample_view",
-        metadata=connector.metadata,
-        select=sa.select(sa.literal_column("1 AS id, 'name' as name")),
+    view_select = sa.select(
+        sa.literal_column("1").label("id"),
+        sa.literal_column("'name'").label("name"),
     )
+
+    DDLCreateView(name="sample_view", metadata=connector.metadata, select=view_select)
 
     connector.create_all()
     with connector.connection() as session:

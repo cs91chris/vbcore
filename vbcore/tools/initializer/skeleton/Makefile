@@ -98,17 +98,17 @@ isort:
 flake:
 	flake8 \
 		--config=.flake8 --statistics \
-		${PACKAGE} sandbox tests setup.py
+		${PACKAGE} tests setup.py
 
 pylint:
 	pylint \
 		-j0 --rcfile=.pylintrc --reports=y \
-		${PACKAGE} sandbox tests setup.py
+		${PACKAGE} tests setup.py
 
 mypy:
 	mypy \
 		--warn-unused-configs --no-strict-optional \
-		${PACKAGE} sandbox tests
+		${PACKAGE} tests
 
 run-tox:
 	tox --verbose --parallel all

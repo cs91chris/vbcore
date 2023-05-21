@@ -56,7 +56,7 @@ bandit:
     - pylint
     - mypy
   script:
-    - make bandit-report bandit
+    - make bandit-report
   artifacts:
     when: always
     paths:

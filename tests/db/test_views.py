@@ -29,8 +29,8 @@ def test_create_view(connector, support):
     support.register_custom_handlers(connector.engine)
 
     select = sa.select(
-        sa.literal_column("1 AS id"),
-        sa.literal_column("'name' AS name"),
+        sa.literal_column("1").label("id"),
+        sa.literal_column("'name'").label("name"),
     )
     DDLCreateView(name=view_name, metadata=connector.metadata, select=select)
 
