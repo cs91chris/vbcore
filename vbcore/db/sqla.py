@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 class SQLAConnector:
     metadata = sa.MetaData()
+    views_metadata = sa.MetaData()
     session_class = scoped_session
 
     def __init__(
@@ -39,11 +40,14 @@ class SQLAConnector:
             callback = partial(loader.load_values, session)
             Listener.register_after_create(loader.__table__, callback)
 
-    def create_all(self, loaders: LoadersType = ()):
+    def create_all(self, loaders: LoadersType = ()) -> None:
         if loaders:
             with self.connection() as session:
                 self.register_loaders(session, loaders)
         self.metadata.create_all(self.engine)
+
+    def drop_all(self) -> None:
+        self.metadata.drop_all(self.engine)
 
     def get_session(self, **options) -> SessionType:
         if options:
@@ -108,10 +112,18 @@ class Model(BaseModel):
     pass
 
 
+@as_declarative(metadata=SQLAConnector.views_metadata)
+class ViewModel(BaseModel):
+    """
+    NOTE: the models that maps the views must be in a separate declarative base
+    so the views are not affected by create_all and drop_all
+    """
+
+
 class LoaderModel(Model):
     __abstract__ = True
 
-    values: t.Tuple[StrDict, ...] = ()
+    values: t.Sequence[StrDict] = ()
 
     @classmethod
     def load_values(cls, session: Session, *_, **__):
