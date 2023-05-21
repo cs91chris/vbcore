@@ -3,13 +3,14 @@ import tempfile
 import typing as t
 from dataclasses import dataclass
 
+from vbcore.datastruct.lazy import LazyImporter
 from vbcore.exceptions import VBException
 from vbcore.types import OptStr
 
-try:
-    from chardet import UniversalDetector as Detector
-except ImportError:  # pragma: no cover
-    Detector = None  # type: ignore
+Detector = LazyImporter.do_import(
+    "chardet:UniversalDetector",
+    message="'chardet' required, install it!",
+)
 
 
 @dataclass(frozen=True)
@@ -86,7 +87,6 @@ class FileHandler:
             return file.read()
 
     def detect_encoding(self, filename: OptStr = None) -> EncodingData:
-        assert Detector is not None, "'chardet' required, install it!"
         detector = Detector()
         with self.open_binary(filename) as file:
             for line in file:

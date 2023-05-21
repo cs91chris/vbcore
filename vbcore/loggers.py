@@ -37,9 +37,17 @@ class Loggers:
             logging.basicConfig(**kwargs)
 
         if self.config.listen_for_reload:
-            listener = logging.config.listen(self.config.listener_port)
+            listener = logging.config.listen(
+                port=self.config.listener_port,
+                verify=self.verify_config_from_socket,
+            )
             listener.daemon = self.config.listener_daemon
             listener.start()
+
+    def verify_config_from_socket(self, data: bytes) -> bytes | None:
+        # TODO no default implementation provided
+        _ = self
+        return data
 
     @classmethod
     @contextmanager

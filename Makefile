@@ -35,7 +35,7 @@ security: safety liccheck
 radon: radon-cc radon-hal radon-mi radon-raw
 cqa: radon-cc-report bandit-report radon bandit
 format: autoflake black isort
-dev: format lint security test
+dev: format lint security bandit test
 
 
 compile-deps:
@@ -154,9 +154,7 @@ test-coverage:
 		tests
 
 bandit:
-	bandit \
-		--skip B101 \
-		-r ${PACKAGE}
+	bandit -r ${PACKAGE}
 
 bandit-report:
 	bandit -f html \
