@@ -1,5 +1,6 @@
 import asyncio
-from unittest.mock import AsyncMock, MagicMock, patch
+import sys
+from unittest.mock import ANY, AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -119,8 +120,13 @@ def test_execute(mock_asyncio, debug, expected):
     coro = sample_aio_func()
     mock_value = MagicMock()
     mock_asyncio.run.return_value = mock_value
+    mock_asyncio.Runner.return_value = mock_value
 
     return_value = aio.execute(coro, debug=debug)
 
-    mock_asyncio.run.assert_called_once_with(coro, debug=expected)
-    Asserter.assert_is(return_value, mock_value)
+    if sys.version_info < (3, 11):
+        Asserter.assert_is(return_value, mock_value)
+        mock_asyncio.run.assert_called_once_with(coro, debug=expected)
+    else:
+        mock_asyncio.Runner.assert_called_once_with(loop_factory=ANY, debug=debug)
+        # TODO assert the context manager
