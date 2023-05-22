@@ -8,7 +8,7 @@ from sqlalchemy.sql import text as text_sql
 
 from vbcore.db.events import register_error_handlers
 from vbcore.db.sqla import Model
-from vbcore.db.views import register_views_compiler
+from vbcore.db.views import DDLViewCompiler
 from vbcore.files import FileHandler
 from vbcore.types import StrTuple
 
@@ -138,7 +138,7 @@ class SQLASupport:
     @classmethod
     def register_custom_handlers(cls, engine):
         register_error_handlers(engine)
-        register_views_compiler()
+        DDLViewCompiler().register()
 
     @classmethod
     def exec_from_file(

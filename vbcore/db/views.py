@@ -19,6 +19,10 @@ class DDLView(DDLElement):
         self.name = name
         self.schema = schema
 
+    @property
+    def view_name(self) -> str:
+        return f"{self.schema}.{self.name}" if self.schema else self.name
+
 
 class DDLDropView(DDLView):
     pass
@@ -38,9 +42,9 @@ class DDLCreateView(DDLView):
         self.select = select
         self.drop_class = drop_class
         if metadata is not None:
-            self.register_listener(metadata)
+            self.register_listeners(metadata)
 
-    def register_listener(self, metadata: MetaData):
+    def register_listeners(self, metadata: MetaData):
         ddl_drop = self.drop_class(self.name, self.schema)
         Listener.register_before_drop(metadata, ddl_drop)
         # emit a "drop" and a "create" for better compatibility
@@ -48,18 +52,24 @@ class DDLCreateView(DDLView):
         Listener.register_after_create(metadata, self)
 
 
-def register_views_compiler(
-    create_class: Type[DDLCreateView] = DDLCreateView,
-    drop_class: Type[DDLDropView] = DDLDropView,
-) -> None:
-    def view_name(element: DDLView) -> str:
-        return f"{element.schema}.{element.name}" if element.schema else element.name
+class DDLViewCompiler:
+    def __init__(
+        self,
+        create_class: Type[DDLCreateView] = DDLCreateView,
+        drop_class: Type[DDLDropView] = DDLDropView,
+    ):
+        self.create_class = create_class
+        self.drop_class = drop_class
 
-    @compiles(create_class)
-    def create_view(element: DDLCreateView, compiler: SQLCompiler, **__) -> str:
+    @classmethod
+    def create_view(cls, element: DDLCreateView, compiler: SQLCompiler, **__) -> str:
         query = compiler.sql_compiler.process(element.select, literal_binds=True)
-        return f"CREATE VIEW {view_name(element)} AS {query}"
+        return f"CREATE VIEW {element.view_name} AS {query}"
 
-    @compiles(drop_class)
-    def drop_view(element: DDLDropView, _: SQLCompiler, **__) -> str:
-        return f"DROP VIEW IF EXISTS {view_name(element)}"
+    @classmethod
+    def drop_view(cls, element: DDLDropView, _: SQLCompiler, **__) -> str:
+        return f"DROP VIEW IF EXISTS {element.view_name}"
+
+    def register(self) -> None:
+        compiles(self.create_class)(self.create_view)
+        compiles(self.drop_class)(self.drop_view)
