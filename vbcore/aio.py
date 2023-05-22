@@ -36,9 +36,22 @@ def get_event_loop(*, nested: bool = False) -> asyncio.AbstractEventLoop:
     return loop
 
 
-def execute(main: t.Coroutine, *, debug: bool = False) -> t.Any:
+def execute(
+    main: t.Coroutine,
+    *,
+    debug: bool = False,
+    loop_factory: t.Optional[t.Callable[[], asyncio.AbstractEventLoop]] = None,
+    signals_handler: t.Optional[t.Callable[[asyncio.AbstractEventLoop], None]] = None,
+) -> t.Any:
     """
     It should be used as a main entry point for asyncio programs
     and should ideally only be called once
     """
-    return asyncio.run(main, debug=debug or None)
+    if sys.version_info < (3, 11):
+        return asyncio.run(main, debug=debug or None)
+
+    _loop_factory = loop_factory or get_event_loop
+    with asyncio.Runner(loop_factory=_loop_factory, debug=debug) as service:
+        if signals_handler is not None:
+            signals_handler(service.get_loop())
+        return service.run(main)
