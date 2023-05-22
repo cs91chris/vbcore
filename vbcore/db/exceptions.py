@@ -15,7 +15,11 @@
 """
 Define exception redefinitions for SQLAlchemy DBAPI exceptions
 """
+from typing import Optional
+
 from sqlalchemy.exc import SQLAlchemyError
+
+from vbcore.types import OptAny, OptExc, OptStr, StrList
 
 
 class DBError(SQLAlchemyError):
@@ -23,11 +27,15 @@ class DBError(SQLAlchemyError):
     Base exception for all custom database exceptions.
     """
 
-    def __init__(self, inner_exception=None):
+    default_message: OptStr = None
+
+    def __init__(self, inner_exception: OptExc = None, message: OptStr = None):
         """
         @param inner_exception: an original exception which was wrapped
             with DBError or its subclasses
+        @param message: a given error message
         """
+        self.message = message or self.default_message
         self.inner_exception = inner_exception
         super().__init__(str(inner_exception))
 
@@ -38,95 +46,69 @@ class DBError(SQLAlchemyError):
     def as_dict(self) -> dict:
         return {
             "error": self.error_type,
-            "message": (
-                ", ".join(self.inner_exception.args)
-                if isinstance(self.inner_exception, Exception)
-                else self.inner_exception
-            ),
+            "message": self.message,
         }
 
 
 class DBDuplicateEntry(DBError):
-    """
-    Duplicate entry at unique column error.
-    Raised when made an attempt to write to a unique column the same entry as
-    existing one. :attr: `columns` available on an instance of the exception
-    and could be used at error handling::
-       try:
-           instance_type_ref.save()
-       except DBDuplicateEntry as e:
-           if 'colname' in e.columns:
-               # Handle error
-    """
-
-    def __init__(self, columns=None, value=None, inner_exception=None):
-        """
-        @param columns: a list of unique columns have been attempted to write
-            a duplicate entry.
-        @param value: a value which has been attempted to write. The value will be None,
-            if we can't extract it for a particular database backend.
-            Only MySQL and PostgreSQL 9.x are supported right now.
-        @param inner_exception:
-        """
+    def __init__(
+        self,
+        columns: Optional[StrList] = None,
+        value: OptAny = None,
+        inner_exception: OptExc = None,
+        message: OptStr = None,
+    ):
         self.value = value
         self.columns = columns or []
-        super().__init__(inner_exception)
+        super().__init__(inner_exception, message)
 
     def as_dict(self):
         return {
-            "error": self.error_type,
+            **super().as_dict(),
             "columns": self.columns,
             "value": self.value,
         }
 
 
 class DBConstraintError(DBError):
-    """
-    Check constraint fails for column error.
-    Raised when made an attempt to write to a column a value that does not
-    satisfy a CHECK constraint.
-    """
-
-    def __init__(self, table, check_name, inner_exception=None):
-        """
-        @param table: the table name for which the check fails
-        @param check_name: the table of the check that failed to be satisfied
-        @param inner_exception:
-        """
+    def __init__(
+        self,
+        table: str,
+        check_name: str,
+        inner_exception: OptExc = None,
+        message: OptStr = None,
+    ):
         self.table = table
         self.check_name = check_name
-        super().__init__(inner_exception)
+        super().__init__(inner_exception, message)
 
     def as_dict(self) -> dict:
         return {
-            "error": self.error_type,
+            **super().as_dict(),
             "table": self.table,
             "check_name": self.check_name,
         }
 
 
 class DBReferenceError(DBError):
-    """
-    Foreign key violation error.
-    """
-
-    def __init__(self, table, constraint, key, key_table, inner_exception=None):
-        """
-        @param table: a table name in which the reference is directed.
-        @param constraint: a problematic constraint name.
-        @param key: a broken reference key name.
-        @param key_table: a table name which contains the key.
-        @param inner_exception:
-        """
+    def __init__(
+        self,
+        table: str,
+        constraint: str,
+        key: str,
+        key_table: str,
+        inner_exception: OptExc = None,
+        message: OptStr = None,
+    ):
         self.key = key
         self.table = table
         self.key_table = key_table
         self.constraint = constraint
-        super().__init__(inner_exception)
+        super().__init__(inner_exception, message)
 
     def as_dict(self) -> dict:
         return {
-            "error": self.error_type,
+            **super().as_dict(),
             "table": self.table,
             "key_table": self.key_table,
             "key": self.key,
@@ -135,103 +117,74 @@ class DBReferenceError(DBError):
 
 
 class DBNonExistentConstraint(DBError):
-    """
-    Constraint does not exist.
-    """
-
-    def __init__(self, table, constraint, inner_exception=None):
-        """
-        @param table: table name
-        @param constraint: constraint name
-        @param inner_exception:
-        """
+    def __init__(
+        self,
+        table: str,
+        constraint: str,
+        inner_exception: OptExc = None,
+        message: OptStr = None,
+    ):
         self.table = table
         self.constraint = constraint
-        super().__init__(inner_exception)
+        super().__init__(inner_exception, message)
 
     def as_dict(self) -> dict:
         return {
-            "error": self.error_type,
+            **super().as_dict(),
             "table": self.table,
             "constraint": self.constraint,
         }
 
 
 class DBNonExistentTable(DBError):
-    """
-    Table does not exist.
-    """
-
-    def __init__(self, table, inner_exception=None):
-        """
-        @param table: table name
-        @param inner_exception:
-        """
+    def __init__(
+        self,
+        table: str,
+        inner_exception: OptExc = None,
+        message: OptStr = None,
+    ):
         self.table = table
-        super().__init__(inner_exception)
+        super().__init__(inner_exception, message)
 
     def as_dict(self) -> dict:
         return {
-            "error": self.error_type,
+            **super().as_dict(),
             "table": self.table,
         }
 
 
 class DBNonExistentDatabase(DBError):
-    """
-    Database does not exist.
-    """
-
-    def __init__(self, database, inner_exception=None):
-        """
-        @param database: database name
-        @param inner_exception:
-        """
+    def __init__(
+        self,
+        database: str,
+        inner_exception: OptExc = None,
+        message: OptStr = None,
+    ):
         self.database = database
-        super().__init__(inner_exception)
+        super().__init__(inner_exception, message)
 
     def as_dict(self) -> dict:
         return {
-            "error": self.error_type,
+            **super().as_dict(),
             "database": self.database,
         }
 
 
-class DBDeadlock(DBError):
-    """
-    Database deadlock error.
-    Deadlock is a situation that occurs when two or more different database
-    sessions have some data locked, and each database session requests a lock
-    on the data that another, different, session has already locked.
-    """
-
-
 class DBInvalidUnicodeParameter(DBError):
-    """
-    Database unicode error.
-    Raised when unicode parameter is passed to a database
-    without encoding directive.
-    """
-
-    def __init__(self):
-        super().__init__("Invalid Parameter: Encoding directive wasn't provided.")
-
-
-class DBConnectionError(DBError):
-    """
-    Wrapped connection specific exception.
-    Raised when database connection is failed.
-    """
+    default_message = "invalid parameter: encoding directive was not provided"
 
 
 class DBDataError(DBError):
-    """
-    Raised for errors that are due to problems with the processed data.
-    E.g. division by zero, numeric value out of range, incorrect data type, etc
-    """
+    default_message = "an error on data occurred on database"
 
 
 class DBNotSupportedError(DBError):
-    """
-    Raised when a database backend has raised sqla.exc.NotSupportedError
-    """
+    default_message = "operation not supported on database"
+
+
+class DBDeadlock(DBError):
+    default_message = "a deadlock occurred on database"
+
+
+class DBConnectionError(DBError):
+    default_message = "database connection error"

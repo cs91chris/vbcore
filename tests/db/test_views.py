@@ -48,7 +48,4 @@ def test_create_view(connector, support):
         with pytest.raises(DBNonExistentTable) as error:
             session.query(SampleModel).all()
 
-        Asserter.assert_equals(
-            error.value.as_dict(),
-            {"error": "DBNonExistentTable", "table": view_name},
-        )
+        Asserter.assert_equals(error.value.table, view_name)

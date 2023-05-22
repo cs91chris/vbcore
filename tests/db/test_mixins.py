@@ -37,7 +37,6 @@ def test_catalog_mixin_constraint(connector, support):
         )
     support.session.rollback()
 
-    Asserter.assert_equals(
-        error.value.as_dict(),
-        {"error": "DBDuplicateEntry", "columns": ["code", "type_id"], "value": None},
-    )
+    Asserter.assert_equals(error.value.error_type, "DBDuplicateEntry")
+    Asserter.assert_equals(error.value.columns, ["code", "type_id"])
+    Asserter.assert_equals(error.value.value, None)

@@ -6,7 +6,7 @@ from sqlalchemy.orm import Query, Session
 from sqlalchemy.orm.exc import NoResultFound as NoResultError
 from sqlalchemy.sql import text as text_sql
 
-from vbcore.db.events import register_error_handlers
+from vbcore.db.events import ErrorsHandler
 from vbcore.db.sqla import Model
 from vbcore.db.views import DDLViewCompiler
 from vbcore.files import FileHandler
@@ -112,7 +112,7 @@ class SQLASupport:
             self.session.commit()
         return row_count
 
-    def bulk_insert(self, records: t.Iterable[Model]):
+    def bulk_insert(self, records: t.Iterable[Model]) -> None:
         self.session.add_all(records)
         if self._commit:
             self.session.commit()
@@ -123,7 +123,7 @@ class SQLASupport:
             for pk_item in inspect(self.model).primary_key  # type: ignore
         )
 
-    def bulk_upsert(self, records: t.Iterable[Model]):
+    def bulk_upsert(self, records: t.Iterable[Model]) -> None:
         entities = {self.get_primary_key(record): record for record in records}
 
         pk_cols = self.get_primary_key()
@@ -136,8 +136,8 @@ class SQLASupport:
             self.session.commit()
 
     @classmethod
-    def register_custom_handlers(cls, engine):
-        register_error_handlers(engine)
+    def register_custom_handlers(cls, engine) -> None:
+        ErrorsHandler.register(engine)
         DDLViewCompiler().register()
 
     @classmethod
@@ -148,7 +148,7 @@ class SQLASupport:
         echo: bool = False,
         separator: str = ";\n",
         skip_line_prefixes: StrTuple = ("--",),
-    ):
+    ) -> None:
         engine = create_engine(url, echo=echo)
         with engine.connect() as conn, FileHandler().open(filename) as f:
             for statement in f.read().split(separator):

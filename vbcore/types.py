@@ -6,6 +6,7 @@ OptStr = Optional[str]
 OptInt = Optional[int]
 OptBool = Optional[bool]
 OptFloat = Optional[float]
+OptExc = Optional[Exception]
 
 StrDict = Dict[str, Any]
 IntDict = Dict[int, Any]

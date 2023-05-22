@@ -13,6 +13,7 @@ from vbcore.tester.asserter import Asserter
                 "error": "DBDuplicateEntry",
                 "columns": ["col-1"],
                 "value": "value",
+                "message": None,
             },
         ),
         (
@@ -21,6 +22,7 @@ from vbcore.tester.asserter import Asserter
                 "error": "DBConstraintError",
                 "table": "users",
                 "check_name": "constraint-1",
+                "message": None,
             },
         ),
         (
@@ -31,6 +33,7 @@ from vbcore.tester.asserter import Asserter
                 "constraint": "constraint-1",
                 "key": "col-1",
                 "key_table": "key-table-1",
+                "message": None,
             },
         ),
         (
@@ -39,6 +42,7 @@ from vbcore.tester.asserter import Asserter
                 "error": "DBNonExistentConstraint",
                 "table": "users",
                 "constraint": "constraint-1",
+                "message": None,
             },
         ),
         (
@@ -46,6 +50,7 @@ from vbcore.tester.asserter import Asserter
             {
                 "error": "DBNonExistentTable",
                 "table": "users",
+                "message": None,
             },
         ),
         (
@@ -53,13 +58,42 @@ from vbcore.tester.asserter import Asserter
             {
                 "error": "DBNonExistentDatabase",
                 "database": "database",
+                "message": None,
             },
         ),
         (
             exc.DBInvalidUnicodeParameter(),
             {
                 "error": "DBInvalidUnicodeParameter",
-                "message": "Invalid Parameter: Encoding directive wasn't provided.",
+                "message": exc.DBInvalidUnicodeParameter.default_message,
+            },
+        ),
+        (
+            exc.DBDataError(),
+            {
+                "error": "DBDataError",
+                "message": exc.DBDataError.default_message,
+            },
+        ),
+        (
+            exc.DBNotSupportedError(),
+            {
+                "error": "DBNotSupportedError",
+                "message": exc.DBNotSupportedError.default_message,
+            },
+        ),
+        (
+            exc.DBDeadlock(),
+            {
+                "error": "DBDeadlock",
+                "message": exc.DBDeadlock.default_message,
+            },
+        ),
+        (
+            exc.DBConnectionError(),
+            {
+                "error": "DBConnectionError",
+                "message": exc.DBConnectionError.default_message,
             },
         ),
     ],
@@ -71,6 +105,10 @@ from vbcore.tester.asserter import Asserter
         "DBNonExistentTable",
         "DBNonExistentDatabase",
         "DBInvalidUnicodeParameter",
+        "DBDataError",
+        "DBNotSupportedError",
+        "DBDeadlock",
+        "DBConnectionError",
     ],
 )
 def test_custom_exceptions(exception, data):
@@ -85,7 +123,7 @@ def test_custom_exceptions(exception, data):
             exc.DBError,
             {
                 "error": "DBError",
-                "message": '(sqlite3.OperationalError) near "FAIL": syntax error',
+                "message": None,
             },
         ),
         (
@@ -94,6 +132,7 @@ def test_custom_exceptions(exception, data):
             {
                 "error": "DBNonExistentTable",
                 "table": "table_not_found",
+                "message": None,
             },
         ),
     ],

@@ -17,12 +17,13 @@
 #    under the License.
 
 import collections
-import logging
 import re
 import sys
 import typing as t
+from dataclasses import dataclass
 
 from sqlalchemy import exc as sqla_exc
+from sqlalchemy.engine.interfaces import ExceptionContext
 from sqlalchemy.exc import DBAPIError
 
 from vbcore.db.exceptions import (
@@ -41,19 +42,24 @@ from vbcore.db.exceptions import (
 )
 from vbcore.db.listener import Listener
 
-LOG = logging.getLogger(__name__)
-
 ROLLBACK_CAUSE_KEY = "vbcore.db.sp_rollback_cause"
 
 ExcType = t.Union[t.Type[DBAPIError], t.Type[Exception]]
-FilterType = t.Callable[[ExcType, re.Match, str, bool], None]
+FilterType = t.Callable[["ExceptionData"], None]
 
 __REGISTRY: t.Dict[
     str, t.Dict[ExcType, t.List[t.Tuple[FilterType, re.Pattern]]]
 ] = collections.defaultdict(lambda: collections.defaultdict(list))
 
 
-def try_match(match, key):
+@dataclass(frozen=True)
+class ExceptionData:
+    exc: Exception
+    match: re.Match
+    context: ExceptionContext
+
+
+def try_match(match: re.Match, key: str):
     try:
         return match.group(key)
     except IndexError:
@@ -79,11 +85,6 @@ def filters(dbname: str, exception_type: ExcType, *regexes: str) -> t.Callable:
     return _receive
 
 
-# NOTE(zzzeek) - for Postgresql, catch both OperationalError, as the
-# actual error is
-# psycopg2.extensions.TransactionRollbackError(OperationalError),
-# as well as sqlalchemy.exc.DBAPIError, as SQLAlchemy will reraise it
-# as this until issue #3075 is fixed.
 @filters(
     "mysql",
     sqla_exc.OperationalError,
@@ -98,15 +99,7 @@ def filters(dbname: str, exception_type: ExcType, *regexes: str) -> t.Callable:
     "mysql",
     sqla_exc.InternalError,
     r"^.*\b1213\b.*Deadlock found.*",
-)
-@filters(
-    "mysql",
-    sqla_exc.InternalError,
     r"^.*\b1213\b.*detected deadlock/conflict.*",
-)
-@filters(
-    "mysql",
-    sqla_exc.InternalError,
     r"^.*\b1213\b.*Deadlock: wsrep aborted.*",
 )
 @filters(
@@ -119,11 +112,9 @@ def filters(dbname: str, exception_type: ExcType, *regexes: str) -> t.Callable:
     sqla_exc.DBAPIError,
     r"^.*deadlock detected.*",
 )
-def _deadlock_error(operational_error, match, engine_name, is_disconnect):
+def _deadlock_error(data: ExceptionData):
     """
     Filter for MySQL or Postgresql deadlock error.
-    NOTE(comstud): In current versions of DB backends, Deadlock violation
-    messages follow the structure:
 
     mysql+mysqldb::
         (OperationalError) (1213, 'Deadlock found when trying to get lock; '
@@ -134,18 +125,13 @@ def _deadlock_error(operational_error, match, engine_name, is_disconnect):
     postgresql::
         (TransactionRollbackError) deadlock detected <deadlock_details>
     """
-    _ = match, engine_name, is_disconnect
-    raise DBDeadlock(operational_error)
+    raise DBDeadlock(data.exc)
 
 
 @filters(
     "mysql",
     sqla_exc.IntegrityError,
     r"^.*\b1062\b.*Duplicate entry '(?P<value>.*)' for key '(?P<columns>[^']+)'.*$",
-)
-@filters(
-    "mysql",
-    sqla_exc.IntegrityError,
     r"^.*\b1062\b.*Duplicate entry \\'(?P<value>.*)\\' for key \\'(?P<columns>.+)\\'.*$",
 )
 @filters(
@@ -157,11 +143,9 @@ def _deadlock_error(operational_error, match, engine_name, is_disconnect):
     ),
     r"^.*duplicate\s+key.*\"(?P<columns>[^\"]+)\"\s*\n.*$",
 )
-def _default_dupe_key_error(integrity_error, match, engine_name, is_disconnect):
+def _default_dupe_key_error(data: ExceptionData):
     """
     Filter for MySQL or Postgresql duplicate key error.
-    note(boris-42): In current versions of DB backends unique constraint
-    violation messages follow the structure:
 
     postgres:
     1 column - (IntegrityError) duplicate key value violates unique
@@ -184,12 +168,9 @@ def _default_dupe_key_error(integrity_error, match, engine_name, is_disconnect):
     N columns - (IntegrityError) 1062 (23000): Duplicate entry 'values
                joined with -' for key 'name_of_our_constraint'
     """
-    _ = is_disconnect
-    columns = match.group("columns")
+    engine_name = data.context.engine.dialect.name
+    columns = data.match.group("columns")
 
-    # note(vsergeyev): UniqueConstraint name convention: "uniq_t0c10c2"
-    #                  where `t` it is table name and columns `c1`, `c2`
-    #                  are in UniqueConstraint.
     unique_base = "uniq_"
     if not columns.startswith(unique_base):
         if engine_name == "postgresql":
@@ -201,8 +182,8 @@ def _default_dupe_key_error(integrity_error, match, engine_name, is_disconnect):
     else:
         columns = columns[len(unique_base) :].split("0")[1:]
 
-    value = match.groupdict().get("value")
-    raise DBDuplicateEntry(columns, value, integrity_error)
+    value = data.match.groupdict().get("value")
+    raise DBDuplicateEntry(columns, value, data.exc)
 
 
 @filters(
@@ -212,14 +193,7 @@ def _default_dupe_key_error(integrity_error, match, engine_name, is_disconnect):
     r"^.*UNIQUE\s+constraint\s+failed:\s+(?P<columns>.+)$",
     r"^.*PRIMARY\s+KEY\s+must\s+be\s+unique.*$",
 )
-@filters(
-    "sqlite",
-    sqla_exc.IntegrityError,
-    r"^.*columns?(?P<columns>[^)]+)(is|are)\s+not\s+unique$",
-    r"^.*UNIQUE\s+constraint\s+failed:\s+(?P<columns>.+)$",
-    r"^.*PRIMARY\s+KEY\s+must\s+be\s+unique.*$",
-)
-def _sqlite_dupe_key_error(integrity_error, match, engine_name, is_disconnect):
+def _sqlite_dupe_key_error(data: ExceptionData):
     """
     Filter for SQLite duplicate key error.
     note(boris-42): In current versions of DB backends unique constraint
@@ -234,19 +208,13 @@ def _sqlite_dupe_key_error(integrity_error, match, engine_name, is_disconnect):
     sqlite since 3.8.2:
     (IntegrityError) PRIMARY KEY must be unique
     """
-    _ = engine_name, is_disconnect
-    columns = []
-    # NOTE(ochuprykov): We can get here by last filter in which there are no
-    #                   groups. Trying to access the substring that matched by
-    #                   the group will lead to IndexError. In this case just
-    #                   pass empty list to DBDuplicateEntry
     try:
-        columns = match.group("columns")
-        columns = [c.split(".")[-1] for c in columns.strip().split(", ")]
+        _columns = data.match.group("columns").strip()
+        columns = [c.split(".")[-1] for c in _columns.split(", ")]
     except IndexError:
-        pass
+        columns = []
 
-    raise DBDuplicateEntry(columns, inner_exception=integrity_error)
+    raise DBDuplicateEntry(columns, inner_exception=data.exc)
 
 
 @filters(
@@ -275,14 +243,13 @@ def _sqlite_dupe_key_error(integrity_error, match, engine_name, is_disconnect):
         r'\([`"](?P<key>.+)[`"]\) REFERENCES [`"](?P<key_table>.+)[`"] '
     ),
 )
-def _foreign_key_error(integrity_error, match, engine_name, is_disconnect):
-    _ = engine_name, is_disconnect
+def _foreign_key_error(data: ExceptionData):
     raise DBReferenceError(
-        try_match(match, "table"),
-        try_match(match, "constraint"),
-        try_match(match, "key"),
-        try_match(match, "key_table"),
-        integrity_error,
+        try_match(data.match, "table"),
+        try_match(data.match, "constraint"),
+        try_match(data.match, "key"),
+        try_match(data.match, "key_table"),
+        data.exc,
     )
 
 
@@ -295,12 +262,11 @@ def _foreign_key_error(integrity_error, match, engine_name, is_disconnect):
         '"(?P<check_name>.+)"'
     ),
 )
-def _check_constraint_error(integrity_error, match, engine_name, is_disconnect):
-    _ = engine_name, is_disconnect
+def _check_constraint_error(data: ExceptionData):
     raise DBConstraintError(
-        try_match(match, "table"),
-        try_match(match, "check_name"),
-        integrity_error,
+        try_match(data.match, "table"),
+        try_match(data.match, "check_name"),
+        data.exc,
     )
 
 
@@ -316,6 +282,7 @@ def _check_constraint_error(integrity_error, match, engine_name, is_disconnect):
 @filters(
     "mysql",
     sqla_exc.InternalError,
+    r".*1025,.*Error on rename of '.+/(?P<relation>.+)' to ",
     (
         ".*1091,.*Can't DROP (?:FOREIGN KEY )?['`](?P<constraint>.+)['`]; "
         "check that .* exists"
@@ -329,19 +296,11 @@ def _check_constraint_error(integrity_error, match, engine_name, is_disconnect):
         "check that .* exists"
     ),
 )
-@filters(
-    "mysql",
-    sqla_exc.InternalError,
-    r".*1025,.*Error on rename of '.+/(?P<relation>.+)' to ",
-)
-def _check_constraint_non_existing(
-    programming_error, match, engine_name, is_disconnect
-):
-    _ = engine_name, is_disconnect
+def _check_constraint_non_existing(data: ExceptionData):
     raise DBNonExistentConstraint(
-        try_match(match, "relation"),
-        try_match(match, "constraint"),
-        programming_error,
+        try_match(data.match, "relation"),
+        try_match(data.match, "constraint"),
+        data.exc,
     )
 
 
@@ -365,9 +324,8 @@ def _check_constraint_non_existing(
     sqla_exc.ProgrammingError,
     r".* table \"(?P<table>.+)\" does not exist",
 )
-def _check_table_non_existing(programming_error, match, engine_name, is_disconnect):
-    _ = engine_name, is_disconnect
-    raise DBNonExistentTable(match.group("table"), programming_error)
+def _check_table_non_existing(data: ExceptionData):
+    raise DBNonExistentTable(data.match.group("table"), data.exc)
 
 
 @filters(
@@ -390,24 +348,17 @@ def _check_table_non_existing(programming_error, match, engine_name, is_disconne
     sqla_exc.OperationalError,
     r".*unable to open database file.*",
 )
-def _check_database_non_existing(error, match, engine_name, is_disconnect):
-    _ = engine_name, is_disconnect
-    raise DBNonExistentDatabase(try_match(match, "database"), error)
+def _check_database_non_existing(data: ExceptionData):
+    raise DBNonExistentDatabase(try_match(data.match, "database"), data.exc)
 
 
-@filters(
-    "mysql",
-    sqla_exc.DBAPIError,
-    r".*\b1146\b",
-)
-def _raise_mysql_table_doesnt_exist_as_is(error, match, engine_name, is_disconnect):
+@filters("mysql", sqla_exc.DBAPIError, r".*\b1146\b")
+def _raise_mysql_table_doesnt_exist_as_is(data: ExceptionData):
     """
-    Raise MySQL error 1146 as is.
     Raise MySQL error 1146 as is, so that it does not conflict with
     the MySQL dialect's checking a table not existing.
     """
-    _ = match, engine_name, is_disconnect
-    raise error
+    raise data.exc
 
 
 @filters(
@@ -419,11 +370,8 @@ def _raise_mysql_table_doesnt_exist_as_is(error, match, engine_name, is_disconne
     "mysql",
     sqla_exc.DataError,
     r".*1265.*Data truncated for column.*",
-)
-@filters(
-    "mysql",
-    sqla_exc.DataError,
     r".*1264.*Out of range value for column.*",
+    r".*1406.*Data too long for column.*",
 )
 @filters(
     "mysql",
@@ -435,14 +383,8 @@ def _raise_mysql_table_doesnt_exist_as_is(error, match, engine_name, is_disconne
     sqla_exc.ProgrammingError,
     r"(?i).*You must not use 8-bit bytestrings*",
 )
-@filters(
-    "mysql",
-    sqla_exc.DataError,
-    r".*1406.*Data too long for column.*",
-)
-def _raise_data_error(error, match, engine_name, is_disconnect):
-    _ = match, engine_name, is_disconnect
-    raise DBDataError(error)
+def _raise_data_error(data: ExceptionData):
+    raise DBDataError(data.exc)
 
 
 @filters(
@@ -450,25 +392,15 @@ def _raise_data_error(error, match, engine_name, is_disconnect):
     sqla_exc.OperationalError,
     r".*\(1305,\s+\'SAVEPOINT\s+(.+)\s+does not exist\'\)",
 )
-def _raise_savepoints_as_dberrors(error, match, engine_name, is_disconnect):
-    # NOTE(rpodolyaka): this is a special case of an OperationalError that used
-    # to be an InternalError. It's expected to be wrapped into oslo.db error.
-    _ = match, engine_name, is_disconnect
-    raise DBError(error)
+def _raise_savepoint_as_db_error(data: ExceptionData):
+    raise DBError(data.exc)
 
 
 @filters("*", sqla_exc.OperationalError, r".*")
-def _raise_operational_errors_directly_filter(
-    operational_error, match, engine_name, is_disconnect
-):
-    _ = match, engine_name
-    if is_disconnect:
-        # operational errors that represent disconnect
-        # should be wrapped
-        raise DBConnectionError(operational_error)
-    # NOTE(comstud): A lot of code is checking for OperationalError
-    # so let's not wrap it for now.
-    raise DBError(operational_error)
+def _raise_operational_errors_directly_filter(data: ExceptionData):
+    if data.context.is_disconnect:
+        raise DBConnectionError(data.exc)
+    raise DBError(data.exc)
 
 
 @filters(
@@ -480,10 +412,6 @@ def _raise_operational_errors_directly_filter(
     "mysql",
     sqla_exc.InternalError,
     r".*\(.*(?:1927)",
-)
-@filters(
-    "mysql",
-    sqla_exc.InternalError,
     r".*Packet sequence number wrong",
 )
 @filters(
@@ -491,37 +419,30 @@ def _raise_operational_errors_directly_filter(
     sqla_exc.OperationalError,
     r".*could not connect to server",
 )
-def _is_db_connection_error(operational_error, match, engine_name, is_disconnect):
-    _ = match, engine_name, is_disconnect
-    raise DBConnectionError(operational_error)
+def _is_db_connection_error(data: ExceptionData):
+    raise DBConnectionError(data.exc)
 
 
 @filters("*", sqla_exc.NotSupportedError, r".*")
-def _raise_for_not_supported_error(error, match, engine_name, is_disconnect):
-    _ = match, engine_name, is_disconnect
-    raise DBNotSupportedError(error)
+def _raise_for_not_supported_error(data: ExceptionData):
+    raise DBNotSupportedError(data.exc)
 
 
 @filters("*", sqla_exc.DBAPIError, r".*")
-def _raise_for_remaining_db_api_error(error, match, engine_name, is_disconnect):
-    _ = match, engine_name
-    if is_disconnect:
-        raise DBConnectionError(error)
-    LOG.warning("DBAPIError exception wrapped.", exc_info=True)
-    raise DBError(error)
+def _raise_for_remaining_db_api_error(data: ExceptionData):
+    if data.context.is_disconnect:
+        raise DBConnectionError(data.exc)
+    raise DBError(data.exc)
 
 
 @filters("*", UnicodeEncodeError, r".*")
-def _raise_for_unicode_encode(error, match, engine_name, is_disconnect):
-    _ = error, match, engine_name, is_disconnect
+def _raise_for_unicode_encode(_: ExceptionData):
     raise DBInvalidUnicodeParameter()
 
 
 @filters("*", Exception, r".*")
-def _raise_for_all_others(error, match, engine_name, is_disconnect):
-    _ = match, engine_name, is_disconnect
-    LOG.warning("DB exception wrapped.", exc_info=True)
-    raise DBError(error)
+def _raise_for_all_others(data: ExceptionData):
+    raise DBError(data.exc)
 
 
 def _dialect_registries(engine):
@@ -532,18 +453,18 @@ def _dialect_registries(engine):
     yield
 
 
-def _exception_handler(fn, context, exc, regexp):
+def _exception_handler(
+    callback: FilterType,
+    context: ExceptionContext,
+    exc: Exception,
+    regexp: re.Pattern,
+):
     match = regexp.match(exc.args[0])
     if not match:
         return None
 
     try:
-        fn(
-            exc,
-            match,
-            context.engine.dialect.name,
-            context.is_disconnect,
-        )
+        callback(ExceptionData(exc=exc, match=match, context=context))
         return None
     except DBError as dbe:
         if (
@@ -552,7 +473,7 @@ def _exception_handler(fn, context, exc, regexp):
             and not context.connection.invalidated
             and ROLLBACK_CAUSE_KEY in context.connection.info
         ):
-            dbe.cause = context.connection.info.pop(ROLLBACK_CAUSE_KEY)
+            dbe.cause = context.connection.info.pop(ROLLBACK_CAUSE_KEY)  # type: ignore
 
         if isinstance(dbe, DBConnectionError):
             context.is_disconnect = True
@@ -565,50 +486,53 @@ def _exception_handler(fn, context, exc, regexp):
         return dbe
 
 
-def _per_dialect_handler(context, per_dialect):
+def _per_dialect_handler(context: ExceptionContext, per_dialect: dict):
+    """
+    Method resolution order is used so that filter rules indicating a
+    more specific exception class are attempted first.
+    """
     for exc in (context.sqlalchemy_exception, context.original_exception):
         for super_ in exc.__class__.__mro__:
             for fn, regexp in per_dialect.get(super_) or ():
-                handled = _exception_handler(fn, context, exc, regexp)
+                _exception = t.cast(Exception, exc)
+                handled = _exception_handler(fn, context, _exception, regexp)
                 if handled:
                     return handled
     return None
 
 
-def handler(context):
-    """
-    Iterate through available filters and invoke those which match.
-    The first one which raises wins.
-    The order in which the filters are attempted is sorted by specificity-dialect name or "*"
-    exception class per method resolution order (``__mro__``).
-    Method resolution order is used so that filter rules indicating a
-    more specific exception class are attempted first.
-    """
-    for per_dialect in _dialect_registries(context.engine):
-        handled = _per_dialect_handler(context, per_dialect)
-        if handled:
-            return handled
-    return None
+class ErrorsHandler:
+    @classmethod
+    def handler(cls, context: ExceptionContext):
+        """
+        Iterate through available filters and invoke those which match.
+        The first one which returns exception wins.
+        The order in which the filters are attempted is sorted
+        by specificity-dialect name or "*" (for all)
+        """
+        for per_dialect in _dialect_registries(context.engine):
+            handled = _per_dialect_handler(context, per_dialect)
+            if handled:
+                return handled
+        return None
 
+    @classmethod
+    def register(cls, engine) -> None:
+        Listener.register_handle_error(engine, cls.handler, retval=True)
 
-def register_error_handlers(engine):
-    Listener.register_handle_error(engine, handler, retval=True)
+        @Listener.listens_for_rollback_savepoint(engine)
+        def save_cause_on_rollback_savepoint(conn, _, __):
+            exc_info = sys.exc_info()
+            if exc_info[1] and not conn.invalidated:
+                conn.info[ROLLBACK_CAUSE_KEY] = exc_info[1]
+            del exc_info
 
-    @Listener.listens_for_rollback_savepoint(engine)
-    def save_cause_on_rollback_savepoint(conn, name, context):
-        _ = name, context
-        exc_info = sys.exc_info()
-        if exc_info[1] and not conn.invalidated:
-            conn.info[ROLLBACK_CAUSE_KEY] = exc_info[1]
-        del exc_info
+        @Listener.listens_for_rollback(engine)
+        @Listener.listens_for_commit(engine)
+        def pop_cause_on_transaction(conn):
+            if not conn.invalidated:
+                conn.info.pop(ROLLBACK_CAUSE_KEY, None)
 
-    @Listener.listens_for_rollback(engine)
-    @Listener.listens_for_commit(engine)
-    def pop_cause_on_transaction(conn):
-        if not conn.invalidated:
+        @Listener.listens_for_checkin(engine)
+        def pop_cause_on_checkin(_, conn):
             conn.info.pop(ROLLBACK_CAUSE_KEY, None)
-
-    @Listener.listens_for_checkin(engine)
-    def pop_cause_on_checkin(dbapi_conn, connection_record):
-        _ = dbapi_conn
-        connection_record.info.pop(ROLLBACK_CAUSE_KEY, None)
