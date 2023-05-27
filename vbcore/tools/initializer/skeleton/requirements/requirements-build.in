@@ -1,3 +1,7 @@
 tox
 twine
 wheel
+
+# CONSTRAINTS
+# add specific constraints here
+#
