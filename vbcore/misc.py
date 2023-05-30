@@ -2,10 +2,8 @@ import functools
 import math
 import re
 import signal
-import string
 import sys
 import typing as t
-from random import SystemRandom
 from threading import Lock
 
 
@@ -106,10 +104,6 @@ def static_attr(name: str, value):
         return inner
 
     return wrapper
-
-
-def random_string(length: int, alphabet: str = string.printable) -> str:
-    return "".join(SystemRandom().choice(alphabet) for _ in range(length))
 
 
 class Signal:

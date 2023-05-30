@@ -1,6 +1,5 @@
 import operator as op
 import typing as t
-from decimal import Decimal
 
 from vbcore.types import CoupleAny
 
@@ -118,11 +117,3 @@ def chunk_iterator(
             if chunk:
                 yield chunk
             break
-
-
-def format_decimal(value: Decimal, precision: int = 8) -> str:
-    if value.is_zero():
-        return "0"
-
-    str_fmt = f"{{:.{precision}f}}"
-    return str_fmt.format(value).rstrip("0").rstrip(".")
