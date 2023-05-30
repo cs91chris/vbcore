@@ -19,6 +19,7 @@ endef
 
 define req_compile
 	pip-compile $(2) \
+		--resolver=backtracking \
 		--no-emit-trusted-host --no-emit-index-url --build-isolation \
 		-o ${REQ_PATH}/$(1).txt ${REQ_PATH}/$(1).in
 endef
@@ -147,7 +148,7 @@ safety:
 
 liccheck:
 	liccheck \
-		--level CAUTIOUS \
+		--level PARANOID \
 		-r ${REQ_PATH}/requirements.txt
 
 radon-cc:

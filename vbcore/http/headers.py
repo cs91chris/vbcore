@@ -17,6 +17,9 @@ class ContentTypeEnum(StrEnum):
     HTML = f"{TypeEnum.TEXT}/html"
     PLAIN = f"{TypeEnum.TEXT}/plain"
     EXCEL = f"{TypeEnum.APPLICATION}/vnd.ms-excel"
+    BASE64 = f"{TypeEnum.APPLICATION}/base64"
+    YAML = f"{TypeEnum.APPLICATION}/yaml"
+    JS = f"{TypeEnum.APPLICATION}/javascript"
     JAR = f"{TypeEnum.APPLICATION}/java-archive"
     JSON = f"{TypeEnum.APPLICATION}/json"
     PDF = f"{TypeEnum.APPLICATION}/pdf"
@@ -32,8 +35,8 @@ class ContentTypeEnum(StrEnum):
     JSON_PROBLEM = f"{TypeEnum.APPLICATION}/problem+json"
     XML_PROBLEM = f"{TypeEnum.APPLICATION}/problem+xml"
     JSON_HEALTH = f"{TypeEnum.APPLICATION}/health+json"
-    FORM_DATA = "multipart/form-data"
     FORM_URLENCODED = f"{TypeEnum.APPLICATION}/x-www-form-urlencoded"
+    FORM_DATA = "multipart/form-data"
 
 
 class HeaderEnum(IStrEnum):

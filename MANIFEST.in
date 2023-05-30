@@ -1,2 +1,2 @@
 include requirements/*
-include tools/initializer/skeleton/*
+include-recursive vbcore/tools/initializer/skeleton/*
