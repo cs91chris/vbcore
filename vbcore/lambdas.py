@@ -6,6 +6,10 @@ from vbcore.types import CoupleAny
 T = t.TypeVar("T")
 
 
+def identity(item: t.Any) -> t.Any:
+    return item
+
+
 def op_in(a, b) -> bool:
     return a in b
 
@@ -61,6 +65,10 @@ class OpMeta(type):
 
 
 class Op(metaclass=OpMeta):
+    @classmethod
+    def identity(cls, a, *_, **__) -> bool:
+        return identity(a)
+
     @classmethod
     def is_true(cls, a, *_, **__) -> bool:
         return op_is_true(a)
