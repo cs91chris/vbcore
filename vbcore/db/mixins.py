@@ -86,7 +86,7 @@ class UserMixin(StandardMixin):
 
 class ExtraMixin(BaseMixin):
     _json_class = json
-    _extra = sa.Column(sa.Text())
+    _extra: str = sa.Column(sa.Text())  # type: ignore
 
     @property
     def extra(self) -> t.Dict[str, t.Any]:

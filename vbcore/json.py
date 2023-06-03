@@ -5,8 +5,14 @@ from collections import Counter, defaultdict, deque, OrderedDict
 from decimal import Decimal
 from enum import Enum
 from types import SimpleNamespace
+from typing import Any, Callable, Optional, Type, Union
+
+from vbcore.types import CoupleStr, OptInt
+
+OptCallableHook = Optional[Callable[[Any], Any]]
 
 JSONDecodeError = json.JSONDecodeError
+
 
 try:
     # noinspection PyUnresolvedReferences
@@ -172,11 +178,53 @@ class JsonDecoder(
             return data
 
 
-def dumps(data, *args, **kwargs):
-    kwargs.setdefault("cls", JsonEncoder)
-    return json.dumps(data, *args, **kwargs)
+def dumps(
+    data: Any,
+    *,
+    skipkeys: bool = False,
+    ensure_ascii: bool = True,
+    check_circular: bool = True,
+    allow_nan: bool = True,
+    cls: Type[json.JSONEncoder] = JsonEncoder,
+    indent: OptInt = None,
+    separators: Optional[CoupleStr] = None,
+    default: OptCallableHook = None,
+    sort_keys: bool = False,
+    **kwargs,
+) -> str:
+    return json.dumps(
+        data,
+        skipkeys=skipkeys,
+        ensure_ascii=ensure_ascii,
+        check_circular=check_circular,
+        allow_nan=allow_nan,
+        cls=cls,
+        indent=indent,
+        separators=separators,
+        default=default,
+        sort_keys=sort_keys,
+        **kwargs,
+    )
 
 
-def loads(data, *args, **kwargs):
-    kwargs.setdefault("cls", JsonDecoder)
-    return json.loads(data, *args, **kwargs)
+def loads(
+    data: Union[str, bytes, bytearray],
+    *,
+    cls: Type[json.JSONDecoder] = JsonDecoder,
+    object_hook: OptCallableHook = None,
+    parse_float: OptCallableHook = None,
+    parse_int: OptCallableHook = None,
+    parse_constant: OptCallableHook = None,
+    object_pairs_hook: OptCallableHook = None,
+    **kwargs,
+) -> dict:
+    return json.loads(
+        data,
+        cls=cls,
+        object_hook=object_hook,
+        parse_float=parse_float,
+        parse_int=parse_int,
+        parse_constant=parse_constant,
+        object_pairs_hook=object_pairs_hook,
+        **kwargs,
+    )
