@@ -6,7 +6,7 @@ from vbcore.base import BaseDTO
 from vbcore.json import JsonDecoder, JsonEncoder, OptCallableHook
 from vbcore.types import CoupleStr, OptInt
 
-from .base import DictBuilder
+from .base import DictBuilder, RecordType
 
 
 # pylint: disable=too-many-instance-attributes
@@ -30,7 +30,7 @@ class JSONBuilderOptions(BaseDTO):
 
 
 class JSONBuilder(DictBuilder[JSONBuilderOptions]):
-    def to_dict(self, data: str) -> dict:
+    def to_dict(self, data: str) -> RecordType:
         return json.loads(
             data,
             cls=self.options.decoder,
@@ -41,7 +41,7 @@ class JSONBuilder(DictBuilder[JSONBuilderOptions]):
             object_pairs_hook=self.options.object_pairs_hook,
         )
 
-    def to_self(self, data: dict) -> str:
+    def to_self(self, data: RecordType) -> str:
         return json.dumps(
             data,
             skipkeys=self.options.skip_keys,

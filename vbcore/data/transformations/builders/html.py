@@ -4,8 +4,8 @@ from typing import Any, List, TYPE_CHECKING
 from defusedxml.ElementTree import XML
 
 from vbcore.base import BaseDTO
-from vbcore.csvfile import RecordType
-from vbcore.data.transformations.builders.base import DictBuilder
+from vbcore.data.transformations.builders.base import DictBuilder, RecordType
+from vbcore.misc import parse_value
 from vbcore.types import OptStr
 
 if TYPE_CHECKING:
@@ -121,7 +121,7 @@ class Html2Dict:
 
     @classmethod
     def extract_text(cls, elem: Element) -> str:
-        return "".join(elem.itertext())
+        return parse_value("".join(elem.itertext()))
 
     def extract_header(self, head: Element) -> List[str]:
         headers = [

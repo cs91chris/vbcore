@@ -5,7 +5,7 @@ import yaml
 from vbcore.base import BaseDTO
 from vbcore.types import OptAny, OptInt, OptStr
 
-from .base import DictBuilder
+from .base import DictBuilder, RecordType
 
 
 # pylint: disable=too-many-instance-attributes
@@ -27,10 +27,10 @@ class YAMLBuilderOptions(BaseDTO):
 
 
 class YAMLBuilder(DictBuilder[YAMLBuilderOptions]):
-    def to_dict(self, data: str) -> dict:
+    def to_dict(self, data: str) -> RecordType:
         return yaml.safe_load(data)
 
-    def to_self(self, data: dict) -> str:
+    def to_self(self, data: RecordType) -> str:
         return yaml.safe_dump(
             data,
             default_style=self.options.default_style,
