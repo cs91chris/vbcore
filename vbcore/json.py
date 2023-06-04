@@ -120,7 +120,7 @@ class JsonEncoder(
         return super().default(o)
 
 
-class JsonObjectDecoderMixin:
+class JsonDecoderMixin:
     @classmethod
     def custom_object_hook(cls, data: dict) -> dict:
         return data
@@ -130,7 +130,7 @@ class JsonObjectDecoderMixin:
         return value
 
 
-class JsonISODateDecoder(JsonObjectDecoderMixin):
+class JsonISODateDecoder(JsonDecoderMixin):
     ISO_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
     @classmethod
@@ -144,7 +144,7 @@ class JsonISODateDecoder(JsonObjectDecoderMixin):
         return super().custom_object_hook(value)
 
 
-class JsonObjectIdDecoder(JsonObjectDecoderMixin):
+class JsonObjectIdDecoder(JsonDecoderMixin):
     @classmethod
     def custom_object_hook(cls, data: dict):
         if "$oid" in data:
@@ -156,15 +156,7 @@ class JsonObjectIdDecoder(JsonObjectDecoderMixin):
         return super().custom_object_hook(data)
 
 
-class JsonDecoder(
-    json.JSONDecoder,
-    JsonObjectIdDecoder,
-    JsonISODateDecoder,
-):
-    """
-    Extends all decoders provided with this module
-    """
-
+class BaseJsonDecoder(json.JSONDecoder, JsonDecoderMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(object_hook=self.custom_object_hook, *args, **kwargs)
 
@@ -176,6 +168,16 @@ class JsonDecoder(
             return {k: super().custom_field_hook(v) for k, v in data.items()}
         except Exception:  # pylint: disable=broad-except
             return data
+
+
+class JsonDecoder(
+    BaseJsonDecoder,
+    JsonObjectIdDecoder,
+    JsonISODateDecoder,
+):
+    """
+    Extends all decoders provided with this module
+    """
 
 
 def dumps(

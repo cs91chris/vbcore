@@ -16,7 +16,6 @@ pip-tools
 pipdeptree
 pylint
 radon
-safety
 
 sqlalchemy-stubs
 sqlalchemy[mypy]
@@ -30,6 +29,7 @@ types-PyYAML
 types-requests
 types-setuptools
 types-toml
+types-xmltodict
 
 
 # constraints

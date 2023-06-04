@@ -12,7 +12,7 @@ from vbcore.tester.asserter import Asserter
 
 @dataclass
 class SampleDTO(BaseDTO):
-    id: int
+    id: int  # pylint: disable=invalid-name
     name: str
 
 

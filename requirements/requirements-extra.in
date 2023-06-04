@@ -6,3 +6,6 @@ jsonschema
 rule_engine
 gql
 gunicorn
+
+defusedxml
+xmltodict

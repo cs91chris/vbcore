@@ -25,8 +25,10 @@ def test_object_dict_normalize_dict():
         "lista": [{"b": "b"}],
     }
     res = ObjectDict.normalize(data)
-    Asserter.assert_equals(res.hello, data["hello"])
-    Asserter.assert_equals(res.lista[0].b, data["lista"][0]["b"])
+    _hello = res.hello  # pylint: disable=no-member
+    _list_b = res.lista[0].b  # pylint: disable=no-member
+    Asserter.assert_equals(_hello, data["hello"])
+    Asserter.assert_equals(_list_b, data["lista"][0]["b"])
 
 
 def test_object_dict_normalize_list():

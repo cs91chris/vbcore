@@ -2,11 +2,11 @@ import string
 from decimal import Decimal
 from random import SystemRandom
 
-alpha_chars = string.digits + string.ascii_letters
-all_chars = alpha_chars + string.punctuation + " "
+ALPHA_CHARS = string.digits + string.ascii_letters
+ALL_CHARS = ALPHA_CHARS + string.punctuation + " "
 
 
-def random_string(length: int, alphabet: str = all_chars) -> str:
+def random_string(length: int, alphabet: str = ALL_CHARS) -> str:
     return "".join(SystemRandom().choice(alphabet) for _ in range(length))
 
 
@@ -23,7 +23,7 @@ def random_string_ascii(length: int) -> str:
 
 
 def random_string_alpha(length: int) -> str:
-    return random_string(length, alphabet=alpha_chars)
+    return random_string(length, alphabet=ALPHA_CHARS)
 
 
 def random_string_numeric(length: int) -> str:
@@ -40,4 +40,5 @@ def format_decimal(value: Decimal, precision: int = 8) -> str:
 
     if Decimal(formatter_value).is_zero():
         return "0"
+
     return formatter_value

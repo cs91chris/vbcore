@@ -51,6 +51,8 @@ def execute(
         return asyncio.run(main, debug=debug or None)
 
     _loop_factory = loop_factory or get_event_loop
+    # only for py3.10
+    # pylint: disable=no-member
     with asyncio.Runner(loop_factory=_loop_factory, debug=debug) as service:
         if signals_handler is not None:
             signals_handler(service.get_loop())

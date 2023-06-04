@@ -58,7 +58,7 @@ class ObjectDict(IDict):
             del self[name]
 
     @classmethod
-    def normalize(cls, data, raise_exc=True) -> t.Any:
+    def normalize(cls, data, raise_exc=True):
         # TODO using cls instead of ObjectDict
         def normalize_iterable(_data: t.Any):
             for r in _data:

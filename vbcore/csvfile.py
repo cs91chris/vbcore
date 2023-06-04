@@ -8,11 +8,17 @@ RecordType = t.Union[dict, t.Iterable[dict]]
 WriterCoroutineType = t.Generator[None, RecordType, None]
 
 
+class VBCoreDialect(csv.unix_dialect):
+    delimiter = "|"
+    quoting = csv.QUOTE_NONE
+
+
 class CustomUnixDialect(csv.unix_dialect):
     delimiter = ";"
     quoting = csv.QUOTE_MINIMAL
 
 
+csv.register_dialect("vbcore", VBCoreDialect)
 csv.register_dialect("custom-unix", CustomUnixDialect)
 
 
