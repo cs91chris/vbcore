@@ -129,7 +129,10 @@ pylint:
 
 mypy:
 	mypy \
-		--warn-unused-configs --no-strict-optional \
+		--ignore-missing-imports \
+		--warn-unused-configs \
+		--no-strict-optional \
+		--show-error-codes \
 		${PACKAGE} tests
 
 run-tox:
