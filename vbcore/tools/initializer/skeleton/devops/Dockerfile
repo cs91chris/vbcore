@@ -1,16 +1,17 @@
 FROM python:3.10 AS builder
 
-WORKDIR /tmp
+COPY . /app
 
-COPY ./{skeleton} ./{skeleton}
-COPY ./setup.py ./setup.py
-COPY ./requirements ./requirements
+WORKDIR /app
+
 COPY ./devops/scripts/build.sh ./build.sh
+COPY ./devops/scripts/fresh-install.sh ./install.sh
 
 RUN bash build.sh
+RUN bash install.sh
 
 
-FROM python:3.10-slim as {skeleton}
+FROM python:3.10-slim as zengine
 
 RUN groupadd -g 1000 vbuser \
     && useradd -m -d /app -s /bin/bash -g vbuser -u 1000 vbuser
@@ -19,12 +20,8 @@ USER vbuser
 
 WORKDIR /app
 
-COPY --chown=vbuser:vbuser --from=builder /tmp/dist ./dist
-COPY ./devops/scripts/fresh-install.sh /tmp/install.sh
-
-RUN bash /tmp/install.sh && rm -rf dist
+COPY --chown=vbuser:vbuser --from=builder /app/venv /app/venv
 
 ENV PATH=/app/venv/bin:${PATH}
 
-CMD ["bash"]
 ENTRYPOINT ["{skeleton}"]

@@ -1,2 +1,3 @@
+include vbcore/py.typed
 include requirements/*
 recursive-include vbcore/tools/initializer/skeleton *

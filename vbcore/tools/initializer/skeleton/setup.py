@@ -16,7 +16,7 @@ PACKAGE_DATA = True
 
 PKG_NAME = "{skeleton}"
 PKG_TEST = "tests"
-PKG_SCRIPTS = f"{PKG_NAME}.tools"
+PKG_SCRIPTS = f"{PKG_NAME}.entrypoints"
 REQ_PATH = "requirements"
 EXCLUDE_FILES: t.List = []
 
@@ -25,7 +25,7 @@ VERSION_FILE = os.path.join(PKG_NAME, "version.py")
 
 ENTRY_POINTS = {
     "console_scripts": [
-        f"{PKG_NAME}={PKG_SCRIPTS}.entrypoint:main",
+        f"{PKG_NAME}={PKG_SCRIPTS}.main:main",
     ],
 }
 
@@ -147,6 +147,6 @@ setup(
     install_requires=install_requires,
     tests_requires=tests_requires,
     extras_requires={},
-    cmdclass=dict(test=PyTest),
+    cmdclass={"test": PyTest},
     classifiers=[],
 )

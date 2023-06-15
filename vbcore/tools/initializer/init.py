@@ -28,7 +28,7 @@ def copy_skeleton(name: str):
 def init_app(name: str):
     copy_skeleton(name)
     init_file = Path(os.path.join(name, "__init__.py"))
-    init_file.write_text("from .version import *\n", encoding="utf-8")
+    init_file.write_text("", encoding="utf-8")
 
     for root, _, files in os.walk("."):
         for f in files:

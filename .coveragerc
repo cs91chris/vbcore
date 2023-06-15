@@ -7,6 +7,21 @@ omit =
     vbcore/types.py
 
 [report]
+precision = 1
+fail_under = 90
+show_missing = true
+skip_covered = true
+skip_empty = true
+sort = cover
+
+exclude_also =
+    if TYPE_CHECKING:
+    if __name__ == .__main__.:
+
 exclude_lines =
     pragma: no cover
     raise NotImplementedError
+
+[html]
+skip_covered = true
+skip_empty = true
