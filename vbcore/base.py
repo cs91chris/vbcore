@@ -16,7 +16,7 @@ if t.TYPE_CHECKING:
     from dataclasses import dataclass as Data
 else:
     # TODO at the moment this is not used because pycharm issue
-    Data = dataclasses.dataclass(frozen=True, kw_only=False)
+    Data = dataclasses.dataclass(frozen=True, kw_only=True)
 
 
 class LoggerMixin(t.Generic[LogClass], ABC):
