@@ -1,7 +1,7 @@
 import click
 
 from vbcore.db.mysql_dumper import cli_wrapper as mysql_dump_cli_wrapper
-from vbcore.loggers import Loggers
+from vbcore.loggers import Log
 from vbcore.tools.cli import Cli, CliOpt, CliOutputDir, CliReqOpt
 
 try:
@@ -13,9 +13,6 @@ except ImportError:  # pragma: no cover
 DIALECTS = ["sqlite", "mysql", "oracle", "postgresql", "mssql"]
 
 main = click.Group(name="database", help="tools for database")
-
-# enabling default logging config
-logger = Loggers()
 
 
 def check_dependency(label):
@@ -48,7 +45,7 @@ def dump_schema(from_models, from_database, file):
 @CliOpt.choice("--dialect", default="sqlite", values=DIALECTS)
 @CliReqOpt.string("-m", "--metadata", help="metadata module")
 def dump_ddl(dialect, metadata):
-    """Dumps the create table statements for a given metadata"""
+    """Dumps the CREATE table statements for a given metadata"""
     check_dependency(dump_model_ddl)
     dump_model_ddl(metadata, dialect)
 
@@ -64,5 +61,5 @@ def dump_ddl(dialect, metadata):
 @CliOpt.string("--file-prefix")
 def mysql_backup(**kwargs):
     """perform the backup of mysql databases"""
-    with logger.execution_time():
+    with Log.execution_time():
         mysql_dump_cli_wrapper(**kwargs)

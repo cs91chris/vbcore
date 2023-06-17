@@ -131,7 +131,7 @@ class MemoryUsage:
             if abs(num) < 1000.0:
                 return f"{num:.2f} {unit}"
             num /= 1000.0
-        return f"{num:.2f} {units[-1]}"
+        return f"{num:.2f} {_units[-1]}"
 
     @classmethod
     def sizeof(cls, value: float) -> float:

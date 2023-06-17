@@ -2,12 +2,15 @@ import sys
 
 import click
 
+from vbcore.loggers import SetupLoggers
 from vbcore.tools.cli import Cli
 from vbcore.tools.crypto import main as main_crypto
 from vbcore.tools.database import main as main_database
 from vbcore.tools.initializer.init import main as main_init
 from vbcore.tools.scheduler import main as main_scheduler
 from vbcore.version import __version__
+
+SetupLoggers()
 
 main = click.Group()
 

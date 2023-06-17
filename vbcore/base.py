@@ -19,7 +19,7 @@ else:
     Data = dataclasses.dataclass(frozen=True, kw_only=True)
 
 
-class LoggerMixin(t.Generic[LogClass], ABC):
+class LoggerMixin(ABC, t.Generic[LogClass]):
     @classmethod
     @abstractmethod
     def logger(cls, name: OptStr = None) -> LogClass:
