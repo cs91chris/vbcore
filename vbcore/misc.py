@@ -127,10 +127,16 @@ class MemoryUsage:
     @classmethod
     def sizeof_fmt(cls, num: float, units: t.Sequence[str] = ()) -> str:
         _units = units or ("B", "KB", "MB", "GB")
-        for unit in _units[:-1]:
+
+        if abs(num) < 1000.0:
+            return f"{num} {_units[0]}"
+
+        num /= 1000.0
+        for unit in _units[1:-1]:
             if abs(num) < 1000.0:
                 return f"{num:.2f} {unit}"
             num /= 1000.0
+
         return f"{num:.2f} {_units[-1]}"
 
     @classmethod
