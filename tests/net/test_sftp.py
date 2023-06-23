@@ -20,7 +20,17 @@ def test_connect_disconnect(mock_sftp, mock_transport, sftp_handler):
     with sftp_handler.context() as conn:
         _ = conn
 
-    sftp_handler.transport.connect.assert_called_once_with(None, "user", None)
+    sftp_handler.transport.connect.assert_called_once_with(
+        username="user",
+        password=None,
+        pkey=None,
+        hostkey=None,
+        gss_host=None,
+        gss_auth=False,
+        gss_kex=False,
+        gss_deleg_creds=True,
+        gss_trust_dns=True,
+    )
     sftp_handler.transport.close.assert_called_once()
     sftp_handler.sftp.close.assert_called_once()
 

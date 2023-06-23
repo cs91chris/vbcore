@@ -29,9 +29,6 @@ class ContextMetadata(BaseDTO):
 
     __context: ClassVar[ContextVar]
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         cls.__context = ContextVar(cls.__name__)

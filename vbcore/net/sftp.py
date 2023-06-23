@@ -2,52 +2,101 @@ import contextlib
 import os.path
 import re
 from dataclasses import dataclass
-from typing import cast, Generator, Optional
+from enum import Enum
+from functools import cached_property
+from typing import Generator, Optional
 
-from paramiko import PKey, SFTPClient, Transport
+from paramiko import DSSKey, ECDSAKey, Ed25519Key, PKey, RSAKey, SFTPClient, Transport
+from paramiko.common import DEFAULT_MAX_PACKET_SIZE, DEFAULT_WINDOW_SIZE
 
-from vbcore.types import OptStr
+from vbcore.types import OptStr, StrList
 
 
-@dataclass(frozen=True)
+class AlgoKeyEnum(Enum):
+    RSA = RSAKey
+    DSS = DSSKey
+    ECDSA = ECDSAKey
+    ED25519 = Ed25519Key
+
+
+# pylint: disable=too-many-instance-attributes
+@dataclass(frozen=True, kw_only=True)
+class TransportOptions:
+    timeout: int = 300
+    hostkey: Optional[PKey] = None
+    disabled_algorithms: Optional[dict] = None
+    default_window_size: int = DEFAULT_WINDOW_SIZE
+    default_max_packet_size: int = DEFAULT_MAX_PACKET_SIZE
+    server_sig_algs: bool = True
+    gss_kex: bool = False
+    gss_deleg_creds: bool = True
+    gss_host: OptStr = None
+    gss_auth: bool = False
+    gss_trust_dns: bool = True
+
+
+@dataclass(frozen=True, kw_only=True)
 class SFTPOptions:
     host: str
     port: int
-    user: str
+    user: OptStr = None
     password: OptStr = None
-    host_key: OptStr = None
+    private_key_file: OptStr = None
+    key_type: AlgoKeyEnum = AlgoKeyEnum.RSA
 
 
 class SFTPHandler:
-    def __init__(self, options: SFTPOptions):
-        self.host = options.host
-        self.port = options.port
-        self.user = options.user
-        self.password = options.password
-        self.host_key = PKey(data=options.host_key) if options.host_key else None
+    def __init__(
+        self,
+        options: SFTPOptions,
+        transport_options: Optional[TransportOptions] = None,
+    ):
+        self.options = options
+        self.transport_options = transport_options or TransportOptions()
 
-        self.sftp: Optional[SFTPClient] = None
-        self.transport: Optional[Transport] = None
+    def prepare_key(self) -> Optional[PKey]:
+        if not self.options.private_key_file:
+            return None
 
-    def __del__(self):
-        self.disconnect()
+        algo_key = self.options.key_type.value
+        return algo_key.from_private_key_file(self.options.private_key_file)
 
-    def disconnect(self):
-        if self.sftp:
-            self.sftp.close()
-        if self.transport:
-            self.transport.close()
+    @cached_property
+    def sftp(self) -> SFTPClient:
+        return SFTPClient.from_transport(self.transport)
+
+    @cached_property
+    def transport(self) -> Transport:
+        return Transport(
+            (self.options.host, self.options.port),
+            default_window_size=self.transport_options.default_window_size,
+            default_max_packet_size=self.transport_options.default_max_packet_size,
+            gss_kex=self.transport_options.gss_kex,
+            gss_deleg_creds=self.transport_options.gss_deleg_creds,
+            disabled_algorithms=self.transport_options.disabled_algorithms,
+            server_sig_algs=self.transport_options.server_sig_algs,
+        )
 
     def connect(self) -> SFTPClient:
-        if (
-            self.sftp is None
-            or self.transport is None
-            or not self.transport.is_active()
-        ):
-            self.transport = Transport((self.host, self.port))
-            self.transport.connect(self.host_key, self.user, self.password)
-            self.sftp = SFTPClient.from_transport(self.transport)
-        return cast(SFTPClient, self.sftp)
+        if not self.transport.is_active():
+            self.transport.auth_timeout = self.transport_options.timeout
+            self.transport.banner_timeout = self.transport_options.timeout
+            self.transport.connect(
+                username=self.options.user,
+                password=self.options.password,
+                pkey=self.prepare_key(),
+                hostkey=self.transport_options.hostkey,
+                gss_host=self.transport_options.gss_host,
+                gss_auth=self.transport_options.gss_auth,
+                gss_kex=self.transport_options.gss_kex,
+                gss_deleg_creds=self.transport_options.gss_deleg_creds,
+                gss_trust_dns=self.transport_options.gss_trust_dns,
+            )
+        return self.sftp
+
+    def disconnect(self) -> None:
+        self.sftp.close()
+        self.transport.close()
 
     @contextlib.contextmanager
     def context(self) -> Generator[SFTPClient, None, None]:
@@ -55,13 +104,25 @@ class SFTPHandler:
         yield conn
         self.disconnect()
 
-    def download_file(self, remote: str, local: str, **kwargs):
+    def walk(self, remote_path: str = ".") -> StrList:
         with self.context() as conn:
-            conn.get(remote, local, **kwargs)
+            return conn.listdir(path=remote_path)
 
-    def upload_file(self, local: str, remote: str, **kwargs):
-        with self.context() as conn:
-            conn.put(local, remote, **kwargs)
+    def download(self, remote: str, local: str) -> None:
+        self.sftp.logger.info("downloading '%s' -> '%s' ...", remote, local)
+        self.sftp.get(remote, local)
+
+    def upload(self, local: str, remote: str) -> None:
+        self.sftp.logger.info("uploading '%s' -> '%s' ...", local, remote)
+        self.sftp.put(local, remote)
+
+    def download_file(self, remote: str, local: str) -> None:
+        with self.context():
+            self.download(remote, local)
+
+    def upload_file(self, local: str, remote: str) -> None:
+        with self.context():
+            self.upload(local, remote)
 
     def filter_file(
         self,
@@ -73,7 +134,7 @@ class SFTPHandler:
             exclude and exclude.match(filename) or only and not only.match(filename)
         )
         if is_filtered:
-            self.sftp.logger.info("file '%s' filtered")
+            self.sftp.logger.info("file '%s' filtered", filename)
         return is_filtered
 
     def upload_dir(
@@ -82,18 +143,17 @@ class SFTPHandler:
         remote_path: str = ".",
         only: Optional[re.Pattern] = None,
         exclude: Optional[re.Pattern] = None,
-        **kwargs,
     ) -> int:
         counter = 0
-        with self.context() as conn:
+        with self.context():
             for filename in os.listdir(local_path):
-                local_file = os.path.join(local_path, filename)
-                remote_file = os.path.join(remote_path, filename)
-
                 if self.filter_file(filename, only, exclude):
                     continue
 
-                conn.put(remote_file, local_file, **kwargs)
+                self.upload(
+                    os.path.join(local_path, filename),
+                    os.path.join(remote_path, filename),
+                )
                 counter += 1
         return counter
 
@@ -103,17 +163,16 @@ class SFTPHandler:
         local_path: str = ".",
         only: Optional[re.Pattern] = None,
         exclude: Optional[re.Pattern] = None,
-        **kwargs,
     ) -> int:
         counter = 0
         with self.context() as conn:
             for filename in conn.listdir(path=remote_path):
-                local_file = os.path.join(local_path, filename)
-                remote_file = os.path.join(remote_path, filename)
-
                 if self.filter_file(filename, only, exclude):
                     continue
 
-                conn.get(remote_file, local_file, **kwargs)
+                self.download(
+                    os.path.join(remote_path, filename),
+                    os.path.join(local_path, filename),
+                )
                 counter += 1
         return counter
