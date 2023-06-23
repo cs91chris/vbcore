@@ -1,45 +1,72 @@
 import csv
 import typing as t
 from contextlib import contextmanager
+from dataclasses import dataclass, field
 
+from vbcore.exceptions import VBEmptyFileError
 from vbcore.files import FileHandler, OptStr
+from vbcore.types import OptInt, StrList
 
 RecordType = t.Union[dict, t.Iterable[dict]]
 WriterCoroutineType = t.Generator[None, RecordType, None]
 
 
-class VBCoreDialect(csv.unix_dialect):
-    delimiter = "|"
-    quoting = csv.QUOTE_NONE
-
-
-class CustomUnixDialect(csv.unix_dialect):
-    delimiter = ";"
-    quoting = csv.QUOTE_MINIMAL
-
-
-csv.register_dialect("vbcore", VBCoreDialect)
-csv.register_dialect("custom-unix", CustomUnixDialect)
+@dataclass(frozen=True, kw_only=True)
+class CSVParams:
+    new_line: str = ""
+    encoding: str = "utf-8"
+    delimiter: str = "|"
+    dialect: str = "unix"
+    encoding_errors: str = "replace"
+    quoting: int = csv.QUOTE_NONE
+    escape_char: str = "\\"
+    allow_extra_fields: bool = True
+    supported_encodings: t.List[str] = field(
+        default_factory=lambda: ["ascii", "ISO-8859-1"]
+    )
 
 
 class CSVHandler(FileHandler):
     def __init__(
         self,
         filename: OptStr = None,
-        fields: t.Optional[t.List[str]] = None,
-        encoding: str = "utf-8",
-        dialect: str = "custom-unix",
+        fields: t.Optional[StrList] = None,
+        params: t.Optional[CSVParams] = None,
     ):
-        super().__init__(filename, encoding)
         self.fields = fields or []
-        self.dialect = dialect
+        self.params = params or CSVParams()
+        super().__init__(
+            filename, self.params.encoding, self.params.supported_encodings
+        )
+
+    def open(self, filename: OptStr = None, **kwargs) -> t.IO:
+        return super().open(
+            filename,
+            newline=self.params.new_line,
+            encoding=self.params.encoding,
+            errors=self.params.encoding_errors,
+            **kwargs,
+        )
+
+    def raise_for_empty(self, filename: OptStr = None, lines: OptInt = None):
+        lines = lines or self.num_lines(filename or self.filename)
+        if lines <= 0:
+            raise VBEmptyFileError(
+                filename,
+                "no record found in the file" if lines == 0 else "header is missing",
+            )
 
     @contextmanager
     def reader(
         self, filename: OptStr = None
     ) -> t.Generator[csv.DictReader, None, None]:
         with self.open(filename) as file:
-            reader = csv.DictReader(file, dialect=self.dialect)
+            reader = csv.DictReader(
+                file,
+                delimiter=self.params.delimiter,
+                quoting=self.params.quoting,
+                escapechar=self.params.escape_char,
+            )
             self.fields = list(reader.fieldnames)
             yield reader
 
@@ -47,11 +74,18 @@ class CSVHandler(FileHandler):
     def writer(
         self,
         filename: OptStr = None,
-        fields: t.Optional[t.List[str]] = None,
+        fields: t.Optional[StrList] = None,
         **kwargs,
     ) -> t.Generator[csv.DictWriter, None, None]:
         with self.open(filename, mode="w", **kwargs) as file:
-            yield csv.DictWriter(file, fields or self.fields, dialect=self.dialect)
+            yield csv.DictWriter(
+                file,
+                fields or self.fields,
+                delimiter=self.params.delimiter,
+                dialect=self.params.dialect,
+                quoting=self.params.quoting,
+                escapechar=self.params.escape_char,
+            )
 
     # noinspection PyMethodMayBeStatic
     def after_read_hook(self, record: dict) -> t.Any:
@@ -93,7 +127,7 @@ class CSVHandler(FileHandler):
 
     def sort(
         self,
-        columns: t.List[str],
+        columns: StrList,
         filename: OptStr = None,
         output_file: OptStr = None,
         **kwargs,

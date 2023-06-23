@@ -2,6 +2,8 @@ import traceback
 import typing as t
 from types import TracebackType
 
+from vbcore.types import OptStr
+
 
 class VBException(Exception):
     def __init__(
@@ -30,3 +32,10 @@ class VBException(Exception):
 
     def dump_traceback(self) -> str:
         return "\n".join(traceback.format_exception(self))
+
+
+class VBEmptyFileError(VBException):
+    def __init__(self, filename: str, *args, message: OptStr = None, **kwargs):
+        self.filename = filename
+        _message = message or "empty file"
+        super().__init__(_message, *args, **kwargs)

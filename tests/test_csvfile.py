@@ -1,4 +1,4 @@
-from vbcore.csvfile import CSVHandler
+from vbcore.csvfile import CSVHandler, CSVParams
 from vbcore.tester.asserter import Asserter
 
 SAMPLE_CSV = """code;name
@@ -37,7 +37,7 @@ SORTED_RECORDS = [
 
 
 def test_csv_file_reader(tmpdir):
-    handler = CSVHandler()
+    handler = CSVHandler(params=CSVParams(delimiter=";"))
     file = tmpdir.join("test_csv_file_reader.csv")
     file.write(SAMPLE_CSV.encode())
     Asserter.assert_equals(list(handler.readlines(file.strpath)), SAMPLE_RECORDS)
@@ -45,7 +45,7 @@ def test_csv_file_reader(tmpdir):
 
 def test_csv_file_writer(tmpdir):
     file = tmpdir.join("test_csv_file_writer.csv")
-    handler = CSVHandler(fields=["code", "name"])
+    handler = CSVHandler(fields=["code", "name"], params=CSVParams(delimiter=";"))
     handler.write_all(SAMPLE_RECORDS, filename=file.strpath)
     Asserter.assert_equals(file.read_text(encoding="utf-8"), SAMPLE_CSV)
 
@@ -54,7 +54,7 @@ def test_csv_sort(tmpdir):
     file = tmpdir.join("test_csv_sort.csv")
     file.write(UNSORTED.encode())
 
-    handler = CSVHandler(file.strpath)
+    handler = CSVHandler(file.strpath, params=CSVParams(delimiter=";"))
     Asserter.assert_equals(list(handler.readlines(file.strpath)), UNSORTED_RECORDS)
 
     handler.sort(columns=["A", "C"])

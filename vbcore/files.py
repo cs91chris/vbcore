@@ -57,11 +57,11 @@ class FileHandler:
         self,
         filename: OptStr = None,
         encoding: OptStr = None,
-        supporter_encodings: t.Sequence[str] = (),
+        supported_encodings: t.Sequence[str] = (),
     ):
         self.filename = filename
         self.encoding = encoding or "utf-8"
-        self.supporter_encodings = supporter_encodings
+        self.supported_encodings = supported_encodings
 
     def open(self, filename: OptStr = None, **kwargs) -> t.IO:
         encoding = kwargs.pop("encoding", self.encoding)
@@ -103,7 +103,7 @@ class FileHandler:
         encoding = self.detect_encoding(filename)
         supported_encodings = [
             self.encoding,
-            *self.supporter_encodings,
+            *self.supported_encodings,
             *extra_supported,
         ]
         if encoding.encoding not in supported_encodings:
