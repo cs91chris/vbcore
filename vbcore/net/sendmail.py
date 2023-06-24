@@ -1,8 +1,7 @@
-import dataclasses
-import logging
 import os
 import smtplib
 import typing as t
+from dataclasses import dataclass
 from email.mime.application import MIMEApplication
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
@@ -13,20 +12,19 @@ from email_validator import caching_resolver, validate_email, ValidatedEmail
 
 from vbcore.files import FileHandler
 from vbcore.misc import CommonRegex
-from vbcore.types import OptStr, StrList, StrTuple
+from vbcore.types import CoupleStr, OptStr, StrDict, StrList, StrTuple
 from vbcore.uuid import get_uuid
 
 AddressType = t.Union[str, StrTuple]
-HeadersType = t.Dict[str, str]
 
 
-@dataclasses.dataclass
+@dataclass(frozen=True)
 class SMTPResponse:
     message_id: str
     response: t.Dict[str, t.Tuple[int, bytes]]
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class SMTPParams:
     host: str
     port: int
@@ -36,21 +34,21 @@ class SMTPParams:
     is_tls: bool = False
     user: OptStr = None
     password: OptStr = None
-    sender: t.Optional[t.Union[str, t.Tuple[str, str]]] = None
+    sender: t.Optional[t.Union[str, CoupleStr]] = None
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclass(frozen=True)
 class MessageData:
     subject: str
     priority: int = 3
     html: OptStr = None
     text: OptStr = None
-    headers: t.Optional[HeadersType] = None
     message_id: OptStr = None
+    headers: t.Optional[StrDict] = None
     attachments: t.Optional[StrList] = None
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclass(frozen=True)
 class MessageAddresses:
     sender: str
     to: AddressType  # pylint: disable=invalid-name
@@ -63,7 +61,6 @@ class SendMail:
     def __init__(self, params: SMTPParams, **kwargs):
         self.params = params
         self._smtp_args = kwargs
-        self._log = logging.getLogger(self.__module__)
 
     @classmethod
     def validate_email(cls, email: str, restricted: bool = True) -> ValidatedEmail:
@@ -149,10 +146,10 @@ class SendMail:
         html: OptStr = None,
         text: OptStr = None,
         reply_to: OptStr = None,
+        message_id: OptStr = None,
         cc: t.Optional[AddressType] = (),
         bcc: t.Optional[AddressType] = (),
-        headers: t.Optional[HeadersType] = None,
-        message_id: OptStr = None,
+        headers: t.Optional[StrDict] = None,
         attachments: t.Optional[StrList] = None,
         **kwargs,
     ) -> SMTPResponse:
