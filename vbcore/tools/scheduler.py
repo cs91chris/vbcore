@@ -10,7 +10,7 @@ from vbcore.yaml import load_yaml_file
 if TYPE_CHECKING:
     from vbcore.standalone.scheduler import APScheduler
 else:
-    APScheduler = LazyImporter.import_many(
+    APScheduler = LazyImporter.do_import(
         "vbcore.standalone.scheduler:APScheduler",
         message="you must install vbcore[scheduler]",
     )
