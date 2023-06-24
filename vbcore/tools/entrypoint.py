@@ -9,6 +9,7 @@ from vbcore.tools.database import main as main_database
 from vbcore.tools.initializer.init import main as main_init
 from vbcore.tools.scheduler import main as main_scheduler
 from vbcore.tools.sendmail import sendmail as main_sendmail
+from vbcore.tools.sftp import main as main_sftp
 from vbcore.version import __version__
 
 SetupLoggers()
@@ -28,6 +29,7 @@ main.add_command(main_crypto)
 main.add_command(main_init)
 main.add_command(main_scheduler)
 main.add_command(main_sendmail)
+main.add_command(main_sftp)
 
 if __name__ == "__main__":
     main()
