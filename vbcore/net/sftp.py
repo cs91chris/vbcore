@@ -4,15 +4,16 @@ import re
 from dataclasses import dataclass
 from enum import Enum
 from functools import cached_property
-from typing import Generator, Optional
+from typing import Generator, Optional, Union
 
 from paramiko import DSSKey, ECDSAKey, Ed25519Key, PKey, RSAKey, SFTPClient, Transport
 from paramiko.common import DEFAULT_MAX_PACKET_SIZE, DEFAULT_WINDOW_SIZE
 
+from vbcore.enums import EnumMixin
 from vbcore.types import OptStr, StrList
 
 
-class AlgoKeyEnum(Enum):
+class AlgoKeyEnum(EnumMixin, Enum):
     RSA = RSAKey
     DSS = DSSKey
     ECDSA = ECDSAKey
@@ -42,7 +43,7 @@ class SFTPOptions:
     user: OptStr = None
     password: OptStr = None
     private_key_file: OptStr = None
-    key_type: AlgoKeyEnum = AlgoKeyEnum.RSA
+    key_type: Union[str, AlgoKeyEnum] = AlgoKeyEnum.RSA
 
 
 class SFTPHandler:
@@ -58,8 +59,9 @@ class SFTPHandler:
         if not self.options.private_key_file:
             return None
 
-        algo_key = self.options.key_type.value
-        return algo_key.from_private_key_file(self.options.private_key_file)
+        key_type = self.options.key_type
+        algo_key = AlgoKeyEnum(key_type) if isinstance(key_type, str) else key_type
+        return algo_key.value.from_private_key_file(self.options.private_key_file)
 
     @cached_property
     def sftp(self) -> SFTPClient:

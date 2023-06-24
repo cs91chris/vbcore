@@ -7,7 +7,8 @@ from vbcore.tools.entrypoint import main
 
 
 @patch("vbcore.tools.sftp.SFTPHandler")
-def test_sftp_download(mock_sftp, runner):
+def test_sftp_download(mock_sftp, runner, sftp_envvar):
+    _ = sftp_envvar
     mock_instance = MagicMock()
     mock_sftp.return_value = mock_instance
 
@@ -16,14 +17,6 @@ def test_sftp_download(mock_sftp, runner):
         [
             "sftp",
             "download",
-            "-H",
-            "localhost",
-            "--port",
-            "22",
-            "-u",
-            "user",
-            "-p",
-            "password",
             "-r",
             "remote.txt",
             "-l",
@@ -41,34 +34,31 @@ def test_sftp_download(mock_sftp, runner):
             user="user",
             password="password",
             private_key_file=None,
-            key_type=None,
+            key_type="RSA",
         )
     )
     mock_instance.download_file.assert_called_once_with("remote.txt", "local.txt")
 
 
 @patch("vbcore.tools.sftp.SFTPHandler")
-def test_sftp_upload(mock_sftp, runner):
+def test_sftp_upload(mock_sftp, runner, sftp_envvar, tmpdir):
+    _ = sftp_envvar
     mock_instance = MagicMock()
     mock_sftp.return_value = mock_instance
+
+    local = tmpdir.join("local.txt")
+    local_file = f"{local.dirname}/{local.basename}"
+    local.write("")
 
     result = runner.invoke(
         main,
         [
             "sftp",
             "upload",
-            "-H",
-            "localhost",
-            "--port",
-            "22",
-            "-u",
-            "user",
-            "-p",
-            "password",
             "-r",
             "remote.txt",
             "-l",
-            "local.txt",
+            local_file,
         ],
     )
 
@@ -82,14 +72,15 @@ def test_sftp_upload(mock_sftp, runner):
             user="user",
             password="password",
             private_key_file=None,
-            key_type=None,
+            key_type="RSA",
         )
     )
-    mock_instance.upload_file.assert_called_once_with("local.txt", "remote.txt")
+    mock_instance.upload_file.assert_called_once_with(local_file, "remote.txt")
 
 
 @patch("vbcore.tools.sftp.SFTPHandler")
-def test_sftp_download_dir(mock_sftp, runner):
+def test_sftp_download_dir(mock_sftp, runner, sftp_envvar):
+    _ = sftp_envvar
     mock_instance = MagicMock()
     mock_sftp.return_value = mock_instance
 
@@ -98,18 +89,8 @@ def test_sftp_download_dir(mock_sftp, runner):
         [
             "sftp",
             "download-dir",
-            "-H",
-            "localhost",
-            "--port",
-            "22",
-            "-u",
-            "user",
-            "-p",
-            "password",
             "-r",
             "/data/remote",
-            "-l",
-            "/data/local",
             "--only",
             ".*_ONLY_.*",
         ],
@@ -125,19 +106,20 @@ def test_sftp_download_dir(mock_sftp, runner):
             user="user",
             password="password",
             private_key_file=None,
-            key_type=None,
+            key_type="RSA",
         )
     )
     mock_instance.download_dir.assert_called_once_with(
         remote_path="/data/remote",
-        local_path="/data/local",
+        local_path=".",
         only=re.compile(".*_ONLY_.*"),
         exclude=None,
     )
 
 
 @patch("vbcore.tools.sftp.SFTPHandler")
-def test_sftp_upload_dir(mock_sftp, runner):
+def test_sftp_upload_dir(mock_sftp, runner, sftp_envvar):
+    _ = sftp_envvar
     mock_instance = MagicMock()
     mock_sftp.return_value = mock_instance
 
@@ -146,18 +128,8 @@ def test_sftp_upload_dir(mock_sftp, runner):
         [
             "sftp",
             "upload-dir",
-            "-H",
-            "localhost",
-            "--port",
-            "22",
-            "-u",
-            "user",
-            "-p",
-            "password",
             "-r",
             "/data/remote",
-            "-l",
-            "/data/local",
             "--exclude",
             ".*_EXCLUDE_.*",
         ],
@@ -173,11 +145,11 @@ def test_sftp_upload_dir(mock_sftp, runner):
             user="user",
             password="password",
             private_key_file=None,
-            key_type=None,
+            key_type="RSA",
         )
     )
     mock_instance.upload_dir.assert_called_once_with(
-        local_path="/data/local",
+        local_path=".",
         remote_path="/data/remote",
         only=None,
         exclude=re.compile(".*_EXCLUDE_.*"),

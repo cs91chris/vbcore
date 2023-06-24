@@ -4,6 +4,7 @@ from functools import partial
 import click
 
 from vbcore.date_helper import DateFmt, DateTimeFmt
+from vbcore.types import OptFloat, OptInt
 
 
 def option_as_dict(ctx, param, value):
@@ -63,32 +64,44 @@ class CliOpt:
     def integer(
         cls,
         *args,
-        min_val: t.Optional[int] = None,
-        max_val: t.Optional[int] = None,
+        min_val: OptInt = None,
+        max_val: OptInt = None,
         min_open: bool = False,
         max_open: bool = False,
         clamp: bool = False,
         **kwargs,
     ):
-        opt_type = click.IntRange(
-            min=min_val, max=max_val, min_open=min_open, max_open=max_open, clamp=clamp
-        )
+        opt_type = click.INT
+        if min_val is not None or max_val is not None:
+            opt_type = click.IntRange(
+                min=min_val,
+                max=max_val,
+                min_open=min_open,
+                max_open=max_open,
+                clamp=clamp,
+            )
         return Cli.option(*args, **kwargs, type=opt_type)
 
     @classmethod
     def decimal(
         cls,
         *args,
-        min_val: t.Optional[float] = None,
-        max_val: t.Optional[float] = None,
+        min_val: OptFloat = None,
+        max_val: OptFloat = None,
         min_open: bool = False,
         max_open: bool = False,
         clamp: bool = False,
         **kwargs,
     ):
-        opt_type = click.FloatRange(
-            min=min_val, max=max_val, min_open=min_open, max_open=max_open, clamp=clamp
-        )
+        opt_type = click.FLOAT
+        if min_val is not None or max_val is not None:
+            opt_type = click.FloatRange(
+                min=min_val,
+                max=max_val,
+                min_open=min_open,
+                max_open=max_open,
+                clamp=clamp,
+            )
         return Cli.option(*args, **kwargs, type=opt_type)
 
     @classmethod

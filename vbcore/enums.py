@@ -1,7 +1,16 @@
 import enum
+from typing import List
 
 from vbcore.datastruct import ObjectDict
 from vbcore.types import CoupleStr
+
+
+class EnumMixin:
+    __members__: dict
+
+    @classmethod
+    def items(cls) -> List[str]:
+        return list(cls.__members__.keys())
 
 
 class IntEnum(enum.IntEnum):

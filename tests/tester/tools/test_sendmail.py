@@ -6,7 +6,8 @@ from vbcore.tools.entrypoint import main
 
 
 @patch("vbcore.tools.sendmail.SendMail")
-def test_sendmail(mock_sendmail, runner, tmpdir):
+def test_sendmail(mock_sendmail, runner, tmpdir, sendmail_envvar):
+    _ = sendmail_envvar
     text_file = tmpdir.join("message.txt")
     text_file.write("sample message")
 
@@ -24,16 +25,6 @@ def test_sendmail(mock_sendmail, runner, tmpdir):
         main,
         [
             "sendmail",
-            "-H",
-            "localhost",
-            "--port",
-            "22",
-            "-u",
-            "user",
-            "-p",
-            "password",
-            "--sender",
-            "sender@mail.com",
             "--subject",
             "subject",
             "--to",
@@ -56,7 +47,7 @@ def test_sendmail(mock_sendmail, runner, tmpdir):
             port=22,
             timeout=10,
             debug=False,
-            is_ssl=False,
+            is_ssl=True,
             is_tls=False,
             user="user",
             password="password",
