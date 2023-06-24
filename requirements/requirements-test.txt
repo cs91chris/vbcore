@@ -16,7 +16,7 @@ charset-normalizer==2.1.1
     # via
     #   -c requirements/requirements-build.txt
     #   requests
-coverage[toml]==7.2.5
+coverage[toml]==7.2.7
     # via
     #   -r requirements/requirements-test.in
     #   pytest-cov
@@ -24,7 +24,7 @@ exceptiongroup==1.1.1
     # via
     #   hypothesis
     #   pytest
-hypothesis==6.75.2
+hypothesis==6.79.2
     # via -r requirements/requirements-test.in
 idna==3.4
     # via
@@ -36,21 +36,21 @@ packaging==23.1
     # via
     #   -c requirements/requirements-build.txt
     #   pytest
-pluggy==1.0.0
+pluggy==1.2.0
     # via
     #   -c requirements/requirements-build.txt
     #   pytest
-pytest==7.3.1
+pytest==7.4.0
     # via
     #   -r requirements/requirements-test.in
     #   pytest-cov
-pytest-cov==4.0.0
+pytest-cov==4.1.0
     # via -r requirements/requirements-test.in
 pyyaml==6.0
     # via
     #   -c requirements/requirements-all.txt
     #   responses
-requests==2.30.0
+requests==2.31.0
     # via
     #   -c requirements/requirements-build.txt
     #   responses
@@ -63,9 +63,9 @@ tomli==2.0.1
     #   -c requirements/requirements-build.txt
     #   coverage
     #   pytest
-types-pyyaml==6.0.12.9
+types-pyyaml==6.0.12.10
     # via responses
-urllib3==2.0.2
+urllib3==2.0.3
     # via
     #   -c requirements/requirements-build.txt
     #   requests

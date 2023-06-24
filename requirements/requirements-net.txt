@@ -11,7 +11,7 @@ cffi==1.15.1
     #   -c requirements/requirements-build.txt
     #   cryptography
     #   pynacl
-cryptography==40.0.2
+cryptography==41.0.1
     # via
     #   -c requirements/requirements-build.txt
     #   paramiko
@@ -23,7 +23,7 @@ idna==3.4
     # via
     #   -c requirements/requirements-build.txt
     #   email-validator
-paramiko==3.1.0
+paramiko==3.2.0
     # via -r requirements/requirements-net.in
 pycparser==2.21
     # via

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import yaml
 
 from vbcore.base import BaseDTO
-from vbcore.types import OptAny, OptInt, OptStr
+from vbcore.types import OptAny, OptInt
 
 from .base import DictBuilder, RecordType
 
@@ -14,7 +14,7 @@ class YAMLBuilderOptions(BaseDTO):
     default_flow_style: bool = False
     indent: OptInt = None
     width: OptInt = None
-    encoding: OptStr = None
+    encoding: str = "utf-8"
     sort_keys: bool = True
     default_style: OptAny = None
     canonical: OptAny = None
@@ -31,7 +31,7 @@ class YAMLBuilder(DictBuilder[YAMLBuilderOptions]):
         return yaml.safe_load(data)
 
     def to_self(self, data: RecordType) -> str:
-        return yaml.safe_dump(
+        bytes_data = yaml.safe_dump(
             data,
             default_style=self.options.default_style,
             default_flow_style=self.options.default_flow_style,
@@ -47,3 +47,4 @@ class YAMLBuilder(DictBuilder[YAMLBuilderOptions]):
             tags=self.options.tags,
             sort_keys=self.options.sort_keys,
         )
+        return bytes_data.decode(encoding=self.options.encoding)

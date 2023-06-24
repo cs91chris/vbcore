@@ -34,7 +34,7 @@ python-dateutil==2.8.2
     # via
     #   -c requirements/requirements.txt
     #   rule-engine
-rule-engine==3.5.1
+rule-engine==3.6.0
     # via -r requirements/requirements-extra.in
 six==1.16.0
     # via
