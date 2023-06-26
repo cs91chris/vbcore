@@ -7,24 +7,24 @@ _ = MySQLDumper, MysqlBackup
 
 @pytest.mark.skip("implement me")
 def test_mysql_dumper_all_tables():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_mysql_dumper_dump_table():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_mysql_backup_as_archive():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_mysql_backup_single_files():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_mysql_cli_wrapper():
-    pass
+    """TODO implement me"""

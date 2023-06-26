@@ -6,7 +6,7 @@ from vbcore.tester.asserter import Asserter
 
 @pytest.mark.skip("implement me")
 def test_idict_get_namespace():
-    pass
+    """TODO implement me"""
 
 
 def test_object_dict_constructor():
@@ -43,4 +43,4 @@ def test_object_dict_normalize_list():
 
 @pytest.mark.skip("implement me")
 def test_bdict():
-    pass
+    """TODO implement me"""

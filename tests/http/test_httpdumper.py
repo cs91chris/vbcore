@@ -7,29 +7,29 @@ _ = BaseHTTPDumper
 
 @pytest.mark.skip("implement me")
 def test_dump_headers():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_response_filename():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_dump_body():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_dump_status():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_dump_request():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_dump_response():
-    pass
+    """TODO implement me"""

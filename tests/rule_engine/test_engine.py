@@ -7,29 +7,29 @@ _ = RuleEngine
 
 @pytest.mark.skip("implement me")
 def test_evaluate():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_matches():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_apply():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_which_matches():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_first_match():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_perform_on_match():
-    pass
+    """TODO implement me"""

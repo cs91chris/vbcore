@@ -42,24 +42,24 @@ def test_model_to_dict():
 
 @pytest.mark.skip("implement me")
 def test_connector_register_loaders():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_create_all():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_get_session():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_connection():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_transaction():
-    pass
+    """TODO implement me"""

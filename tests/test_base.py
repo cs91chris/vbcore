@@ -7,24 +7,24 @@ _ = BaseDTO, Singleton, Static, Decorator, LogError
 
 @pytest.mark.skip("implement me")
 def test_base_dto():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_singleton():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_static_class():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_decorator_idempotent():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_log_error_decorator():
-    pass
+    """TODO implement me"""

@@ -9,12 +9,12 @@ from vbcore.tester.asserter import Asserter
 
 @pytest.mark.skip("implement me")
 def test_lru_cache():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_timed_lru_cache_decorator():
-    pass
+    """TODO implement me"""
 
 
 def test_expiring_cache_getter_setter():

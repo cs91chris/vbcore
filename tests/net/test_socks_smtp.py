@@ -7,4 +7,4 @@ _ = SocksSMTP
 
 @pytest.mark.skip("implement me")
 def test_create_socks_connection():
-    pass
+    """TODO implement me"""

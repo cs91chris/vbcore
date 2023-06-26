@@ -8,7 +8,7 @@ from vbcore.tester.asserter import Asserter
 
 @pytest.mark.skip("implement me")
 def test_int_enum():
-    pass
+    """TODO implement me"""
 
 
 def test_str_enum():
@@ -29,9 +29,9 @@ def test_str_enum_lower():
 
 @pytest.mark.skip("implement me")
 def test_lstr_enum():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_istr_enum():
-    pass
+    """TODO implement me"""

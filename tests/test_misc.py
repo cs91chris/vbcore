@@ -76,19 +76,19 @@ def test_split_kwargs():
 
 @pytest.mark.skip("implement me")
 def test_static_attr_decorator():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_memory_usage_dump():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_signal_register():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_signal_handle_terminate():
-    pass
+    """TODO implement me"""

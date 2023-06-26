@@ -13,22 +13,22 @@ class FakeTask(PCTask):
 
 @pytest.mark.skip("implement me")
 def test_batch_executor():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_async_batch_executor():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_thread_batch_executor():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_linear_executor():
-    pass
+    """TODO implement me"""
 
 
 @patch("vbcore.batch.Thread")

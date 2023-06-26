@@ -7,14 +7,14 @@ _ = APScheduler
 
 @pytest.mark.skip("implement me")
 def test_factory():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_dump_jobs():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_event_listener():
-    pass
+    """TODO implement me"""

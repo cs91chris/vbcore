@@ -7,19 +7,19 @@ _ = GQLClient, GQLClientAIO, GQLClientWS
 
 @pytest.mark.skip("implement me")
 def test_gql_client_perform():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_gql_client_aio_perform():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_gql_client_ws_perform():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_gql_client_ws_subscribe():
-    pass
+    """TODO implement me"""

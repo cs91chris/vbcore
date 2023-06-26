@@ -8,32 +8,32 @@ from vbcore.tester.asserter import Asserter
 
 @pytest.mark.skip("implement me")
 def test_token_auth_call():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_token_auth_equals():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_normalize_dump_flags():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_dump_body_flags():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_normalize_url():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_get_auth():
-    pass
+    """TODO implement me"""
 
 
 @responses.activate
@@ -69,9 +69,9 @@ def test_http_client_request(method, match_method):
 
 @pytest.mark.skip("implement me")
 def test_jsonrpc_request():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_jsonrpc_notification():
-    pass
+    """TODO implement me"""

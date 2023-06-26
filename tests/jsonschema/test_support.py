@@ -8,19 +8,19 @@ _ = JSONSchema, JSONRPC
 
 @pytest.mark.skip("implement me")
 def test_jsonschema_load_from_url():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_jsonschema_load_from_file():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_jsonschema_validate():
-    pass
+    """TODO implement me"""
 
 
 @pytest.mark.skip("implement me")
 def test_jsonschema_error_report():
-    pass
+    """TODO implement me"""
