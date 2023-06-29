@@ -28,3 +28,16 @@ CallableDictType = Callable[[List[Tuple[str, Any]]], Any]
 RegexType = Union[str, Pattern]
 DateType = Union[date, datetime]
 AnyDateType = Union[DateType, str]
+
+
+class MissingType:
+    def __repr__(self) -> str:
+        return "<MISSING>"
+
+
+MISSING = MissingType()
+
+MissingStr = Union[str, MissingType]
+MissingInt = Union[int, MissingType]
+MissingBool = Union[bool, MissingType]
+MissingFloat = Union[float, MissingType]

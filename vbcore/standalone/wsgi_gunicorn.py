@@ -1,7 +1,5 @@
 import os
 import typing as t
-from dataclasses import MISSING
-from functools import partial
 from multiprocessing import cpu_count
 
 from decouple import Choices, Csv, UndefinedValueError
@@ -9,7 +7,9 @@ from gunicorn import util
 from gunicorn.app.base import BaseApplication  # type: ignore
 
 from vbcore.configurator import config, load_dotenv
+from vbcore.enums import EnumMixin, StrEnum
 from vbcore.importer import Importer
+from vbcore.types import MISSING
 
 # Supported env vars:
 #  - GU_BIND
@@ -31,24 +31,24 @@ from vbcore.importer import Importer
 LOG_LEVELS = ["debug", "info", "warning", "error"]
 
 
+class WorkerType(EnumMixin, StrEnum):
+    DEFAULT = "gthread"
+    UVICORN = "uvicorn.workers.UvicornWorker"
+    MEINHELD = "meinheld.gmeinheld.MeinheldWorker"
+
+
 # pylint: disable=too-many-public-methods
 class GUnicornServer(BaseApplication):
-    custom_worker = {
-        None: "gthread",
-        "uvicorn": "uvicorn.workers.UvicornWorker",
-        "meinheld": "meinheld.gmeinheld.MeinheldWorker",
-    }
-
     def __init__(
         self,
         app: t.Union[str, t.Callable],
-        worker_class: t.Optional[str] = None,
+        worker_type: t.Optional[WorkerType] = None,
         **kwargs,
     ):
         load_dotenv()
+        self.worker_type = worker_type or WorkerType.DEFAULT
         self.application = app
         self.options = kwargs
-        self.worker_class = self.custom_worker.get(worker_class, worker_class)
         super().__init__()
 
     def from_env_config(
@@ -80,8 +80,8 @@ class GUnicornServer(BaseApplication):
         self.from_env_config(
             "GU_FORWARDED_ALLOW_IPS", "forwarded_allow_ips", "127.0.0.1"
         )
-        self.from_env_config("GU_WORKER_CLASS", "worker_class", self.worker_class)
-        self.from_env_config("GU_THREADS", "threads", 4, cast=int)
+        self.from_env_config("GU_WORKER_CLASS", "worker_class", self.worker_type.value)
+        self.from_env_config("GU_THREADS", "threads", cpu_count() * 2 + 1, cast=int)
         self.from_env_config("GU_WORKERS", "workers", cpu_count(), cast=int)
         self.from_env_config(
             "GU_WORKER_CONNECTIONS", "worker_connections", 1000, cast=int
@@ -125,7 +125,8 @@ class GUnicornServer(BaseApplication):
         self.set_hooks()
         self.set_default_config()
         for key, value in self.options.items():
-            self.cfg.set(key.lower(), value)
+            if value is not MISSING:
+                self.cfg.set(key.lower(), value)
         self.load_from_env()
 
     def load(self):
@@ -266,28 +267,3 @@ class GUnicornServer(BaseApplication):
     @classmethod
     def on_exit(cls, server):
         _ = server
-
-
-def cli_gu_options(func: t.Callable) -> t.Callable:
-    import click  # pylint: disable=import-outside-toplevel
-
-    str_option = partial(click.option, required=False)
-    int_option = partial(click.option, required=False, type=click.INT)
-
-    @str_option("-b", "--bind", multiple=True)
-    @int_option("-w", "--workers")
-    @int_option("-t", "--threads")
-    @str_option("-W", "--worker-class")
-    @int_option("-T", "--timeout")
-    @int_option("--backlog")
-    @int_option("--keepalive")
-    @str_option("--pidfile")
-    @str_option("--proc-name")
-    @str_option("--chdir")
-    @str_option("-u", "--user")
-    @str_option("-g", "--group")
-    def wrapper(**kwargs):
-        without_blanks = {k: v for k, v in kwargs.items() if v}
-        return func(**without_blanks)
-
-    return wrapper

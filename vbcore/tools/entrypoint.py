@@ -10,6 +10,7 @@ from vbcore.tools.initializer.init import main as main_init
 from vbcore.tools.scheduler import main as main_scheduler
 from vbcore.tools.sendmail import sendmail as main_sendmail
 from vbcore.tools.sftp import main as main_sftp
+from vbcore.tools.wsgi_gunicorn import main as main_gunicorn
 from vbcore.version import __version__
 
 SetupLoggers()
@@ -30,6 +31,8 @@ main.add_command(main_init)
 main.add_command(main_scheduler)
 main.add_command(main_sendmail)
 main.add_command(main_sftp)
+main.add_command(main_gunicorn)
+
 
 if __name__ == "__main__":
     main()

@@ -1,22 +1,19 @@
 import os
 from unittest.mock import patch
 
-from click.testing import CliRunner
-
 from vbcore.tester.asserter import Asserter
 from vbcore.tools.entrypoint import main
 from vbcore.tools.initializer.init import init_app
 
 
 @patch("vbcore.tools.initializer.init.init_app")
-def test_init_app_entrypoint(mock_init_app):
-    _ = mock_init_app
-
-    runner = CliRunner()
-    result = runner.invoke(main, ["init", "testapp"])
+def test_init(mock_init_app, runner):
+    result = runner.invoke(main, ["init", "newapp"])
 
     Asserter.assert_none(result.exception, error=result.output)
     Asserter.assert_equals(result.exit_code, 0)
+
+    mock_init_app.assert_called_once_with("newapp")
 
 
 def test_init_app(tmpdir):
