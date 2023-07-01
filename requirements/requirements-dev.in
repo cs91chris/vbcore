@@ -17,9 +17,6 @@ pipdeptree
 pylint
 radon
 
-sqlalchemy-stubs
-sqlalchemy[mypy]
-
 types-backports
 types-chardet
 types-paramiko

@@ -10,7 +10,7 @@ attrs==23.1.0
     # via
     #   -c requirements/requirements-test.txt
     #   flake8-bugbear
-autoflake==2.1.1
+autoflake==2.2.0
     # via -r requirements/requirements-dev.in
 bandit==1.7.5
     # via -r requirements/requirements-dev.in
@@ -52,7 +52,7 @@ cryptography==41.0.1
     #   types-paramiko
 dill==0.3.6
     # via pylint
-dparse==0.6.2
+dparse==0.6.3
     # via safety
 flake8==6.0.0
     # via
@@ -64,10 +64,6 @@ gitdb==4.0.10
     # via gitpython
 gitpython==3.1.31
     # via bandit
-greenlet==2.0.2
-    # via
-    #   -c requirements/requirements-all.txt
-    #   sqlalchemy
 humanfriendly==10.0
     # via coloredlogs
 idna==3.4
@@ -97,10 +93,7 @@ mdurl==0.1.2
     #   -c requirements/requirements-build.txt
     #   markdown-it-py
 mypy==0.991
-    # via
-    #   -r requirements/requirements-dev.in
-    #   sqlalchemy
-    #   sqlalchemy-stubs
+    # via -r requirements/requirements-dev.in
 mypy-extensions==1.0.0
     # via
     #   black
@@ -116,7 +109,7 @@ pathspec==0.11.1
     # via black
 pbr==5.11.1
     # via stevedore
-pip-tools==6.13.0
+pip-tools==6.14.0
     # via -r requirements/requirements-dev.in
 pipdeptree==2.9.3
     # via -r requirements/requirements-dev.in
@@ -171,25 +164,19 @@ six==1.16.0
     #   mando
 smmap==5.0.0
     # via gitdb
-sqlalchemy[mypy]==1.4.48
-    # via -r requirements/requirements-dev.in
-sqlalchemy-stubs==0.4
-    # via -r requirements/requirements-dev.in
-sqlalchemy2-stubs==0.0.2a34
-    # via sqlalchemy
 stevedore==5.1.0
     # via bandit
 toml==0.10.2
-    # via
-    #   dparse
-    #   liccheck
+    # via liccheck
 tomli==2.0.1
     # via
     #   -c requirements/requirements-test.txt
     #   autoflake
     #   black
     #   build
+    #   dparse
     #   mypy
+    #   pip-tools
     #   pylint
     #   pyproject-hooks
 tomlkit==0.11.8
@@ -216,12 +203,11 @@ types-urllib3==1.26.25.13
     # via types-requests
 types-xmltodict==0.13.0.2
     # via -r requirements/requirements-dev.in
-typing-extensions==4.6.3
+typing-extensions==4.7.0
     # via
+    #   -c requirements/requirements-all.txt
     #   astroid
     #   mypy
-    #   sqlalchemy-stubs
-    #   sqlalchemy2-stubs
 urllib3==2.0.3
     # via
     #   -c requirements/requirements-test.txt

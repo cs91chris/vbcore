@@ -1,5 +1,5 @@
 -c requirements.txt
 -c requirements-build.txt
 
-sqlalchemy<2
+sqlalchemy
 sqlalchemy_schemadisplay

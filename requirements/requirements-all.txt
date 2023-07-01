@@ -157,10 +157,14 @@ six==1.16.0
     #   -r requirements/requirements.txt
     #   apscheduler
     #   python-dateutil
-sqlalchemy==1.4.48
+sqlalchemy==2.0.17
     # via -r requirements/requirements-db.txt
 sqlalchemy-schemadisplay==1.3
     # via -r requirements/requirements-db.txt
+typing-extensions==4.7.0
+    # via
+    #   -r requirements/requirements-db.txt
+    #   sqlalchemy
 tzlocal==5.0.1
     # via
     #   -r requirements/requirements-scheduler.txt

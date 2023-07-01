@@ -1,5 +1,6 @@
 import pytest
 import sqlalchemy as sa
+from sqlalchemy.orm import Mapped, mapped_column
 
 from vbcore.db.exceptions import DBDuplicateEntry
 from vbcore.db.mixins import CatalogMixin, ExtraMixin
@@ -10,7 +11,7 @@ from vbcore.tester.asserter import Asserter
 class SampleExtraModel(Model, ExtraMixin):
     __tablename__ = "sample_extra_model"
 
-    id = sa.Column(sa.Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
 
 
 class SampleCatalogModel(Model, CatalogMixin):

@@ -23,7 +23,7 @@ import typing as t
 from dataclasses import dataclass
 
 from sqlalchemy import exc as sqla_exc
-from sqlalchemy.engine.interfaces import ExceptionContext
+from sqlalchemy.engine import ExceptionContext
 from sqlalchemy.exc import DBAPIError
 
 from vbcore.db.exceptions import (
@@ -476,7 +476,8 @@ def _exception_handler(
             dbe.cause = context.connection.info.pop(ROLLBACK_CAUSE_KEY)  # type: ignore
 
         if isinstance(dbe, DBConnectionError):
-            context.is_disconnect = True
+            # noinspection PyDunderSlots
+            context.is_disconnect = True  # type: ignore
 
             if hasattr(context, "is_pre_ping") and context.is_pre_ping:
                 # if this is a pre-ping, need to integrate

@@ -24,7 +24,7 @@ exceptiongroup==1.1.1
     # via
     #   hypothesis
     #   pytest
-hypothesis==6.79.2
+hypothesis==6.80.0
     # via -r requirements/requirements-test.in
 idna==3.4
     # via

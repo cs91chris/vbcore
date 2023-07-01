@@ -1,4 +1,5 @@
 import pytest
+import sqlalchemy as sa
 
 from vbcore.db import exceptions as exc
 from vbcore.tester.asserter import Asserter
@@ -119,7 +120,7 @@ def test_custom_exceptions(exception, data):
     "statement, exception, expected",
     [
         (
-            "FAIL",
+            sa.text("FAIL"),
             exc.DBError,
             {
                 "error": "DBError",
@@ -127,7 +128,7 @@ def test_custom_exceptions(exception, data):
             },
         ),
         (
-            "SELECT * FROM table_not_found",
+            sa.text("SELECT * FROM table_not_found"),
             exc.DBNonExistentTable,
             {
                 "error": "DBNonExistentTable",

@@ -2,7 +2,7 @@ import typing as t
 from functools import cached_property, partial
 
 import sqlalchemy as sa
-from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import Mapped, mapped_column
 
 from vbcore import json
 from vbcore.crypto.base import Hasher
@@ -51,22 +51,20 @@ class StandardUuidMixin(BaseMixin):
 
 
 class CatalogMixin(BaseMixin):
-    @declared_attr
-    def __table_args__(self) -> tuple:
-        return (sa.UniqueConstraint("code", "type_id"),)
+    __table_args__ = (sa.UniqueConstraint("code", "type_id"),)
 
-    id = sa.Column(sa.Integer, primary_key=True)
-    type_id = sa.Column(sa.Integer)
-    code = sa.Column(sa.String(100))
-    description = sa.Column(sa.Text())
-    order_id = sa.Column(sa.Integer, index=True)
+    id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
+    type_id: Mapped[int] = mapped_column(sa.Integer, nullable=True)
+    code: Mapped[str] = mapped_column(sa.String(100), nullable=False)
+    order_id: Mapped[str] = mapped_column(sa.Integer, nullable=True, index=True)
+    description: Mapped[str] = mapped_column(sa.Text(), nullable=True)
 
 
 class UserMixin(StandardMixin):
     _hasher_type: str = "ARGON2"
-    _password = sa.Column("password", sa.String(128), nullable=False)
+    _password: Mapped[str] = mapped_column("password", sa.String(128), nullable=False)
 
-    email = sa.Column(sa.String(255), unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(sa.String(255), unique=True, nullable=False)
 
     @cached_property
     def hasher_instance(self) -> Hasher:
@@ -86,7 +84,7 @@ class UserMixin(StandardMixin):
 
 class ExtraMixin(BaseMixin):
     _json_class = json
-    _extra: str = sa.Column(sa.Text())  # type: ignore
+    _extra: Mapped[str] = mapped_column(sa.Text())  # type: ignore
 
     @property
     def extra(self) -> t.Dict[str, t.Any]:

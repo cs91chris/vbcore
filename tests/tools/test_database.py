@@ -52,7 +52,7 @@ def test_dump_ddl(mock_dump_model_ddl, runner):
 
 
 @patch("vbcore.tools.database.mysql_dump_cli_wrapper")
-def test_mysql_backup(mock_mysql_dump_cli_wrapper, runner):
+def test_mysql_backup(mock_wrapper, runner):
     result = runner.invoke(
         main, ["database", "mysql-backup", "mysql://localhost:3306/test"]
     )
@@ -60,7 +60,7 @@ def test_mysql_backup(mock_mysql_dump_cli_wrapper, runner):
     Asserter.assert_none(result.exception, error=result.output)
     Asserter.assert_equals(result.exit_code, 0)
 
-    mock_mysql_dump_cli_wrapper.assert_called_once_with(
+    mock_wrapper.assert_called_once_with(
         db_url="mysql://localhost:3306/test",
         folder=".",
         ignore_database=(),

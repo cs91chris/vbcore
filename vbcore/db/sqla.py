@@ -6,11 +6,10 @@ from functools import partial
 
 import sqlalchemy as sa
 import sqlalchemy.exc
-from sqlalchemy.ext.declarative import as_declarative
-from sqlalchemy.orm import scoped_session, Session, sessionmaker
+from sqlalchemy.orm import as_declarative, scoped_session, Session, sessionmaker
 
 from ..base import BaseDTO
-from ..types import StrDict, StrTuple
+from ..types import OptDict, StrDict, StrTuple
 from .events import Listener
 
 SessionType = t.Union[scoped_session, Session]
@@ -24,14 +23,36 @@ class SQLAConnector:
     views_metadata = sa.MetaData()
     session_class = scoped_session
 
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         str_conn: str,
-        session_options: t.Optional[dict] = None,
+        session_options: OptDict = None,
+        echo: bool = False,
+        connect_args: OptDict = None,
+        execution_options: OptDict = None,
+        pool_pre_ping: bool = False,
+        pool_size: int = 5,
+        session_class: type = Session,
+        autoflush: bool = True,
+        autocommit: bool = False,
+        expire_on_commit: bool = True,
         **kwargs,
     ):
-        self.engine = sa.create_engine(str_conn, **kwargs)
+        self.engine = sa.create_engine(
+            url=str_conn,
+            echo=echo,
+            connect_args=connect_args or {},
+            execution_options=execution_options,
+            pool_pre_ping=pool_pre_ping,
+            pool_size=pool_size,
+            **kwargs,
+        )
         self._session_options = session_options or {}
+        self._session_options.setdefault("class_", session_class)
+        self._session_options.setdefault("autoflush", autoflush)
+        self._session_options.setdefault("autocommit", autocommit)
+        self._session_options.setdefault("expire_on_commit", expire_on_commit)
         self._factory: t.Optional[sessionmaker] = None
 
     @staticmethod
@@ -59,8 +80,10 @@ class SQLAConnector:
     @contextmanager
     def connection(self, **options) -> t.Generator[SessionType, None, None]:
         session = self.get_session(**options)
-        yield session
-        session.close()  # pylint: disable=no-member
+        try:
+            yield session
+        finally:
+            session.close()  # pylint: disable=no-member
 
     @contextmanager
     def transaction(self, **options) -> t.Generator[SessionType, None, None]:

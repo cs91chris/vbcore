@@ -10,10 +10,12 @@ pydot==1.4.2
     # via sqlalchemy-schemadisplay
 pyparsing==3.1.0
     # via pydot
-sqlalchemy==1.4.48
+sqlalchemy==2.0.17
     # via -r requirements/requirements-db.in
 sqlalchemy-schemadisplay==1.3
     # via -r requirements/requirements-db.in
+typing-extensions==4.7.0
+    # via sqlalchemy
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

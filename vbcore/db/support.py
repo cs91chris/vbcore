@@ -12,6 +12,8 @@ from vbcore.db.views import DDLViewCompiler
 from vbcore.files import FileHandler
 from vbcore.types import StrTuple
 
+SynchronizeSessionArgument = t.Literal[False, "auto", "evaluate", "fetch"]
+
 
 class SQLASupport:
     def __init__(self, model: t.Type[Model], session: Session, commit: bool = True):
@@ -87,7 +89,7 @@ class SQLASupport:
         with self.session.begin_nested():
             try:
                 query = self.fetch().with_for_update()
-                obj = query.filter_by(**kwargs).one()
+                obj = query.filter_by(**kwargs).one()  # type: ignore
             except NoResultError:
                 params = self._prepare_params(defaults, **kwargs)
                 obj, created = self._create_object(kwargs, params, lock=True)
@@ -106,7 +108,9 @@ class SQLASupport:
         columns = fields or (self.model,)
         return self.session.query(*columns).filter(*args).filter_by(**kwargs)
 
-    def delete(self, *args, synchronize: str = "evaluate", **kwargs) -> int:
+    def delete(
+        self, *args, synchronize: SynchronizeSessionArgument = "evaluate", **kwargs
+    ) -> int:
         row_count = self.fetch(*args, **kwargs).delete(synchronize)
         if self._commit:
             self.session.commit()

@@ -5,7 +5,7 @@ from vbcore.tester.asserter import Asserter
 
 
 def test_connection(local_session):
-    cursor = local_session.execute("SELECT 1")
+    cursor = local_session.execute(sa.text("SELECT 1"))
     Asserter.assert_equals(list(cursor), [(1,)])
 
 

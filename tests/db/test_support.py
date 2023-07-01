@@ -77,5 +77,5 @@ def test_update_or_create(res_id, name, support):
     support.bulk_insert([support.model(id=1, name="name-1")])
 
     support.update_or_create({"name": name}, id=res_id)
-    record = support.fetch().get(res_id)
+    record = support.fetch(id=res_id).one()
     Asserter.assert_equals(record.name, name)
