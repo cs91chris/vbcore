@@ -1,9 +1,9 @@
 import logging
 import typing as t
-from collections import OrderedDict
 
 from rule_engine import Context, resolve_item, Rule
 
+from ..types import StrDict
 from .base import RuleInfo, RuleType
 
 
@@ -74,7 +74,7 @@ class RuleEngine:
 
     def which_matches(self, rules: t.List[RuleInfo], data: dict) -> t.List[RuleInfo]:
         cursor = self.apply(rules, data)
-        return [match[0] for match in filter(lambda x: x[1] is True, cursor)]
+        return [match[0] for match in filter(lambda x: bool(x[1]) is True, cursor)]
 
     def first_match(self, rules: t.List[RuleInfo], data: dict) -> t.Optional[RuleInfo]:
         for result in self.apply(rules, data):
@@ -84,8 +84,8 @@ class RuleEngine:
 
     def perform_on_match(
         self, rules: t.List[RuleInfo], data: dict, *args, **kwargs
-    ) -> t.OrderedDict[str, t.Any]:
-        results: t.OrderedDict[str, t.Any] = OrderedDict()
+    ) -> StrDict:
+        results: StrDict = {}
         for rule, result in self.apply(rules, data):
             if rule.evaluate is True or result is True:
                 results[rule.id] = rule.action.perform(

@@ -1,12 +1,34 @@
 import pytest
 
-from vbcore.datastruct.dictionaries import ObjectDict
+from vbcore.datastruct.dictionaries import BDict, IDict, ObjectDict
 from vbcore.tester.asserter import Asserter
 
 
-@pytest.mark.skip("implement me")
-def test_idict_get_namespace():
-    """TODO implement me"""
+@pytest.mark.parametrize(
+    "lowercase, trim, expected",
+    [
+        (True, True, {"a": 11, "b": 12}),
+        (True, False, {"a_a": 11, "a_b": 12}),
+        (False, True, {"A": 11, "B": 12}),
+        (False, False, {"A_A": 11, "A_B": 12}),
+    ],
+    ids=[
+        "lower_trim",
+        "lower_no-trim",
+        "no-lower_trim",
+        "no-lower_no-trim",
+    ],
+)
+def test_idict_get_namespace(lowercase, trim, expected):
+    data = IDict(A_A=11, A_B=12, B_A=21, B_B=22)
+    namespace = data.get_namespace("A", lowercase=lowercase, trim=trim)
+    Asserter.assert_equals(namespace, expected)
+
+
+def test_idict_patch():
+    data = IDict(a=1)
+    Asserter.assert_equals(data.patch(b=2), IDict(a=1, b=2))
+    Asserter.assert_equals(data.patch({"c": 3}), IDict(a=1, b=2, c=3))
 
 
 def test_object_dict_constructor():
@@ -41,6 +63,13 @@ def test_object_dict_normalize_list():
     Asserter.assert_equals(res[1].b, data[1]["b"])
 
 
-@pytest.mark.skip("implement me")
 def test_bdict():
-    """TODO implement me"""
+    data = BDict(a="z", b="v")
+
+    Asserter.assert_equals(dict(data), {"a": "z", "b": "v"})
+    Asserter.assert_equals(dict(data.T), {"z": "a", "v": "b"})
+
+    Asserter.assert_equals("a", data.T[data["a"]])
+    Asserter.assert_equals("b", data.T[data["b"]])
+    Asserter.assert_equals("z", data[data.T["z"]])
+    Asserter.assert_equals("v", data[data.T["v"]])

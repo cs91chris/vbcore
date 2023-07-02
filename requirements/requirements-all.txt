@@ -37,6 +37,8 @@ bcrypt==4.0.1
     #   -r requirements/requirements-crypto.txt
     #   -r requirements/requirements-net.txt
     #   paramiko
+bson==0.5.10
+    # via -r requirements/requirements.txt
 certifi==2023.5.7
     # via
     #   -r requirements/requirements-http.txt
@@ -136,6 +138,7 @@ python-dateutil==2.8.2
     # via
     #   -r requirements/requirements-extra.txt
     #   -r requirements/requirements.txt
+    #   bson
     #   rule-engine
 python-decouple==3.8
     # via -r requirements/requirements.txt
@@ -156,6 +159,7 @@ six==1.16.0
     #   -r requirements/requirements-scheduler.txt
     #   -r requirements/requirements.txt
     #   apscheduler
+    #   bson
     #   python-dateutil
 sqlalchemy==2.0.17
     # via -r requirements/requirements-db.txt

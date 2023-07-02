@@ -31,7 +31,14 @@ class LRUCache(OrderedDict):
 
     def set(self, key, value):
         # pylint: disable=unnecessary-dunder-call
-        return self.__setitem__(key, value)
+        self[key] = value
+        return self[key]
+
+    def get(self, key, default=None):
+        try:
+            return self[key]
+        except AttributeError:
+            return default
 
 
 # based on: https://github.com/mailgun/expiringdict

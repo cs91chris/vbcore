@@ -1,7 +1,10 @@
+import signal
+from unittest.mock import call, MagicMock, patch
+
 import pytest
 
 from vbcore import misc
-from vbcore.misc import CommonRegex, split_kwargs
+from vbcore.misc import CommonRegex, MemoryUsage, Signal, split_kwargs, static_attr
 from vbcore.tester.asserter import Asserter
 
 
@@ -74,21 +77,37 @@ def test_split_kwargs():
     Asserter.assert_equals(unwanted, {"c": 3})
 
 
-@pytest.mark.skip("implement me")
 def test_static_attr_decorator():
-    """TODO implement me"""
+    @static_attr("attribute", "value")
+    def sample():
+        pass
+
+    Asserter.assert_equals(sample.attribute, "value")
 
 
-@pytest.mark.skip("implement me")
 def test_memory_usage_dump():
-    """TODO implement me"""
+    # NOTE: only for coverage
+    Asserter.assert_none(MemoryUsage.dump())
 
 
-@pytest.mark.skip("implement me")
-def test_signal_register():
-    """TODO implement me"""
+@patch("vbcore.misc.signal.signal")
+def test_signal_register(mock_signal: MagicMock):
+    def handler():
+        pass
+
+    Signal.register(handler, signal.SIGHUP, signal.SIGINT)
+    mock_signal.assert_has_calls(
+        [
+            call(signal.SIGHUP, handler),
+            call(signal.SIGINT, handler),
+        ]
+    )
 
 
-@pytest.mark.skip("implement me")
-def test_signal_handle_terminate():
-    """TODO implement me"""
+@patch("vbcore.misc.sys.exit")
+def test_signal_handle_terminate(mock_sys_exit: MagicMock):
+    signum = 255
+    callback = MagicMock()
+    Signal.handle_terminate(signum, MagicMock(), callback)
+    callback.assert_called_once_with()
+    mock_sys_exit.assert_called_once_with(signum)

@@ -1,20 +1,39 @@
 from time import sleep
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
-import pytest
-
-from vbcore.datastruct.cache import ExpiringCache
+from vbcore.datastruct.cache import ExpiringCache, LRUCache, TimedLRUCache
 from vbcore.tester.asserter import Asserter
 
 
-@pytest.mark.skip("implement me")
 def test_lru_cache():
-    """TODO implement me"""
+    cache = LRUCache(maxsize=3)
+
+    cache.set(1, 1)
+    cache.set(2, 2)
+    cache.set(3, 3)
+
+    cache.get(1)
+    cache.set(4, 4)
+
+    Asserter.assert_equals(dict(cache), {3: 3, 1: 1, 4: 4})
 
 
-@pytest.mark.skip("implement me")
 def test_timed_lru_cache_decorator():
-    """TODO implement me"""
+    mock = MagicMock()
+    cache = TimedLRUCache(milliseconds=1)
+
+    @cache
+    def sample(data: int):
+        return mock(data)
+
+    sample(1)
+    mock.assert_called_once_with(1)
+    mock.reset_mock()
+    sample(1)
+    mock.assert_not_called()
+    sleep(0.002)
+    sample(1)
+    mock.assert_called_once_with(1)
 
 
 def test_expiring_cache_getter_setter():

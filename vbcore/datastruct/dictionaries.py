@@ -10,8 +10,11 @@ class HashableDict(dict):
 
 
 class IDict(dict):
-    def patch(self: D, __dict: D, **kwargs) -> D:
-        super().update(__dict, **kwargs)
+    def patch(self: D, __dict: t.Optional[D] = None, **kwargs) -> D:
+        if __dict:
+            super().update(__dict)
+        else:
+            super().update(**kwargs)
         return self
 
     def get_namespace(
@@ -28,10 +31,11 @@ class IDict(dict):
         :param lowercase: a flag indicating if the keys should be lowercase
         :param trim: a flag indicating if the keys should include the namespace
         """
+        _prefix = f"{prefix}_"
         data: D = self.__class__()
         for k, v in self.items():
-            if k.startswith(prefix):
-                key = k[len(prefix) :] if trim else k
+            if k.startswith(_prefix):
+                key = k[len(_prefix) :] if trim else k
                 data[key.lower() if lowercase else key] = v
         return data
 
@@ -85,12 +89,13 @@ class BDict(dict):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.inverse = {v: k for k, v in self.items()}
+        # pylint: disable=invalid-name
+        self.T = {v: k for k, v in self.items()}
 
     def __setitem__(self, key, value):
         super().__setitem__(key, value)
-        self.inverse[value] = key
+        self.T[value] = key
 
     def __delitem__(self, key):
         super().__delitem__(key)
-        del self.inverse[self[key]]
+        del self.T[self[key]]

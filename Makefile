@@ -136,10 +136,7 @@ mypy:
 		${PACKAGE} tests
 
 run-tox:
-	tox \
-		-vvv \
-		--recreate \
-		--exit-and-dump-after 180
+	tox -vv --recreate
 
 test:
 	PYTHONPATH=. pytest -v -rf --strict-markers \

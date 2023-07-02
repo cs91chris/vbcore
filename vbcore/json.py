@@ -1,5 +1,6 @@
 import datetime
 import json
+import traceback
 import uuid
 from collections import Counter, defaultdict, deque, OrderedDict
 from decimal import Decimal
@@ -7,20 +8,13 @@ from enum import Enum
 from types import SimpleNamespace
 from typing import Any, Callable, Optional, Type, Union
 
+from bson.objectid import InvalidId, ObjectId
+
 from vbcore.types import CoupleStr, OptInt
 
 OptCallableHook = Optional[Callable[[Any], Any]]
 
 JSONDecodeError = json.JSONDecodeError
-
-
-try:
-    # noinspection PyUnresolvedReferences
-    from bson import ObjectId
-    from bson.errors import InvalidId
-except ImportError:  # pragma: no cover
-    ObjectId = str
-    InvalidId = ValueError
 
 
 class SetsEncoderMixin(json.JSONEncoder):
@@ -68,20 +62,13 @@ class CollectionsEncoderMixin(json.JSONEncoder):
             return list(o)
         if isinstance(o, (defaultdict, OrderedDict, Counter)):
             return dict(o)
-        try:
-            # check for namedtuple compliant
-            # noinspection PyProtectedMember
-            return o._asdict()
-        except AttributeError:
-            pass
-
         return super().default(o)
 
 
-class HexUUIDMixin(json.JSONEncoder):
+class UUIDMixin(json.JSONEncoder):
     def default(self, o, *_, **__):
         if isinstance(o, uuid.UUID):
-            return o.hex
+            return str(o)
         return super().default(o)
 
 
@@ -108,7 +95,7 @@ class JsonEncoder(
     DateTimeEncoderMixin,
     NamespaceEncoderMixin,
     CollectionsEncoderMixin,
-    HexUUIDMixin,
+    UUIDMixin,
     ObjectIdMixin,
     DictableMixin,
 ):
@@ -121,37 +108,30 @@ class JsonEncoder(
 
 
 class JsonDecoderMixin:
-    @classmethod
-    def custom_object_hook(cls, data: dict) -> dict:
+    def custom_object_hook(self, data: dict) -> dict:
         return data
-
-    @classmethod
-    def custom_field_hook(cls, value):
-        return value
 
 
 class JsonISODateDecoder(JsonDecoderMixin):
     ISO_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
-    @classmethod
-    def custom_field_hook(cls, value):
-        if isinstance(value, str):
+    def custom_object_hook(self, data: dict):
+        if "$datetime" in data:
             try:
-                return datetime.datetime.strptime(value, cls.ISO_FORMAT)
+                return datetime.datetime.strptime(data["$datetime"], self.ISO_FORMAT)
             except (TypeError, ValueError):
-                return value
+                traceback.print_exc()
 
-        return super().custom_object_hook(value)
+        return super().custom_object_hook(data)
 
 
 class JsonObjectIdDecoder(JsonDecoderMixin):
-    @classmethod
-    def custom_object_hook(cls, data: dict):
+    def custom_object_hook(self, data: dict):
         if "$oid" in data:
             try:
                 return ObjectId(data["$oid"])
             except (TypeError, InvalidId):
-                return data
+                traceback.print_exc()
 
         return super().custom_object_hook(data)
 
@@ -159,15 +139,6 @@ class JsonObjectIdDecoder(JsonDecoderMixin):
 class BaseJsonDecoder(json.JSONDecoder, JsonDecoderMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(object_hook=self.custom_object_hook, *args, **kwargs)
-
-    @classmethod
-    def custom_object_hook(cls, data: dict) -> dict:
-        # noinspection PyBroadException
-        try:
-            data = super().custom_object_hook(data)
-            return {k: super().custom_field_hook(v) for k, v in data.items()}
-        except Exception:  # pylint: disable=broad-except
-            return data
 
 
 class JsonDecoder(

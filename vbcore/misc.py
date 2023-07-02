@@ -114,11 +114,10 @@ class Signal:
         sys.exit(signum)
 
     @classmethod
-    def register(cls, handler: t.Callable, *signals):
+    def register(cls, handler: t.Callable, *signals: int):
         for s in signals:
             try:
-                sig = getattr(signal, s)
-                signal.signal(sig, handler)
+                signal.signal(s, handler)
             except Exception as exc:  # pylint: disable=broad-except
                 Printer.error(f"unable to register signal {s}: {exc}")
 

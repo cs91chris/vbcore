@@ -1,4 +1,3 @@
-import logging
 import typing as t
 from io import StringIO
 
@@ -7,21 +6,22 @@ from apscheduler.job import Job
 from apscheduler.schedulers.base import BaseScheduler
 from apscheduler.schedulers.blocking import BlockingScheduler
 
+from vbcore.base import BaseLoggerMixin
 from vbcore.datastruct.lazy import Dumper, LazyDump
+from vbcore.types import OptDict, StrDict
 from vbcore.uuid import get_uuid
 
 
-class APScheduler:
+class APScheduler(BaseLoggerMixin):
     def __init__(
         self,
         *args,
         scheduler: t.Type[BaseScheduler] = BlockingScheduler,
-        gconfig: dict = None,
+        gconfig: StrDict = None,
         events_to_listen: int = None,
         auto_start: bool = False,
         **kwargs,
     ):
-        self.logger = logging.getLogger(self.__module__)
         super().__init__(*args, **kwargs)
         self._scheduler = scheduler(gconfig or {})
         self._events = events_to_listen or scheduler_events.EVENT_ALL
@@ -35,7 +35,7 @@ class APScheduler:
     ) -> "APScheduler":
         instance = cls(scheduler=scheduler_class, **config["SCHEDULER"])
         instance.load_jobs(config["JOBS"])
-        instance.logger.info("%s", LazyDump(instance.dump_jobs))
+        instance.log.info("%s", LazyDump(instance.dump_jobs))
         return instance
 
     @property
@@ -57,17 +57,15 @@ class APScheduler:
         if not event.code & self._events:
             return
 
-        self.logger.debug(
-            "received event %s", Dumper(event, callback=self.repr_job_event)
-        )
+        self.log.debug("received event %s", Dumper(event, callback=self.repr_job_event))
         if event.code == scheduler_events.EVENT_JOB_ERROR:
-            self.logger.error("An error occurred when executing job: %s", event.job_id)
-            self.logger.exception(event.exception)
-            self.logger.error(event.traceback)
+            self.log.error("An error occurred when executing job: %s", event.job_id)
+            self.log.exception(event.exception)
+            self.log.error(event.traceback)
         elif event.code == scheduler_events.EVENT_JOB_ADDED:
-            self.logger.info("successfully added job: %s", event.job_id)
+            self.log.info("successfully added job: %s", event.job_id)
         elif event.code == scheduler_events.EVENT_JOB_EXECUTED:
-            self.logger.info(
+            self.log.info(
                 "successfully executed job: %s, returned value: %s",
                 event.job_id,
                 event.retval,
@@ -85,14 +83,14 @@ class APScheduler:
         self,
         task: t.Union[t.Callable, str],
         *args,
-        params: t.Optional[dict] = None,
+        params: OptDict = None,
         **kwargs,
     ) -> Job:
         job_id = self.get_id()
         job = self._scheduler.add_job(
             task, args=args, kwargs=params, id=job_id, **kwargs
         )
-        self.logger.debug("added job '%s' with id '%s'", task, job_id)
+        self.log.debug("added job '%s' with id '%s'", task, job_id)
         return job
 
     def __del__(self):

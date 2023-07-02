@@ -114,11 +114,11 @@ class Static(type):
     >>> MyStaticClass()
     Traceback (most recent call last):
         ...
-    TypeError: Can't instantiate Static class MyStaticClass
+    TypeError: can not instantiate Static class MyStaticClass
     """
 
     def __call__(cls):
-        raise TypeError(f"Can't instantiate Static class {cls.__name__}")
+        raise TypeError(f"can not instantiate Static class {cls.__name__}")
 
 
 class Decorator:
