@@ -11,9 +11,8 @@ from email.utils import formatdate, make_msgid, parseaddr
 from email_validator import caching_resolver, validate_email, ValidatedEmail
 
 from vbcore.files import FileHandler
-from vbcore.misc import CommonRegex
+from vbcore.misc import CommonRegex, get_uuid
 from vbcore.types import CoupleStr, OptStr, StrDict, StrList, StrTuple
-from vbcore.uuid import get_uuid
 
 AddressType = t.Union[str, StrTuple]
 

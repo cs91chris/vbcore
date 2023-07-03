@@ -2,8 +2,8 @@ from contextvars import ContextVar
 from dataclasses import dataclass, field
 from typing import ClassVar, Optional, Type, TypeVar
 
-from vbcore import uuid
 from vbcore.base import BaseDTO
+from vbcore.misc import check_uuid, get_uuid
 
 C = TypeVar("C", bound="ContextMetadata")
 
@@ -48,8 +48,8 @@ class ContextCorrelationId(ContextMetadata):
 
     @classmethod
     def generate_correlation_id(cls) -> str:
-        return str(uuid.get_uuid(hex_=False))
+        return str(get_uuid(hex_=False))
 
     @classmethod
     def check_correlation_id(cls, correlation_id: str) -> bool:
-        return uuid.check_uuid(correlation_id)
+        return check_uuid(correlation_id)

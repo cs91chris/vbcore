@@ -8,8 +8,8 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 
 from vbcore.base import BaseLoggerMixin
 from vbcore.datastruct.lazy import Dumper, LazyDump
+from vbcore.misc import get_uuid
 from vbcore.types import OptDict, StrDict
-from vbcore.uuid import get_uuid
 
 
 class APScheduler(BaseLoggerMixin):

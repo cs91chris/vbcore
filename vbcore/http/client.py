@@ -5,9 +5,9 @@ from requests import auth, exceptions as http_exc, request as send_request, Resp
 
 from vbcore.datastruct import ObjectDict
 from vbcore.http.headers import HeaderEnum
-from vbcore.uuid import get_uuid
+from vbcore.misc import get_uuid
+from vbcore.types import OptStr
 
-from ..types import OptStr
 from . import httpcode
 from .httpdumper import LazyHTTPDumper
 from .methods import HttpMethod

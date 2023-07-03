@@ -1,4 +1,3 @@
-import json
 import logging
 import logging.config
 import os
@@ -9,6 +8,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
 
+from vbcore import json
 from vbcore.base import Static
 from vbcore.context import ContextCorrelationId, ContextMetadata
 from vbcore.files import FileHandler
@@ -82,7 +82,7 @@ class SetupLoggers:
             return False
 
         with FileHandler(config_file).open() as file:
-            logging.config.dictConfig(json.load(file))
+            logging.config.dictConfig(json.loads(file.read()))
         return True
 
     def prepare_listener(self):

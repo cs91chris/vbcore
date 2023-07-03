@@ -5,7 +5,7 @@ import pytest
 from vbcore.base import BaseDTO, Decorator, LogError, Singleton, Static
 from vbcore.tester.asserter import Asserter
 
-_ = BaseDTO, Singleton, Static, Decorator, LogError
+_ = Decorator, LogError
 
 
 @dataclass(frozen=True)

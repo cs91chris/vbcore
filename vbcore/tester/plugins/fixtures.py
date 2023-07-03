@@ -2,7 +2,7 @@
 
 import pytest
 
-from vbcore.uuid import get_uuid
+from vbcore.misc import get_uuid
 
 
 @pytest.fixture(scope="session")

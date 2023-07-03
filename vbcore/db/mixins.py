@@ -7,8 +7,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 from vbcore import json
 from vbcore.crypto.base import Hasher
 from vbcore.crypto.factory import CryptoFactory
+from vbcore.misc import get_uuid
 from vbcore.types import StrDict
-from vbcore.uuid import get_uuid
 
 if t.TYPE_CHECKING:
     hybrid_property = property  # pylint: disable=C0103

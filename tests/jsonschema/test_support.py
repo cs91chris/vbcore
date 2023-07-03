@@ -7,8 +7,6 @@ from vbcore.jsonschema.schemas.jsonrpc import JSONRPC
 from vbcore.jsonschema.support import JSONSchema
 from vbcore.tester.asserter import Asserter
 
-_ = JSONSchema, JSONRPC
-
 
 @pytest.mark.skip("implement me")
 def test_jsonschema_load_from_url():
