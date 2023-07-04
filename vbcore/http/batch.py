@@ -18,9 +18,8 @@ class HTTPBatch(HTTPBase, AsyncBatchExecutor):
         dump_body: DumpBodyType = False,
         timeout: int = 10,
         raise_on_exc: bool = False,
-        logger=None,
     ):
-        HTTPBase.__init__(self, endpoint, dump_body, timeout, raise_on_exc, logger)
+        HTTPBase.__init__(self, endpoint, dump_body, timeout, raise_on_exc)
         AsyncBatchExecutor.__init__(self, return_exceptions=not self._raise_on_exc)
 
     async def http_request(
@@ -32,9 +31,7 @@ class HTTPBatch(HTTPBase, AsyncBatchExecutor):
         dump_body = self.dump_body_flags(dump_body, **kwargs)
 
         try:
-            self._logger.info(
-                "%s", self.dump_request(ObjectDict(**kwargs), dump_body[0])
-            )
+            self.log.info("%s", self.dump_request(ObjectDict(**kwargs), dump_body[0]))
             async with aiohttp.ClientSession(
                 timeout=aiohttp.ClientTimeout(
                     sock_read=timeout or self._timeout,
@@ -56,9 +53,9 @@ class HTTPBatch(HTTPBase, AsyncBatchExecutor):
                     log_resp.text = response.body
                     log_resp = self.dump_response(log_resp, dump_body[1])
                     resp.raise_for_status()
-                    self._logger.info("%s", log_resp)
+                    self.log.info("%s", log_resp)
                 except aiohttp.ClientResponseError as exc:
-                    self._logger.warning("%s", log_resp)
+                    self.log.warning("%s", log_resp)
                     if self._raise_on_exc is True:
                         raise  # pragma: no cover
                     response.exception = exc
@@ -68,7 +65,7 @@ class HTTPBatch(HTTPBase, AsyncBatchExecutor):
             aiohttp.ServerTimeoutError,
             asyncio.TimeoutError,
         ) as exc:
-            self._logger.exception(exc)
+            self.log.exception(exc)
             if self._raise_on_exc is True:
                 raise  # pragma: no cover
 

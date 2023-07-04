@@ -6,13 +6,13 @@ from apscheduler.job import Job
 from apscheduler.schedulers.base import BaseScheduler
 from apscheduler.schedulers.blocking import BlockingScheduler
 
-from vbcore.base import BaseLoggerMixin
 from vbcore.datastruct.lazy import Dumper, LazyDump
+from vbcore.loggers import VBLoggerMixin
 from vbcore.misc import get_uuid
 from vbcore.types import OptDict, StrDict
 
 
-class APScheduler(BaseLoggerMixin):
+class APScheduler(VBLoggerMixin):
     def __init__(
         self,
         *args,

@@ -55,7 +55,7 @@ class UserAgent(BaseDTO):
         return self.raw
 
     @classmethod
-    def parse(cls, user_agent: str):
+    def parse(cls, user_agent: str) -> "UserAgent":
         parsed = cls.parser_class(user_agent)
 
         return cls(

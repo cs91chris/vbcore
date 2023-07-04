@@ -2,8 +2,10 @@ import json
 import time
 from unittest import TestCase
 
+import pytest
+
 from vbcore.files import TempFile
-from vbcore.loggers import Log, LoggingSettings, SetupLoggers
+from vbcore.loggers import Log, LogError, LoggingSettings, SetupLoggers
 
 LOGGER_NAME = "vbcore"
 
@@ -68,3 +70,9 @@ class TestLoggers(TestCase):
             Log.get(LOGGER_NAME).debug("TEST")
 
         self.assertEqual(len(captured.records), 1)
+
+
+@pytest.mark.skip("implement me")
+def test_log_error_decorator():
+    """TODO implement me"""
+    _ = LogError

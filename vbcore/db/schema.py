@@ -7,6 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import class_mapper
 from sqlalchemy_schemadisplay import create_schema_graph, create_uml_graph
 
+from vbcore.loggers import Log
 from vbcore.types import OptStr
 
 
@@ -27,8 +28,8 @@ def model_to_uml(
         try:
             cls = getattr(models, attr)
             mappers.append(class_mapper(cls))
-        except SQLAlchemyError:
-            pass
+        except SQLAlchemyError as exc:
+            Log.get(__name__).warning(exc, exc_info=True)
 
     return create_uml_graph(
         mappers,

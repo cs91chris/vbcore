@@ -3,11 +3,11 @@
 
 import os
 import re
-import sys
 
 import yaml
 
 from .datastruct import ObjectDict
+from .loggers import Log
 
 ENV_VAR_MATCHER = re.compile(
     r"""
@@ -38,17 +38,16 @@ def loads(data, loader=None, as_object: bool = True):
     return data
 
 
-def load_yaml_file(filename: str, encoding="utf-8", **kwargs):
+def load_yaml_file(filename: str, encoding: str = "utf-8", **kwargs):
     with open(filename, encoding=encoding) as f:
         return loads(f, **kwargs)
 
 
-def load_optional_yaml_file(filename: str, default=None, debug: bool = False, **kwargs):
+def load_optional_yaml_file(filename: str, default=None, **kwargs):
     try:
         return load_yaml_file(filename, **kwargs)
     except OSError as exc:
-        if debug is True:
-            print(f"WARN: {exc}", file=sys.stderr)
+        Log.get(__name__).warning(exc, exc_info=True)
         return ObjectDict() if default is None else default
 
 
@@ -58,7 +57,7 @@ def _replace_env_var(match):
     if value is None:
         if default is None:
             # regex module return None instead of ''
-            # if engine didn't entered default capture group
+            # if engine did not enter default capture group
             default = ""
 
         value = default

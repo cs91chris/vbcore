@@ -4,12 +4,14 @@ import os
 import socket
 import struct
 import typing as t
+from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
+from functools import cached_property
 
 from vbcore import json
-from vbcore.base import Static
+from vbcore.base import Decorator, Static
 from vbcore.context import ContextCorrelationId, ContextMetadata
 from vbcore.files import FileHandler
 from vbcore.types import OptStr
@@ -36,6 +38,21 @@ class VBLogger(LoggerClass):
 
 class VBRootLogger(logging.RootLogger, VBLogger):
     pass
+
+
+def patch_logging():
+    setattr(logging, "ALERT", ALERT)  # noqa: B010
+    setattr(logging, "TRACE", TRACE)  # noqa: B010
+
+    logging.addLevelName(ALERT, "ALERT")
+    logging.addLevelName(TRACE, "TRACE")
+    logging.setLoggerClass(VBLogger)
+
+    root_logger = VBRootLogger(logging.WARNING)
+    logging.Logger.manager = logging.Manager(root_logger)
+    logging.root = root_logger
+
+    logging.captureWarnings(os.environ.get("LOG_CAPTURE_WARNING", True))
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -160,16 +177,49 @@ class Log(metaclass=Static):
         )
 
 
-def patch_logging():
-    setattr(logging, "ALERT", ALERT)  # noqa: B010
-    setattr(logging, "TRACE", TRACE)  # noqa: B010
+LogClass = t.TypeVar("LogClass", bound=logging.Logger)
 
-    logging.addLevelName(ALERT, "ALERT")
-    logging.addLevelName(TRACE, "TRACE")
-    logging.setLoggerClass(VBLogger)
 
-    __root_logger = VBRootLogger(logging.WARNING)
-    logging.Logger.manager = logging.Manager(__root_logger)
-    logging.root = __root_logger
+class LoggerMixin(ABC, t.Generic[LogClass]):
+    @classmethod
+    @abstractmethod
+    def logger(cls, name: OptStr = None) -> LogClass:
+        """returns the logger instance"""
 
-    logging.captureWarnings(os.environ.get("LOG_CAPTURE_WARNING", True))
+    @cached_property
+    def log(self) -> LogClass:
+        return self.logger()
+
+
+class VBLoggerMixin(LoggerMixin[VBLogger]):
+    @classmethod
+    def logger(cls, name: OptStr = None) -> VBLogger:
+        return Log.get(name or cls.__module__)
+
+
+class LogError(Decorator, VBLoggerMixin):
+    def __init__(
+        self,
+        message: str = "",
+        logger: OptStr = None,
+        reraise: bool = True,
+        only: t.Tuple[t.Type[Exception], ...] = (),
+    ):
+        self.message = message
+        self.reraise = reraise
+        self.logger_name = logger
+        self.only_execs = only or (Exception,)
+
+    def finally_hook(self) -> None:
+        """hook called at finally stage of error handling"""
+
+    def perform(self, function: t.Callable, *args, **kwargs) -> t.Any:
+        try:
+            return super().perform(function, *args, **kwargs)
+        except self.only_execs as exc:
+            self.logger(self.logger_name).exception(self.message or exc)
+            if self.reraise:
+                raise
+        finally:
+            self.finally_hook()
+        return None

@@ -1,6 +1,5 @@
 import abc
 import dataclasses
-import logging
 import threading
 import typing as t
 from contextlib import contextmanager
@@ -9,6 +8,8 @@ from queue import Queue
 
 from vbcore import aio
 from vbcore.enums import StrEnum
+from vbcore.loggers import VBLoggerMixin
+from vbcore.types import OptDict
 
 
 class BatchExecutor:
@@ -60,7 +61,7 @@ class Thread(threading.Thread):
         self,
         runnable: t.Callable,
         *args,
-        params: t.Optional[dict] = None,
+        params: OptDict = None,
         daemon: bool = False,
         **kwargs,
     ):
@@ -139,7 +140,6 @@ class PCTask(abc.ABC):
     def __init__(self, *args, **kwargs):
         self._args = args
         self._kwargs = kwargs
-        self._log = logging.getLogger(self.__module__)
 
     @abc.abstractmethod
     def perform(self, item):
@@ -157,7 +157,6 @@ class IProducerConsumerBatchExecutor(abc.ABC):
         self._producer = producer
         self._consumer = consumer
         self.is_running: bool = False
-        self._log = logging.getLogger(self.__module__)
 
     @contextmanager
     def runner(self):
@@ -202,7 +201,7 @@ class LinearExecutor(IProducerConsumerBatchExecutor):
         self._consumer.perform(product)
 
 
-class ProducerConsumerBatchExecutor(IProducerConsumerBatchExecutor):
+class ProducerConsumerBatchExecutor(IProducerConsumerBatchExecutor, VBLoggerMixin):
     def __init__(
         self,
         producer: PCTask,
@@ -238,32 +237,37 @@ class ProducerConsumerBatchExecutor(IProducerConsumerBatchExecutor):
         workers: t.Tuple[t.Callable, WorkersType],
     ):
         self._thread_class(single[0], daemon=True, name=single[1]).start()
+        self.log.debug("started thread %s with %s", single[1], single[0])
         for num in range(0, self.size.pool_workers):
             name = f"{workers[1]}-{num+1}"
             self._thread_class(workers[0], daemon=True, name=name).start()
+            self.log.debug("started thread %s with %s", name, workers[0])
 
     def consumer(self):
         while True:
             item = self._consumer_queue.get()
+            self.log.debug("get item from consumer queue: %s", item)
             try:
                 self._consumer.perform(item)
             except Exception as exc:  # pylint: disable=broad-except
-                self._log.exception(exc)
+                self.log.exception(exc)
             finally:
                 self._consumer_queue.task_done()
 
     def producer(self):
         while True:
             item = self._producer_queue.get()
+            self.log.debug("get item from producer queue: %s", item)
             try:
                 item = self._producer.perform(item)
                 self._consumer_queue.put(item)
             except Exception as exc:  # pylint: disable=broad-except
-                self._log.exception(exc)
+                self.log.exception(exc)
             finally:
                 self._producer_queue.task_done()
 
     def barrier(self):
+        self.log.debug("lock barrier reached")
         self._producer_queue.join()
         self._consumer_queue.join()
         super().barrier()

@@ -308,7 +308,7 @@ class FlatDict(MutableMapping):
         self.__delitem__(key)  # pylint: disable=unnecessary-dunder-call
         return value
 
-    def setdefault(self, key, default):
+    def setdefault(self, key, default=None):
         """
         If key is in the flat dictionary, return its value. If not,
         insert key with a value of default and return default.
@@ -339,7 +339,7 @@ class FlatDict(MutableMapping):
             if isinstance(self._values[key], FlatDict):
                 self._values[key].set_delimiter(delimiter)
 
-    def update(self, other, **kwargs):
+    def update(self, __m=None, **kwargs):  # pylint: disable=arguments-differ
         """
         Update the flat dictionary with the key/value pairs from other,
         overwriting existing keys.
@@ -351,7 +351,7 @@ class FlatDict(MutableMapping):
 
         :rtype: None
         """
-        for k, v in dict(other or kwargs).items():
+        for k, v in dict(__m or kwargs).items():
             self[k] = v
 
     def values(self):

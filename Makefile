@@ -136,7 +136,7 @@ mypy:
 		${PACKAGE} tests
 
 run-tox:
-	tox -vv --recreate
+	tox -v --recreate
 
 test:
 	PYTHONPATH=. pytest -v -rf --strict-markers \

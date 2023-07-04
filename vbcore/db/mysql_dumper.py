@@ -7,8 +7,8 @@ from datetime import datetime
 from itertools import groupby
 from subprocess import CompletedProcess, PIPE, run as run_subprocess  # nosec
 
-from vbcore.base import BaseLoggerMixin
 from vbcore.date_helper import DateTimeFmt
+from vbcore.loggers import VBLoggerMixin
 from vbcore.net.helpers import Url
 from vbcore.types import CoupleStr, OptInt, OptStr, StrList, StrTuple
 
@@ -113,7 +113,7 @@ class MySQLDumper:
         return MySQLDump(database=database, table=table, dump=result.stdout)
 
 
-class MysqlBackup(BaseLoggerMixin):
+class MysqlBackup(VBLoggerMixin):
     def __init__(
         self,
         dumper: MySQLDumper,

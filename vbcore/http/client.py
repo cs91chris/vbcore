@@ -1,4 +1,3 @@
-import logging
 import typing as t
 
 from requests import auth, exceptions as http_exc, request as send_request, Response
@@ -8,6 +7,7 @@ from vbcore.http.headers import HeaderEnum
 from vbcore.misc import get_uuid
 from vbcore.types import OptStr
 
+from ..loggers import VBLoggerMixin
 from . import httpcode
 from .httpdumper import LazyHTTPDumper
 from .methods import HttpMethod
@@ -52,20 +52,18 @@ class HTTPTokenAuth(auth.AuthBase):
         return response
 
 
-class HTTPBase(LazyHTTPDumper):
+class HTTPBase(LazyHTTPDumper, VBLoggerMixin):
     def __init__(
         self,
         endpoint: str,
         dump_body: DumpBodyType = False,
         timeout: int = 10,
         raise_on_exc: bool = False,
-        logger=None,
     ):
         self._timeout = timeout
         self._endpoint = endpoint
         self._raise_on_exc = raise_on_exc
         self._dump_body = self.normalize_dump_flags(dump_body)
-        self._logger = logger or logging.getLogger(self.__module__)
 
     @classmethod
     def normalize_dump_flags(
@@ -160,11 +158,11 @@ class HTTPClient(HTTPBase):
         try:
             url = self.normalize_url(uri)
             req = ObjectDict(method=method, url=url, **kwargs)
-            self._logger.info("%s", self.dump_request(req, dump_body=dump_body[0]))
+            self.log.info("%s", self.dump_request(req, dump_body=dump_body[0]))
             timeout = kwargs.pop("timeout", None) or self._timeout
             response = send_request(method, url, timeout=timeout, **kwargs)
         except NetworkError as exc:
-            self._logger.exception(exc)
+            self.log.exception(exc)
             if raise_on_exc or self._raise_on_exc:
                 raise  # pragma: no cover
 
@@ -175,9 +173,9 @@ class HTTPClient(HTTPBase):
         log_resp = self.dump_response(response, dump_body=dump_body[1])
         try:
             response.raise_for_status()
-            self._logger.info("%s", log_resp)
+            self.log.info("%s", log_resp)
         except HTTPStatusError as exc:
-            self._logger.warning("%s", log_resp)
+            self.log.warning("%s", log_resp)
             response = exc.response
             if raise_on_exc or self._raise_on_exc:
                 raise

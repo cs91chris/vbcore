@@ -1,13 +1,8 @@
 import dataclasses
 import functools
-import logging
 import typing as t
-from abc import ABC, abstractmethod
-from functools import cached_property
 
-from vbcore.types import CallableDictType, OptStr
-
-LogClass = t.TypeVar("LogClass", bound=logging.Logger)
+from vbcore.types import CallableDictType
 
 if t.TYPE_CHECKING:
     # prevent mypy issue
@@ -17,23 +12,6 @@ if t.TYPE_CHECKING:
 else:
     # TODO at the moment this is not used because pycharm issue
     Data = dataclasses.dataclass(frozen=True, kw_only=True)
-
-
-class LoggerMixin(ABC, t.Generic[LogClass]):
-    @classmethod
-    @abstractmethod
-    def logger(cls, name: OptStr = None) -> LogClass:
-        """returns the logger instance"""
-
-    @cached_property
-    def log(self) -> LogClass:
-        return self.logger()
-
-
-class BaseLoggerMixin(LoggerMixin[logging.Logger]):
-    @classmethod
-    def logger(cls, name: OptStr = None) -> logging.Logger:
-        return logging.getLogger(name or cls.__module__)
 
 
 # noinspection PyDataclass
@@ -140,35 +118,3 @@ class Decorator:
 
     def after_call_hook(self, *_, **__) -> t.Any:
         """hook called after decorated function execution"""
-
-
-class LogError(Decorator):
-    def __init__(
-        self,
-        message: str = "",
-        logger: OptStr = None,
-        reraise: bool = True,
-        only_execs: t.Tuple[t.Type[Exception], ...] = (),
-    ):
-        self.logger = logger
-        self.message = message
-        self.reraise = reraise
-        self.only_execs = only_execs or (Exception,)
-
-    @cached_property
-    def log(self) -> logging.Logger:
-        return logging.getLogger(self.logger)
-
-    def finally_hook(self) -> None:
-        """hook called at finally stage of error handling"""
-
-    def perform(self, function: t.Callable, *args, **kwargs) -> t.Any:
-        try:
-            return super().perform(function, *args, **kwargs)
-        except self.only_execs:
-            self.log.exception(self.message)
-            if self.reraise:
-                raise
-        finally:
-            self.finally_hook()
-        return None

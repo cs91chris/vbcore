@@ -4,7 +4,7 @@ from datetime import datetime
 from dateutil.parser import parse as date_parse
 
 from vbcore.base import Static
-from vbcore.types import AnyDateType, DateType
+from vbcore.types import AnyDateType, DateType, OptStr
 
 
 class Millis(metaclass=Static):
@@ -64,9 +64,9 @@ class DateHelper:
         cls,
         str_date: str,
         out_fmt: str,
-        in_fmt: t.Optional[str] = None,
+        in_fmt: OptStr = None,
         raise_exc: bool = True,
-    ) -> t.Optional[str]:
+    ) -> OptStr:
         """
 
         :param str_date: input string date
@@ -87,7 +87,7 @@ class DateHelper:
         return None
 
     @classmethod
-    def str_now(cls, is_utc: bool = True, tz=None, fmt: t.Optional[str] = None) -> str:
+    def str_now(cls, is_utc: bool = True, tz=None, fmt: OptStr = None) -> str:
         """
 
         :param is_utc:
@@ -99,12 +99,12 @@ class DateHelper:
         return cls.date_to_str(now, fmt)
 
     @classmethod
-    def date_to_str(cls, date: DateType, fmt: t.Optional[str] = None) -> str:
+    def date_to_str(cls, date: DateType, fmt: OptStr = None) -> str:
         return date.strftime(fmt or DateTimeFmt.ISO)
 
     @classmethod
     def str_to_date(
-        cls, date: str, fmt: t.Optional[str] = None, is_iso: bool = False, **kwargs
+        cls, date: str, fmt: OptStr = None, is_iso: bool = False, **kwargs
     ) -> datetime:
         """
 
@@ -140,7 +140,7 @@ class DateHelper:
 
     @classmethod
     def to_iso_format(
-        cls, str_date: str, fmt: t.Optional[str] = None, exc: bool = True
+        cls, str_date: str, fmt: OptStr = None, exc: bool = True
     ) -> t.Optional[str]:
         return DateHelper.change_format(
             str_date, in_fmt=fmt, out_fmt=DateTimeFmt.ISO, raise_exc=exc

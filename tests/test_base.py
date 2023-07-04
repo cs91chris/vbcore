@@ -2,10 +2,8 @@ from dataclasses import dataclass
 
 import pytest
 
-from vbcore.base import BaseDTO, Decorator, LogError, Singleton, Static
+from vbcore.base import BaseDTO, Decorator, Singleton, Static
 from vbcore.tester.asserter import Asserter
-
-_ = Decorator, LogError
 
 
 @dataclass(frozen=True)
@@ -55,8 +53,4 @@ def test_static_class():
 @pytest.mark.skip("implement me")
 def test_decorator_idempotent():
     """TODO implement me"""
-
-
-@pytest.mark.skip("implement me")
-def test_log_error_decorator():
-    """TODO implement me"""
+    _ = Decorator
