@@ -57,7 +57,7 @@ def test_import_instance_error():
         Importer.from_module("vbcore.misc:to_int", instance_of=str)
 
     Asserter.assert_equals(error.value.item, misc.to_int)
-    Asserter.assert_equals(error.value.instance_of, str)
+    Asserter.assert_equals(error.value.class_, str)
 
 
 def test_import_subclass_error():
@@ -65,7 +65,7 @@ def test_import_subclass_error():
         Importer.from_module("tests.test_importer:AClass", subclass_of=dict)
 
     Asserter.assert_equals(error.value.item, AClass)
-    Asserter.assert_equals(error.value.subclass_of, dict)
+    Asserter.assert_equals(error.value.class_, dict)
 
 
 def test_import_factory():

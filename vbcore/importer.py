@@ -3,6 +3,7 @@ import typing as t
 from types import ModuleType
 
 from vbcore.exceptions import VBException
+from vbcore.types import OptStr
 
 
 class ImporterError(VBException):
@@ -10,7 +11,7 @@ class ImporterError(VBException):
 
 
 class ImporterModuleError(ImporterError):
-    def __init__(self, name, exc: Exception):
+    def __init__(self, name: str, exc: Exception):
         self.name = name
         self.exception = exc
         super().__init__(f"unable to import module: {name}", orig=exc)
@@ -22,20 +23,22 @@ class ImporterValueError(ImporterError):
         super().__init__(f"class not registered: '{name}'")
 
 
-class ImporterSubclassError(ImporterError):
-    def __init__(self, item: t.Any, subclass_of: t.Type):
+class ImporterClassError(ImporterError):
+    def __init__(self, item: t.Any, class_: t.Type):
         self.item = item
-        self.subclass_of = subclass_of
-        class_name = f"{subclass_of.__module__}:{subclass_of.__name__}"
-        super().__init__(f"'{item}' must be subclass of '{class_name}'")
+        self.class_ = class_
+        self.class_name = f"{class_.__module__}:{class_.__name__}"
+        super().__init__(str(self))
 
 
-class ImporterInstanceError(ImporterError):
-    def __init__(self, item: t.Any, instance_of: t.Type):
-        self.item = item
-        self.instance_of = instance_of
-        class_name = f"{instance_of.__module__}:{instance_of.__name__}"
-        super().__init__(f"'{item}' must be instance of '{class_name}'")
+class ImporterSubclassError(ImporterClassError):
+    def __str__(self) -> str:
+        return f"'{self.item}' must be subclass of '{self.class_name}'"
+
+
+class ImporterInstanceError(ImporterClassError):
+    def __str__(self) -> str:
+        return f"'{self.item}' must be instance of '{self.class_name}'"
 
 
 class ImporterAttributeError(ImporterError):
@@ -49,17 +52,17 @@ class Importer:
     attribute_separator: str = ":"
 
     @classmethod
-    def check_subclass(cls, item: t.Any, subclass_of: t.Optional[t.Type]):
+    def check_subclass(cls, item: t.Any, subclass_of: t.Optional[t.Type]) -> None:
         if subclass_of and isinstance(item, type) and not issubclass(item, subclass_of):
             raise ImporterSubclassError(item, subclass_of)
 
     @classmethod
-    def check_isinstance(cls, item: t.Any, instance_of: t.Optional[t.Type]):
+    def check_isinstance(cls, item: t.Any, instance_of: t.Optional[t.Type]) -> None:
         if instance_of and not isinstance(item, instance_of):
             raise ImporterInstanceError(item, instance_of)
 
     @classmethod
-    def parse_string(cls, name: str) -> t.Tuple[str, t.Optional[str]]:
+    def parse_string(cls, name: str) -> t.Tuple[str, OptStr]:
         if cls.attribute_separator in name:
             mod, attr = name.split(cls.attribute_separator)
             return mod, attr
@@ -72,7 +75,7 @@ class Importer:
         *args,
         subclass_of: t.Optional[t.Type] = None,
         instance_of: t.Optional[t.Type] = None,
-        package: t.Optional[str] = None,
+        package: OptStr = None,
         call_with: bool = False,
         raise_exc: bool = True,
         **kwargs,
@@ -110,7 +113,7 @@ class Importer:
 class ImporterFactory:
     def __init__(
         self,
-        package: t.Optional[str] = None,
+        package: OptStr = None,
         base_class: t.Optional[t.Type] = None,
         classes: t.Optional[t.Dict[str, str]] = None,
     ):
