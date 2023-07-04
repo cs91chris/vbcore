@@ -8,10 +8,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formatdate, make_msgid, parseaddr
 
-from email_validator import caching_resolver, validate_email, ValidatedEmail
-
 from vbcore.files import FileHandler
-from vbcore.misc import CommonRegex, get_uuid
+from vbcore.misc import get_uuid
 from vbcore.types import CoupleStr, OptStr, StrDict, StrList, StrTuple
 
 AddressType = t.Union[str, StrTuple]
@@ -60,12 +58,6 @@ class SendMail:
     def __init__(self, params: SMTPParams, **kwargs):
         self.params = params
         self._smtp_args = kwargs
-
-    @classmethod
-    def validate_email(cls, email: str, restricted: bool = True) -> ValidatedEmail:
-        if restricted and not CommonRegex.is_valid_email(email):
-            raise ValueError(f"invalid email: {email}")
-        return validate_email(email, dns_resolver=caching_resolver())
 
     @classmethod
     def prepare_addresses(cls, addr: AddressType) -> str:

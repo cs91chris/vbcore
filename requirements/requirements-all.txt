@@ -65,12 +65,6 @@ cryptography==41.0.1
     #   paramiko
 defusedxml==0.7.1
     # via -r requirements/requirements-extra.txt
-dnspython==2.3.0
-    # via
-    #   -r requirements/requirements-net.txt
-    #   email-validator
-email-validator==2.0.0.post2
-    # via -r requirements/requirements-net.txt
 frozenlist==1.3.3
     # via
     #   -r requirements/requirements-http.txt
@@ -91,8 +85,7 @@ gunicorn==20.1.0
 idna==3.4
     # via
     #   -r requirements/requirements-extra.txt
-    #   -r requirements/requirements-net.txt
-    #   email-validator
+    #   -r requirements/requirements-http.txt
     #   requests
     #   yarl
 jsonschema==4.17.3

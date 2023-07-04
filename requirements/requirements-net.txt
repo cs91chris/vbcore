@@ -15,14 +15,6 @@ cryptography==41.0.1
     # via
     #   -c requirements/requirements-build.txt
     #   paramiko
-dnspython==2.3.0
-    # via email-validator
-email-validator==2.0.0.post2
-    # via -r requirements/requirements-net.in
-idna==3.4
-    # via
-    #   -c requirements/requirements-build.txt
-    #   email-validator
 paramiko==3.2.0
     # via -r requirements/requirements-net.in
 pycparser==2.21
