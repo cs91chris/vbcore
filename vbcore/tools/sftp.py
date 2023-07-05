@@ -1,10 +1,22 @@
 import functools
 import re
+from typing import TYPE_CHECKING
 
 import click
 
-from vbcore.net.sftp import AlgoKeyEnum, SFTPHandler, SFTPOptions
+from vbcore.datastruct.lazy import LazyImporter
 from vbcore.tools.cli import CliInputDir, CliInputFile, CliOpt, CliOutputFile, CliReqOpt
+
+if TYPE_CHECKING:
+    from vbcore.net.sftp import AlgoKeyEnum, SFTPHandler, SFTPOptions
+else:
+    AlgoKeyEnum, SFTPHandler, SFTPOptions = LazyImporter.import_many(
+        "vbcore.net.sftp:AlgoKeyEnum",
+        "vbcore.net.sftp:SFTPHandler",
+        "vbcore.net.sftp:SFTPOptions",
+        message="you must install vbcore[net]",
+    )
+
 
 main = click.Group(name="sftp", help="sftp handler")
 

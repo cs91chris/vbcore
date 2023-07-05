@@ -1,11 +1,21 @@
 import os
 from multiprocessing import cpu_count
+from typing import TYPE_CHECKING
 
 import click
 from gunicorn.util import getcwd
 
-from vbcore.standalone.wsgi_gunicorn import GUnicornServer, WorkerType
+from vbcore.datastruct.lazy import LazyImporter
 from vbcore.tools.cli import CliOpt, CliReqOpt
+
+if TYPE_CHECKING:
+    from vbcore.standalone.wsgi_gunicorn import GUnicornServer, WorkerType
+else:
+    GUnicornServer, WorkerType = LazyImporter.import_many(
+        "vbcore.standalone.wsgi_gunicorn:GUnicornServer",
+        "vbcore.standalone.wsgi_gunicorn:WorkerType",
+        message="you must install gunicorn",
+    )
 
 
 @click.command(name="gunicorn")
