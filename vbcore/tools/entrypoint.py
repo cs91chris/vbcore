@@ -6,10 +6,10 @@ from vbcore.loggers import SetupLoggers
 from vbcore.tools.cli import Cli
 from vbcore.tools.crypto import main as main_crypto
 from vbcore.tools.database import main as main_database
+from vbcore.tools.ftpclient import main as main_ftpclient
 from vbcore.tools.initializer.init import main as main_init
 from vbcore.tools.scheduler import main as main_scheduler
 from vbcore.tools.sendmail import sendmail as main_sendmail
-from vbcore.tools.sftp import main as main_sftp
 from vbcore.tools.wsgi_gunicorn import main as main_gunicorn
 from vbcore.version import __version__
 
@@ -30,7 +30,7 @@ main.add_command(main_crypto)
 main.add_command(main_init)
 main.add_command(main_scheduler)
 main.add_command(main_sendmail)
-main.add_command(main_sftp)
+main.add_command(main_ftpclient)
 main.add_command(main_gunicorn)
 
 

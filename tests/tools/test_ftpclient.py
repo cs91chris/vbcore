@@ -1,12 +1,12 @@
 import re
 from unittest.mock import MagicMock, patch
 
-from vbcore.net.sftp import SFTPOptions
+from vbcore.net.ftpclient import SFTPOptions
 from vbcore.tester.asserter import Asserter
 from vbcore.tools.entrypoint import main
 
 
-@patch("vbcore.tools.sftp.SFTPHandler")
+@patch("vbcore.tools.ftpclient.SFTPHandler")
 def test_sftp_download(mock_sftp, runner, sftp_envvar):
     _ = sftp_envvar
     mock_instance = MagicMock()
@@ -15,7 +15,7 @@ def test_sftp_download(mock_sftp, runner, sftp_envvar):
     result = runner.invoke(
         main,
         [
-            "sftp",
+            "ftpclient",
             "download",
             "-r",
             "remote.txt",
@@ -40,7 +40,7 @@ def test_sftp_download(mock_sftp, runner, sftp_envvar):
     mock_instance.download_file.assert_called_once_with("remote.txt", "local.txt")
 
 
-@patch("vbcore.tools.sftp.SFTPHandler")
+@patch("vbcore.tools.ftpclient.SFTPHandler")
 def test_sftp_upload(mock_sftp, runner, sftp_envvar, tmpdir):
     _ = sftp_envvar
     mock_instance = MagicMock()
@@ -53,7 +53,7 @@ def test_sftp_upload(mock_sftp, runner, sftp_envvar, tmpdir):
     result = runner.invoke(
         main,
         [
-            "sftp",
+            "ftpclient",
             "upload",
             "-r",
             "remote.txt",
@@ -78,7 +78,7 @@ def test_sftp_upload(mock_sftp, runner, sftp_envvar, tmpdir):
     mock_instance.upload_file.assert_called_once_with(local_file, "remote.txt")
 
 
-@patch("vbcore.tools.sftp.SFTPHandler")
+@patch("vbcore.tools.ftpclient.SFTPHandler")
 def test_sftp_download_dir(mock_sftp, runner, sftp_envvar):
     _ = sftp_envvar
     mock_instance = MagicMock()
@@ -87,7 +87,7 @@ def test_sftp_download_dir(mock_sftp, runner, sftp_envvar):
     result = runner.invoke(
         main,
         [
-            "sftp",
+            "ftpclient",
             "download-dir",
             "-r",
             "/data/remote",
@@ -117,7 +117,7 @@ def test_sftp_download_dir(mock_sftp, runner, sftp_envvar):
     )
 
 
-@patch("vbcore.tools.sftp.SFTPHandler")
+@patch("vbcore.tools.ftpclient.SFTPHandler")
 def test_sftp_upload_dir(mock_sftp, runner, sftp_envvar):
     _ = sftp_envvar
     mock_instance = MagicMock()
@@ -126,7 +126,7 @@ def test_sftp_upload_dir(mock_sftp, runner, sftp_envvar):
     result = runner.invoke(
         main,
         [
-            "sftp",
+            "ftpclient",
             "upload-dir",
             "-r",
             "/data/remote",

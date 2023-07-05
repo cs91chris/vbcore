@@ -1,6 +1,6 @@
 import functools
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 import click
 
@@ -8,34 +8,58 @@ from vbcore.datastruct.lazy import LazyImporter
 from vbcore.tools.cli import CliInputDir, CliInputFile, CliOpt, CliOutputFile, CliReqOpt
 
 if TYPE_CHECKING:
-    from vbcore.net.sftp import AlgoKeyEnum, SFTPHandler, SFTPOptions
+    from vbcore.net.ftpclient import (
+        AlgoKeyEnum,
+        FTPHandler,
+        FTPOptions,
+        SFTPHandler,
+        SFTPOptions,
+    )
 else:
-    AlgoKeyEnum, SFTPHandler, SFTPOptions = LazyImporter.import_many(
-        "vbcore.net.sftp:AlgoKeyEnum",
-        "vbcore.net.sftp:SFTPHandler",
-        "vbcore.net.sftp:SFTPOptions",
+    (
+        AlgoKeyEnum,
+        SFTPHandler,
+        SFTPOptions,
+        FTPHandler,
+        FTPOptions,
+    ) = LazyImporter.import_many(
+        "vbcore.net.ftpclient:AlgoKeyEnum",
+        "vbcore.net.ftpclient:SFTPHandler",
+        "vbcore.net.ftpclient:SFTPOptions",
+        "vbcore.net.ftpclient:FTPHandler",
+        "vbcore.net.ftpclient:FTPOptions",
         message="you must install vbcore[net]",
     )
 
+main = click.Group(name="ftpclient", help="ftp client handler")
 
-main = click.Group(name="sftp", help="sftp handler")
+
+def factory(options: dict) -> Union[FTPHandler, SFTPHandler]:
+    no_secure = options.pop("no_secure", False)
+    if no_secure:
+        return FTPHandler(FTPOptions.from_dict(**options))
+    return SFTPHandler(SFTPOptions.from_dict(**options))
 
 
 def common_options(func):
-    @CliReqOpt.string("-H", "--host", envvar="SFTP_HOST")
-    @CliReqOpt.integer("-P", "--port", envvar="SFTP_PORT")
-    @CliOpt.string("-u", "--user", envvar="SFTP_USER")
-    @CliOpt.string("-p", "--password", envvar="SFTP_PASSWORD")
+    @CliOpt.flag("--debug", envvar="FTP_DEBUG")
+    @CliOpt.integer("--timeout", envvar="FTP_TIMEOUT", default=300)
+    @CliOpt.flag("--no-secure", envvar="FTP_NO_SECURE")
+    @CliReqOpt.string("-H", "--host", envvar="FTP_HOST")
+    @CliReqOpt.integer("-P", "--port", envvar="FTP_PORT")
+    @CliOpt.string("-u", "--user", envvar="FTP_USER")
+    @CliOpt.string("-p", "--password", envvar="FTP_PASSWORD")
+    @CliOpt.flag("--debug", envvar="FTP_DEBUG")
     @CliOpt.string(
         "-P",
         "--private-key-file",
-        envvar="SFTP_PK_FILE",
+        envvar="FTP_PK_FILE",
         type=CliInputFile(),
     )
     @CliOpt.choice(
         "-k",
         "--key-type",
-        envvar="SFTP_KEY_TYPE",
+        envvar="FTP_KEY_TYPE",
         default="RSA",
         values=AlgoKeyEnum.items(),
     )
@@ -51,8 +75,7 @@ def common_options(func):
 @CliReqOpt.string("-l", "--local", type=CliOutputFile())
 @common_options
 def download(remote, local, **kwargs):
-    client = SFTPHandler(SFTPOptions(**kwargs))  # pylint: disable=missing-kwoa
-    client.download_file(remote, local)
+    factory(kwargs).download_file(remote, local)
 
 
 @main.command(name="upload", help="upload a single file")
@@ -60,8 +83,7 @@ def download(remote, local, **kwargs):
 @CliReqOpt.string("-l", "--local", type=CliInputFile())
 @common_options
 def upload(remote, local, **kwargs):
-    client = SFTPHandler(SFTPOptions(**kwargs))  # pylint: disable=missing-kwoa
-    client.upload_file(local, remote)
+    factory(kwargs).upload_file(local, remote)
 
 
 @main.command(name="download-dir", help="download files from remote directory")
@@ -71,8 +93,7 @@ def upload(remote, local, **kwargs):
 @CliOpt.string("--exclude")
 @common_options
 def download_dir(remote, local, only, exclude, **kwargs):
-    client = SFTPHandler(SFTPOptions(**kwargs))  # pylint: disable=missing-kwoa
-    client.download_dir(
+    factory(kwargs).download_dir(
         remote_path=remote,
         local_path=local,
         only=re.compile(only) if only else None,
@@ -87,8 +108,7 @@ def download_dir(remote, local, only, exclude, **kwargs):
 @CliOpt.string("--exclude")
 @common_options
 def upload_dir(remote, local, only, exclude, **kwargs):
-    client = SFTPHandler(SFTPOptions(**kwargs))  # pylint: disable=missing-kwoa
-    client.upload_dir(
+    factory(kwargs).upload_dir(
         local_path=local,
         remote_path=remote,
         only=re.compile(only) if only else None,
