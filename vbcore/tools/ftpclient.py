@@ -5,29 +5,15 @@ from typing import TYPE_CHECKING, Union
 import click
 
 from vbcore.datastruct.lazy import LazyImporter
+from vbcore.net.ftpclient.legacy import FTPHandler, FTPOptions
 from vbcore.tools.cli import CliInputDir, CliInputFile, CliOpt, CliOutputFile, CliReqOpt
 
 if TYPE_CHECKING:
-    from vbcore.net.ftpclient import (
-        AlgoKeyEnum,
-        FTPHandler,
-        FTPOptions,
-        SFTPHandler,
-        SFTPOptions,
-    )
+    from vbcore.net.ftpclient.sftp import SFTPHandler, SFTPOptions
 else:
-    (
-        AlgoKeyEnum,
-        SFTPHandler,
-        SFTPOptions,
-        FTPHandler,
-        FTPOptions,
-    ) = LazyImporter.import_many(
-        "vbcore.net.ftpclient:AlgoKeyEnum",
-        "vbcore.net.ftpclient:SFTPHandler",
-        "vbcore.net.ftpclient:SFTPOptions",
-        "vbcore.net.ftpclient:FTPHandler",
-        "vbcore.net.ftpclient:FTPOptions",
+    SFTPHandler, SFTPOptions = LazyImporter.import_many(
+        "vbcore.net.ftpclient.sftp:SFTPHandler",
+        "vbcore.net.ftpclient.sftp:SFTPOptions",
         message="you must install vbcore[net]",
     )
 
@@ -61,7 +47,7 @@ def common_options(func):
         "--key-type",
         envvar="FTP_KEY_TYPE",
         default="RSA",
-        values=AlgoKeyEnum.items(),
+        values=["RSA", "DSS", "ECDSA", "ED25519"],
     )
     @functools.wraps(func)
     def wrapper(*args, **kwargs):

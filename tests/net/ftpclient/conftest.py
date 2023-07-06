@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from vbcore.net.ftpclient import SFTPHandler, SFTPOptions
+from vbcore.net.ftpclient.sftp import SFTPHandler, SFTPOptions
 
 
 @pytest.fixture()

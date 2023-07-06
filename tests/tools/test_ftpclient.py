@@ -1,7 +1,7 @@
 import re
 from unittest.mock import MagicMock, patch
 
-from vbcore.net.ftpclient import SFTPOptions
+from vbcore.net.ftpclient.sftp import SFTPOptions
 from vbcore.tester.asserter import Asserter
 from vbcore.tools.entrypoint import main
 
