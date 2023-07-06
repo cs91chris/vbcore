@@ -3,7 +3,6 @@ from multiprocessing import cpu_count
 from typing import TYPE_CHECKING
 
 import click
-from gunicorn.util import getcwd
 
 from vbcore.datastruct.lazy import LazyImporter
 from vbcore.tools.cli import CliOpt, CliReqOpt
@@ -29,7 +28,7 @@ else:
 @CliOpt.integer("--keepalive", envvar="GU_KEEP_ALIVE", default=5)
 @CliOpt.string("--pidfile", envvar="GU_PID_FILE", default=".gunicorn.pid")
 @CliOpt.string("--proc-name", envvar="GU_PROC_NAME", default="gunicorn")
-@CliOpt.string("--chdir", envvar="GU_CHDIR", default=getcwd())
+@CliOpt.string("--chdir", envvar="GU_CHDIR", default=os.getcwd())
 @CliOpt.string("-u", "--user", envvar="GU_USER", default=os.geteuid())
 @CliOpt.string("-g", "--group", envvar="GU_GROUP", default=os.getegid())
 @CliOpt.string("--worker-class", envvar="GU_WORKER_CLASS")
