@@ -36,8 +36,8 @@ else:
     "-W",
     "--worker-type",
     envvar="GU_WORKER_TYPE",
-    values=WorkerType.items(),
-    default=WorkerType.DEFAULT.name,
+    default="DEFAULT",
+    values=["DEFAULT", "UVICORN", "MEINHELD"],
     callback=lambda _, __, x: WorkerType(x.upper()),
     case_sensitive=False,
 )
