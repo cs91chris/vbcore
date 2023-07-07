@@ -65,6 +65,10 @@ cryptography==41.0.1
     #   paramiko
 defusedxml==0.7.1
     # via -r requirements/requirements-extra.txt
+et-xmlfile==1.1.0
+    # via
+    #   -r requirements/requirements-extra.txt
+    #   openpyxl
 frozenlist==1.3.3
     # via
     #   -r requirements/requirements-http.txt
@@ -96,6 +100,8 @@ multidict==6.0.4
     #   -r requirements/requirements-http.txt
     #   aiohttp
     #   yarl
+openpyxl==3.1.2
+    # via -r requirements/requirements-extra.txt
 paramiko==3.2.0
     # via -r requirements/requirements-net.txt
 ply==3.11

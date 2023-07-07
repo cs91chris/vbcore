@@ -12,6 +12,8 @@ chardet==5.1.0
     # via -r requirements/requirements-extra.in
 defusedxml==0.7.1
     # via -r requirements/requirements-extra.in
+et-xmlfile==1.1.0
+    # via openpyxl
 gql==3.4.1
     # via -r requirements/requirements-extra.in
 graphql-core==3.2.3
@@ -26,6 +28,8 @@ jsonschema==4.17.3
     # via -r requirements/requirements-extra.in
 multidict==6.0.4
     # via yarl
+openpyxl==3.1.2
+    # via -r requirements/requirements-extra.in
 ply==3.11
     # via rule-engine
 pyrsistent==0.19.3
