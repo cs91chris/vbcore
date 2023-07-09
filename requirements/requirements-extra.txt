@@ -5,7 +5,9 @@
 #    pip-compile --no-emit-index-url --no-emit-trusted-host --output-file=requirements/requirements-extra.txt --resolver=backtracking requirements/requirements-extra.in
 #
 attrs==23.1.0
-    # via jsonschema
+    # via
+    #   jsonschema
+    #   referencing
 backoff==2.2.1
     # via gql
 chardet==5.1.0
@@ -24,20 +26,28 @@ idna==3.4
     # via
     #   -c requirements/requirements-build.txt
     #   yarl
-jsonschema==4.17.3
+jsonschema==4.18.0
     # via -r requirements/requirements-extra.in
+jsonschema-specifications==2023.6.1
+    # via jsonschema
 multidict==6.0.4
     # via yarl
 openpyxl==3.1.2
     # via -r requirements/requirements-extra.in
 ply==3.11
     # via rule-engine
-pyrsistent==0.19.3
-    # via jsonschema
 python-dateutil==2.8.2
     # via
     #   -c requirements/requirements.txt
     #   rule-engine
+referencing==0.29.1
+    # via
+    #   jsonschema
+    #   jsonschema-specifications
+rpds-py==0.8.10
+    # via
+    #   jsonschema
+    #   referencing
 rule-engine==3.6.0
     # via -r requirements/requirements-extra.in
 six==1.16.0

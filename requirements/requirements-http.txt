@@ -36,7 +36,7 @@ multidict==6.0.4
     #   yarl
 requests==2.31.0
     # via -r requirements/requirements-http.in
-ua-parser==0.16.1
+ua-parser==0.18.0
     # via user-agents
 urllib3==2.0.3
     # via
