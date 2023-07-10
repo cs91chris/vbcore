@@ -4,6 +4,8 @@
 #
 #    pip-compile --no-emit-index-url --no-emit-trusted-host --output-file=requirements/requirements-db.txt --resolver=backtracking requirements/requirements-db.in
 #
+graphviz==0.20.1
+    # via -r requirements/requirements-db.in
 greenlet==2.0.2
     # via sqlalchemy
 pydot==1.4.2

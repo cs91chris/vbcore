@@ -81,6 +81,8 @@ graphql-core==3.2.3
     # via
     #   -r requirements/requirements-extra.txt
     #   gql
+graphviz==0.20.1
+    # via -r requirements/requirements-db.txt
 greenlet==2.0.2
     # via
     #   -r requirements/requirements-db.txt
