@@ -31,7 +31,7 @@ def dump_schema(from_models, from_database, file):
         raise click.UsageError("One of -m or -d are required")
 
     try:
-        graph.write_png(file)  # pylint: disable=E1101
+        graph.write_png(file)  # pylint: disable=no-member
     except OSError as exc:
         Cli.abort(f"{str(exc)}\ntry to install 'graphviz'")
 
@@ -40,7 +40,7 @@ def dump_schema(from_models, from_database, file):
 @CliOpt.choice("--dialect", default="sqlite", values=DIALECTS)
 @CliReqOpt.string("-m", "--metadata", help="metadata module")
 def dump_ddl(dialect, metadata):
-    """Dumps the CREATE table statements for a given metadata"""
+    """Dumps the DDL statements for a given metadata"""
     dump_model_ddl(metadata, dialect)
 
 

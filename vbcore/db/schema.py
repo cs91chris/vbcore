@@ -1,42 +1,43 @@
 import importlib
 import typing as t
 
-from sqlalchemy import create_mock_engine, MetaData  # type: ignore
+from sqlalchemy import create_mock_engine, MetaData
 from sqlalchemy.engine import Engine
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import class_mapper
-from sqlalchemy_schemadisplay import create_schema_graph, create_uml_graph
 
+from vbcore.db.schema_display.db_diagram import create_schema_graph
+from vbcore.db.schema_display.model_diagram import create_uml_graph
+from vbcore.db.sqla import SQLAConnector
 from vbcore.loggers import Log
 from vbcore.types import OptStr
 
 
 def model_to_uml(
     module: str,
-    show_operations: bool = False,
+    show_operations: bool = True,
     show_attributes: bool = True,
-    show_inherited: bool = True,
     show_datatypes: bool = True,
+    show_inherited: bool = True,
+    show_multiplicity_one: bool = True,
     **kwargs,
 ):
     mappers = []
     models = importlib.import_module(module)
 
     for attr in dir(models):
-        if attr[0] == "_":
-            continue
         try:
             cls = getattr(models, attr)
             mappers.append(class_mapper(cls))
-        except SQLAlchemyError as exc:
-            Log.get(__name__).warning(exc, exc_info=True)
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            Log.get(__name__).debug(exc)
 
     return create_uml_graph(
         mappers,
         show_operations=show_operations,
         show_attributes=show_attributes,
-        show_inherited=show_inherited,
         show_datatypes=show_datatypes,
+        show_inherited=show_inherited,
+        show_multiplicity_one=show_multiplicity_one,
         **kwargs,
     )
 
@@ -49,8 +50,10 @@ def db_to_schema(
     rankdir: str = "TB",
     **kwargs,
 ):
+    connector = SQLAConnector(url)
     return create_schema_graph(
-        metadata=MetaData(url),  # type: ignore
+        engine=connector.engine,
+        metadata=connector.metadata,
         show_datatypes=show_datatypes,
         show_indexes=show_indexes,
         concentrate=concentrate,
@@ -63,8 +66,8 @@ def dump_model_ddl(metadata: MetaData, dialect: OptStr = None):
     dialect = dialect or "sqlite"
 
     def executor(sql, *_, **__):
-        compiled = sql.compile(dialect=engine.dialect).replace("\n\n", "")
-        print(compiled, ";", sep="")  # type: ignore
+        compiled = sql.compile(dialect=engine.dialect)
+        print(compiled.replace("\n\n", ""), ";", sep="")
 
     engine = create_mock_engine(f"{dialect}://", executor=executor)
     metadata.create_all(t.cast(Engine, engine))

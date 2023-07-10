@@ -55,8 +55,8 @@ class SQLAConnector:
         self._session_options.setdefault("expire_on_commit", expire_on_commit)
         self._factory: t.Optional[sessionmaker] = None
 
-    @staticmethod
-    def register_loaders(session: SessionType, loaders: LoadersType):
+    @classmethod
+    def register_loaders(cls, session: SessionType, loaders: LoadersType) -> None:
         for loader in loaders:
             callback = partial(loader.load_values, session)
             Listener.register_after_create(loader.__table__, callback)

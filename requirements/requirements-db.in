@@ -2,4 +2,5 @@
 -c requirements-build.txt
 
 sqlalchemy
-sqlalchemy_schemadisplay
+pydot
+

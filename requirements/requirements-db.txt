@@ -7,15 +7,10 @@
 greenlet==2.0.2
     # via sqlalchemy
 pydot==1.4.2
-    # via sqlalchemy-schemadisplay
+    # via -r requirements/requirements-db.in
 pyparsing==3.1.0
     # via pydot
 sqlalchemy==2.0.18
     # via -r requirements/requirements-db.in
-sqlalchemy-schemadisplay==1.3
-    # via -r requirements/requirements-db.in
 typing-extensions==4.7.1
     # via sqlalchemy
-
-# The following packages are considered to be unsafe in a requirements file:
-# setuptools
