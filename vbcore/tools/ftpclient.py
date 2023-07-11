@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Union
 import click
 
 from vbcore.datastruct.lazy import LazyImporter
+from vbcore.loggers import Log
 from vbcore.net.ftpclient.legacy import FTPHandler, FTPOptions
 from vbcore.tools.cli import CliInputDir, CliInputFile, CliOpt, CliOutputFile, CliReqOpt
 
@@ -61,7 +62,8 @@ def common_options(func):
 @CliReqOpt.string("-l", "--local", type=CliOutputFile())
 @common_options
 def download(remote, local, **kwargs):
-    factory(kwargs).download_file(remote, local)
+    with Log.execution_time():
+        factory(kwargs).download_file(remote, local)
 
 
 @main.command(name="upload", help="upload a single file")
@@ -69,7 +71,8 @@ def download(remote, local, **kwargs):
 @CliReqOpt.string("-l", "--local", type=CliInputFile())
 @common_options
 def upload(remote, local, **kwargs):
-    factory(kwargs).upload_file(local, remote)
+    with Log.execution_time():
+        factory(kwargs).upload_file(local, remote)
 
 
 @main.command(name="download-dir", help="download files from remote directory")
@@ -79,12 +82,13 @@ def upload(remote, local, **kwargs):
 @CliOpt.string("--exclude")
 @common_options
 def download_dir(remote, local, only, exclude, **kwargs):
-    factory(kwargs).download_dir(
-        remote_path=remote,
-        local_path=local,
-        only=re.compile(only) if only else None,
-        exclude=re.compile(exclude) if exclude else None,
-    )
+    with Log.execution_time():
+        factory(kwargs).download_dir(
+            remote_path=remote,
+            local_path=local,
+            only=re.compile(only) if only else None,
+            exclude=re.compile(exclude) if exclude else None,
+        )
 
 
 @main.command(name="upload-dir", help="upload files from local directory")
@@ -94,9 +98,10 @@ def download_dir(remote, local, only, exclude, **kwargs):
 @CliOpt.string("--exclude")
 @common_options
 def upload_dir(remote, local, only, exclude, **kwargs):
-    factory(kwargs).upload_dir(
-        local_path=local,
-        remote_path=remote,
-        only=re.compile(only) if only else None,
-        exclude=re.compile(exclude) if exclude else None,
-    )
+    with Log.execution_time():
+        factory(kwargs).upload_dir(
+            local_path=local,
+            remote_path=remote,
+            only=re.compile(only) if only else None,
+            exclude=re.compile(exclude) if exclude else None,
+        )
