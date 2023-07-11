@@ -16,6 +16,7 @@ stages:
   - build
 
 before_script:
+  - apt install graphviz
   - make install-deps
 
 format:
