@@ -17,10 +17,10 @@ stages:
 
 before_script:
   - apt update
-  - apt install software-properties-common
+  - apt install -y software-properties-common
   - add-apt-repository universe
   - apt update
-  - apt install graphviz
+  - apt install -y graphviz
   - make install-deps
 
 format:
