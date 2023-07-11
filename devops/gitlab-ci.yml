@@ -16,6 +16,7 @@ stages:
   - build
 
 before_script:
+  - apt update
   - apt install software-properties-common
   - add-apt-repository universe
   - apt update
