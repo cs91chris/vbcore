@@ -16,7 +16,7 @@ stages:
   - build
 
 before_script:
-  - pip install graphviz
+  - apt update && apt install graphviz
   - make install-deps
 
 format:
