@@ -16,6 +16,8 @@ stages:
   - build
 
 before_script:
+  - add-apt-repository universe
+  - apt update
   - apt install graphviz
   - make install-deps
 
