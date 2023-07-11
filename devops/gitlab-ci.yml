@@ -16,11 +16,7 @@ stages:
   - build
 
 before_script:
-  - apt update
-  - apt install -y software-properties-common
-  - add-apt-repository universe
-  - apt update
-  - apt install -y graphviz
+  - pip install graphviz
   - make install-deps
 
 format:
