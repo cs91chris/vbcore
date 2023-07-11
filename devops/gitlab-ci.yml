@@ -16,8 +16,7 @@ stages:
   - build
 
 before_script:
-  - apt update && apt install -y graphviz
-  - make install-deps
+  - bash devops/scripts/install-deps.sh
 
 format:
   stage: prerequisites
