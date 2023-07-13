@@ -7,7 +7,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
 
 from vbcore.base import BaseDTO
-from vbcore.db.repo import BaseRepo
+from vbcore.db.repo import CrudRepo
 from vbcore.db.sqla import Model, SQLAConnector
 
 
@@ -33,7 +33,7 @@ class UserOrm(Model):
     )
 
 
-class UserRepo(BaseRepo[UserInput, User]):
+class UserRepo(CrudRepo[UserInput, User]):
     pass
 
 
@@ -46,15 +46,15 @@ def test_crud():
     base_query = sa.select(user_t.id, user_t.name, user_t.created_at)
 
     repo = UserRepo(connection, User, user_t)
-    repo.insert_many(
+    repo.mutator.insert_many(
         [
             UserInput(name="pippo"),
             UserInput(name="pluto"),
             UserInput(name="paperino"),
         ]
     )
-    repo.insert(UserInput(name="who"))
-    records = repo.query(base_query)
+    repo.mutator.insert(UserInput(name="who"))
+    records = repo.querier.query(base_query)
     assert list(records) == [
         User(id=1, name="pippo", created_at=ANY),
         User(id=2, name="pluto", created_at=ANY),
@@ -62,12 +62,12 @@ def test_crud():
         User(id=4, name="who", created_at=ANY),
     ]
 
-    repo.update(user_t.id == 4, name="what")
-    record = repo.query(base_query.where(user_t.id == 4))
+    repo.mutator.update(user_t.id == 4, name="what")
+    record = repo.querier.query(base_query.where(user_t.id == 4))
     assert list(record) == [User(id=4, name="what", created_at=ANY)]
 
-    repo.delete(user_t.id == 4)
-    records = repo.query(base_query)
+    repo.mutator.delete(user_t.id == 4)
+    records = repo.querier.query(base_query)
     assert list(records) == [
         User(id=1, name="pippo", created_at=ANY),
         User(id=2, name="pluto", created_at=ANY),
