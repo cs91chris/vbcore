@@ -25,7 +25,7 @@ def _mk_label(
         show_attributes (bool): whether to show the attributes of the class.
         show_datatypes (bool): Whether to display the type of the columns in the model.
         show_inherited (bool): whether to show inherited columns.
-        bordersize (float): thickness of the border lines in the diagram
+        bordersize (float): thickness of the borderlines in the diagram
     Returns:
         str: html string to render the orm model
     """
@@ -35,9 +35,10 @@ def _mk_label(
     html += f'ALIGN="LEFT"><TR><TD><FONT POINT-SIZE="10">{mapper.class_.__name__}</FONT></TD></TR>'
 
     def format_col(col):
-        colstr = f"+{col.name}"
+        sep = "-" if col.nullable else "+"
+        colstr = f"{sep} {col.name}"
         if show_datatypes:
-            colstr += f" : {col.type.__class__.__name__}"
+            colstr += f": {col.type.__class__.__name__}"
         return colstr
 
     if show_attributes:
@@ -107,7 +108,7 @@ def create_uml_graph(  # noqa: C901
     show_multiplicity_one: bool = True,
     show_datatypes: bool = True,
     linewidth: float = 1.0,
-    font: str = "Bitstream-Vera Sans",
+    font: str = "monospace",
 ) -> pydot.Dot:
     # pylint: disable=too-many-locals,too-many-arguments
     """Create rendering of the orm models associated with the database
@@ -132,7 +133,6 @@ def create_uml_graph(  # noqa: C901
         prog="neato",
         mode="major",
         overlap="0",
-        sep="0.01",
         dim="3",
         pack="True",
         ratio=".75",
@@ -198,8 +198,8 @@ def create_uml_graph(  # noqa: C901
             from_name = escape(src.parent.class_.__name__)
             to_name = escape(dest.parent.class_.__name__)
 
-            args["headlabel"] = "+" + src.key + multiplicity_indicator(src)
-            args["taillabel"] = "+" + dest.key + multiplicity_indicator(dest)
+            args["headlabel"] = src.key + multiplicity_indicator(src)
+            args["taillabel"] = dest.key + multiplicity_indicator(dest)
             args["arrowtail"] = "none"
             args["arrowhead"] = "none"
             args["constraint"] = False
@@ -207,7 +207,7 @@ def create_uml_graph(  # noqa: C901
             (_prop,) = relation
             from_name = escape(_prop.parent.class_.__name__)
             to_name = escape(_prop.mapper.class_.__name__)
-            args["headlabel"] = f"+{_prop.key}{multiplicity_indicator(_prop)}"
+            args["headlabel"] = f"{_prop.key}{multiplicity_indicator(_prop)}"
             args["arrowtail"] = "none"
             args["arrowhead"] = "vee"
 

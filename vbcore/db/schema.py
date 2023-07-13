@@ -58,6 +58,8 @@ def db_to_schema(
         show_indexes=show_indexes,
         concentrate=concentrate,
         rankdir=rankdir,
+        format_schema_name={"bold": True, "fontsize": "12"},
+        format_table_name={"bold": True, "fontsize": "12"},
         **kwargs,
     )
 

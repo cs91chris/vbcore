@@ -34,7 +34,7 @@ def test_empty_table(metadata, engine):
     result = plain_result(engine=engine, metadata=metadata)
     assert list(result.keys()) == ["1"]
     assert list(result["1"]["nodes"].keys()) == ["foo"]
-    assert "- id : INTEGER" in result["1"]["nodes"]["foo"]
+    assert "+ id: INTEGER  (PK)" in result["1"]["nodes"]["foo"]
 
 
 def test_empty_table_with_key_suffix(metadata, engine):
@@ -46,7 +46,7 @@ def test_empty_table_with_key_suffix(metadata, engine):
     )
     assert list(result.keys()) == ["1"]
     assert list(result["1"]["nodes"].keys()) == ["foo"]
-    assert "- id(PK) : INTEGER" in result["1"]["nodes"]["foo"]
+    assert "+ id: INTEGER  (PK)" in result["1"]["nodes"]["foo"]
 
 
 def test_foreign_key(metadata, engine):
@@ -63,8 +63,8 @@ def test_foreign_key(metadata, engine):
     result = plain_result(engine=engine, metadata=metadata)
     assert list(result.keys()) == ["1"]
     assert sorted(result["1"]["nodes"].keys()) == ["bar", "foo"]
-    assert "- id : INTEGER" in result["1"]["nodes"]["foo"]
-    assert "- foo_id : INTEGER" in result["1"]["nodes"]["bar"]
+    assert "+ id: INTEGER" in result["1"]["nodes"]["foo"]
+    assert "- foo_id: INTEGER (FK)" in result["1"]["nodes"]["bar"]
     assert "edges" in result["1"]
     assert ("bar", "foo") in result["1"]["edges"]
 
@@ -83,8 +83,8 @@ def test_foreign_key_with_key_suffix(metadata, engine):
     result = plain_result(engine=engine, metadata=metadata, show_column_keys=True)
     assert list(result.keys()) == ["1"]
     assert sorted(result["1"]["nodes"].keys()) == ["bar", "foo"]
-    assert "- id(PK) : INTEGER" in result["1"]["nodes"]["foo"]
-    assert "- foo_id(FK) : INTEGER" in result["1"]["nodes"]["bar"]
+    assert "+ id: INTEGER  (PK)" in result["1"]["nodes"]["foo"]
+    assert "- foo_id: INTEGER (FK)" in result["1"]["nodes"]["bar"]
     assert "edges" in result["1"]
     assert ("bar", "foo") in result["1"]["edges"]
 
@@ -103,7 +103,7 @@ def test_table_filtering(engine, metadata):
     result = plain_result(engine=engine, tables=[bar_table])
     assert list(result.keys()) == ["1"]
     assert list(result["1"]["nodes"].keys()) == ["bar"]
-    assert "- foo_id : INTEGER" in result["1"]["nodes"]["bar"]
+    assert "- foo_id: INTEGER" in result["1"]["nodes"]["bar"]
 
 
 def test_table_rendering_without_schema(metadata, engine):

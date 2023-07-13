@@ -81,16 +81,16 @@ def _render_table_html(  # noqa: C901
         """
         # add in (PK) OR (FK) suffixes to column names that are considered to be primary key
         # or foreign key
-        suffix = (
-            "(FK)"
-            if col.name in fk_col_names
-            else "(PK)"
-            if col.name in pk_col_names
-            else ""
+        suffix = " ".join(
+            [
+                " (FK)" if col.name in fk_col_names else "",
+                " (PK)" if col.name in pk_col_names else "",
+            ]
         )
+        mandatory = "-" if col.nullable else "+"
         if show_datatypes:
-            return f"- {col.name + suffix} : {format_col_type(col)}"
-        return f"- {col.name + suffix}"
+            return f"{mandatory} {col.name}: {format_col_type(col)}{suffix}"
+        return f"{mandatory} {col.name}{suffix}"
 
     def format_name(obj_name: str, format_dict: Union[dict, None]) -> str:
         """Format the name of the object so that it is rendered differently.
@@ -129,7 +129,7 @@ def _render_table_html(  # noqa: C901
 
     # Assemble table header
     html = '<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0"><TR><TD ALIGN="CENTER">'
-    html += f'{schema_str}{"." if show_schema_name else ""}{table_str}</TD></TR>'
+    html += f'{f".{schema_str.upper()}" if show_schema_name and schema_str else ""}{table_str.upper()}</TD></TR>'
     html += '<TR><TD BORDER="1" CELLPADDING="0"></TD></TR>'
 
     html += "".join(
@@ -164,13 +164,13 @@ def create_schema_graph(  # noqa: C901
     metadata: MetaData = None,
     show_indexes: bool = True,
     show_datatypes: bool = True,
-    font: str = "Bitstream-Vera Sans",
+    font: str = "monospace",
     concentrate: bool = True,
     relation_options: Union[dict, None] = None,
     rankdir: str = "TB",
-    show_column_keys: bool = False,
+    show_column_keys: bool = True,
     restrict_tables: Union[Sequence[str], None] = None,
-    show_schema_name: bool = False,
+    show_schema_name: bool = True,
     format_schema_name: Union[dict, None] = None,
     format_table_name: Union[dict, None] = None,
 ) -> pydot.Dot:
@@ -218,7 +218,7 @@ def create_schema_graph(  # noqa: C901
     if not relation_options:
         relation_options = {}
 
-    relation_kwargs = {"fontsize": "7.0", "dir": "both"}
+    relation_kwargs = {"fontsize": "6.8", "dir": "both"}
     relation_kwargs.update(relation_options)
 
     if not metadata and not tables:
@@ -251,7 +251,6 @@ def create_schema_graph(  # noqa: C901
         prog="dot",
         mode="ipsep",
         overlap="ipsep",
-        sep="0.01",
         concentrate=str(concentrate),
         rankdir=rankdir,
     )
@@ -277,7 +276,7 @@ def create_schema_graph(  # noqa: C901
                     format_table_name=format_table_name,
                 ),
                 fontname=font,
-                fontsize="7.0",
+                fontsize="8.5",
             ),
         )
 
@@ -286,16 +285,11 @@ def create_schema_graph(  # noqa: C901
             if fk.column.table not in tables:
                 continue
             edge = [table.name, fk.column.table.name]
-            is_inheritance = fk.parent.primary_key and fk.column.primary_key
-            if is_inheritance:
-                edge = edge[::-1]
             graph_edge = pydot.Edge(
-                headlabel=f"+ {fk.column.name}",
-                taillabel=f"+ {fk.parent.name}",
-                arrowhead=is_inheritance and "none" or "odot",
-                arrowtail=(fk.parent.primary_key or fk.parent.unique)
-                and "empty"
-                or "crow",
+                headlabel=f"1 {fk.column.name}",
+                taillabel=f"{'1' if fk.column.unique else 'N'} {fk.parent.name}",
+                arrowhead=False,
+                arrowtail=False,
                 fontname=font,
                 *edge,
                 **relation_kwargs,

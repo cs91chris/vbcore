@@ -22,7 +22,7 @@ def test_simple_class(Base, capsys):
     result = plain_result(mappers(Foo))
     assert list(result.keys()) == ["1"]
     assert list(result["1"]["nodes"].keys()) == ["Foo"]
-    assert "+id : Integer" in result["1"]["nodes"]["Foo"]
+    assert "+ id: Integer" in result["1"]["nodes"]["Foo"]
     out, err = capsys.readouterr()
     assert out == ""
     assert err == ""
@@ -41,16 +41,16 @@ def test_relation(Base):
     Foo.bars = relationship(Bar)
     graph = create_uml_graph(mappers(Foo, Bar))
     assert sorted(graph.obj_dict["nodes"].keys()) == ['"Bar"', '"Foo"']
-    assert "+id : Integer" in graph.obj_dict["nodes"]['"Foo"'][0]["attributes"]["label"]
+    assert "+ id: Integer" in graph.obj_dict["nodes"]['"Foo"'][0]["attributes"]["label"]
     assert (
-        "+foo_id : Integer"
+        "- foo_id: Integer"
         in graph.obj_dict["nodes"]['"Bar"'][0]["attributes"]["label"]
     )
     assert "edges" in graph.obj_dict
     assert ('"Foo"', '"Bar"') in graph.obj_dict["edges"]
     assert (
         graph.obj_dict["edges"][('"Foo"', '"Bar"')][0]["attributes"]["headlabel"]
-        == "+bars *"
+        == "bars *"
     )
 
 
@@ -67,9 +67,9 @@ def test_backref(Base):
     Foo.bars = relationship(Bar, backref="foo")
     graph = create_uml_graph(mappers(Foo, Bar))
     assert sorted(graph.obj_dict["nodes"].keys()) == ['"Bar"', '"Foo"']
-    assert "+id : Integer" in graph.obj_dict["nodes"]['"Foo"'][0]["attributes"]["label"]
+    assert "+ id: Integer" in graph.obj_dict["nodes"]['"Foo"'][0]["attributes"]["label"]
     assert (
-        "+foo_id : Integer"
+        "- foo_id: Integer"
         in graph.obj_dict["nodes"]['"Bar"'][0]["attributes"]["label"]
     )
     assert "edges" in graph.obj_dict
@@ -77,9 +77,9 @@ def test_backref(Base):
     assert ('"Bar"', '"Foo"') in graph.obj_dict["edges"]
     assert (
         graph.obj_dict["edges"][('"Foo"', '"Bar"')][0]["attributes"]["headlabel"]
-        == "+bars *"
+        == "bars *"
     )
     assert (
         graph.obj_dict["edges"][('"Bar"', '"Foo"')][0]["attributes"]["headlabel"]
-        == "+foo 0..1"
+        == "foo 0..1"
     )
