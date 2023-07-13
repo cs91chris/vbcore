@@ -10,6 +10,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install dependencies
+          command: apt update && apt install -y graphviz
+      - run:
           name: Install requirements
           command: pip install -r requirements/requirements-build.txt
       - run:
@@ -20,6 +23,9 @@ jobs:
       - image: cimg/python:3.11
     steps:
       - checkout
+      - run:
+          name: Install dependencies
+          command: apt update && apt install -y graphviz
       - run:
           name: Install requirements
           command: pip install -r requirements/requirements-build.txt
