@@ -20,7 +20,7 @@ def test_lru_cache():
 
 def test_timed_lru_cache_decorator():
     mock = MagicMock()
-    cache = TimedLRUCache(milliseconds=1)
+    cache = TimedLRUCache(milliseconds=10)
 
     @cache
     def sample(data: int):
@@ -31,7 +31,7 @@ def test_timed_lru_cache_decorator():
     mock.reset_mock()
     sample(1)
     mock.assert_not_called()
-    sleep(0.002)
+    sleep(0.02)
     sample(1)
     mock.assert_called_once_with(1)
 
