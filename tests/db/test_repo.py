@@ -7,8 +7,9 @@ import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
 
 from vbcore.base import BaseDTO
-from vbcore.db.repo import CrudRepo
+from vbcore.db.repo import CrudRepo, MutatorRepo, QuerierRepo
 from vbcore.db.sqla import Model, SQLAConnector
+from vbcore.tester.asserter import Asserter
 
 
 @dataclass
@@ -33,18 +34,57 @@ class UserOrm(Model):
     )
 
 
+class UserQuerierRepo(QuerierRepo[User]):
+    pass
+
+
+class UserMutatorRepo(MutatorRepo[UserInput]):
+    pass
+
+
 class UserRepo(CrudRepo[UserInput, User]):
     pass
 
 
-def test_crud():
+def test_querier_fetch() -> None:
+    connector = SQLAConnector("sqlite+pysqlite:///:memory:", echo=True)
+    connector.create_all()
+
+    connection = connector.engine.connect()
+    repo = UserQuerierRepo(connection, User)
+    repo.execute(
+        sa.insert(UserOrm),
+        [
+            UserInput(name="topolino").to_dict(),
+            UserInput(name="pippo").to_dict(),
+            UserInput(name="pluto").to_dict(),
+            UserInput(name="paperino").to_dict(),
+        ],
+    )
+
+    records = list(
+        repo.fetch(
+            table=UserOrm,
+            columns=(UserOrm.id, UserOrm.name),
+            clauses=(UserOrm.name.like("p%"),),
+        )
+    )
+    Asserter.assert_equals(
+        records,
+        [
+            User(id=2, name="pippo", created_at=None),
+            User(id=3, name="pluto", created_at=None),
+            User(id=4, name="paperino", created_at=None),
+        ],
+    )
+
+
+def test_crud_perform() -> None:
     user_t = UserOrm
     connector = SQLAConnector("sqlite+pysqlite:///:memory:", echo=True)
     connector.create_all()
 
     connection = connector.engine.connect()
-    base_query = sa.select(user_t.id, user_t.name, user_t.created_at)
-
     repo = UserRepo(connection, User, user_t)
     repo.mutator.insert_many(
         [
@@ -53,23 +93,22 @@ def test_crud():
             UserInput(name="paperino"),
         ]
     )
-    repo.mutator.insert(UserInput(name="who"))
-    records = repo.querier.query(base_query)
-    assert list(records) == [
-        User(id=1, name="pippo", created_at=ANY),
-        User(id=2, name="pluto", created_at=ANY),
-        User(id=3, name="paperino", created_at=ANY),
-        User(id=4, name="who", created_at=ANY),
-    ]
 
-    repo.mutator.update(user_t.id == 4, name="what")
-    record = repo.querier.query(base_query.where(user_t.id == 4))
-    assert list(record) == [User(id=4, name="what", created_at=ANY)]
+    repo.create(UserInput(name="who"))
+    record = repo.get(id=4)
+    Asserter.assert_equals(record, User(id=4, name="who", created_at=ANY))
 
-    repo.mutator.delete(user_t.id == 4)
-    records = repo.querier.query(base_query)
-    assert list(records) == [
-        User(id=1, name="pippo", created_at=ANY),
-        User(id=2, name="pluto", created_at=ANY),
-        User(id=3, name="paperino", created_at=ANY),
-    ]
+    repo.update(user_t.id == 4, name="what")
+    records = repo.get_all(id=4)
+    Asserter.assert_equals(list(records), [User(id=4, name="what", created_at=ANY)])
+
+    repo.delete(user_t.id == 4)
+    records = repo.get_all()
+    Asserter.assert_equals(
+        list(records),
+        [
+            User(id=1, name="pippo", created_at=ANY),
+            User(id=2, name="pluto", created_at=ANY),
+            User(id=3, name="paperino", created_at=ANY),
+        ],
+    )
