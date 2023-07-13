@@ -1,30 +1,24 @@
-from vbcore.datastruct import ObjectDict
 from vbcore.http import httpcode, HttpMethod
 from vbcore.http.batch import HTTPBatch
 from vbcore.tester.asserter import Asserter
 
-HOSTS = ObjectDict(
-    apitester="http://httpbin.org",
-    fake="http://localhost",
-)
-
 
 def test_http_client_batch():
+    # TODO improve mocking aioresponses
     client = HTTPBatch(dump_body=(True, False))
-    responses = client.request(
+    results = client.request(
         [
             {
-                "url": f"{HOSTS.apitester}/anything",
+                "url": "http://localhost/anything",
                 "method": HttpMethod.GET,
-                "headers": {"HDR1": "HDR1"},
+                "timeout": 0.001,
             },
             {
-                "url": f"{HOSTS.apitester}/status/{httpcode.NOT_FOUND}",
+                "url": "http://fakehost/status",
                 "method": HttpMethod.GET,
+                "timeout": 0.001,
             },
-            {"url": HOSTS.fake, "method": HttpMethod.GET, "timeout": 0.1},
         ]
     )
-    Asserter.assert_equals(responses[0].body.headers.Hdr1, "HDR1")
-    Asserter.assert_equals(responses[1].status, httpcode.NOT_FOUND)
-    Asserter.assert_equals(responses[2].status, httpcode.SERVICE_UNAVAILABLE)
+    Asserter.assert_equals(results[0].status, httpcode.SERVICE_UNAVAILABLE)
+    Asserter.assert_equals(results[1].status, httpcode.SERVICE_UNAVAILABLE)
