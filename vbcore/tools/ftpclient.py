@@ -22,16 +22,17 @@ main = click.Group(name="ftpclient", help="ftp client handler")
 
 
 def factory(options: dict) -> Union[FTPHandler, SFTPHandler]:
-    no_secure = options.pop("no_secure", False)
-    if no_secure:
-        return FTPHandler(FTPOptions.from_dict(**options))
-    return SFTPHandler(SFTPOptions.from_dict(**options))
+    over_ssh = options.pop("ssh", False)
+    if over_ssh:
+        return SFTPHandler(SFTPOptions.from_dict(**options))
+    return FTPHandler(FTPOptions.from_dict(**options))
 
 
 def common_options(func):
     @CliOpt.flag("--debug", envvar="FTP_DEBUG")
     @CliOpt.integer("--timeout", envvar="FTP_TIMEOUT", default=300)
-    @CliOpt.flag("--no-secure", envvar="FTP_NO_SECURE")
+    @CliOpt.flag("--ssh", envvar="FTP_OVER_SSH")
+    @CliOpt.flag("--tls", envvar="FTP_OVER_TLS")
     @CliReqOpt.string("-H", "--host", envvar="FTP_HOST")
     @CliReqOpt.integer("-P", "--port", envvar="FTP_PORT")
     @CliOpt.string("-u", "--user", envvar="FTP_USER")

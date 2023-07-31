@@ -20,7 +20,7 @@ def sendmail_envvar(monkeypatch):
 
 
 @pytest.fixture
-def sftp_envvar(monkeypatch):
+def ftp_envvar(monkeypatch):
     monkeypatch.setitem(os.environ, "FTP_HOST", "localhost")
     monkeypatch.setitem(os.environ, "FTP_PORT", "22")
     monkeypatch.setitem(os.environ, "FTP_USER", "user")

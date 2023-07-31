@@ -1,8 +1,9 @@
 import contextlib
 import re
 from dataclasses import dataclass
-from ftplib import FTP  # nosec
-from typing import Generator, Optional
+from ftplib import FTP, FTP_TLS  # nosec
+from functools import cached_property
+from typing import Generator, Optional, Union
 
 from vbcore.base import BaseDTO
 from vbcore.loggers import VBLoggerMixin
@@ -18,12 +19,21 @@ class FTPOptions(BaseDTO):
     timeout: int = 300
     debug: bool = False
     encoding: str = "utf-8"
+    tls: bool = False
 
 
 class FTPHandler(VBLoggerMixin):
     def __init__(self, options: FTPOptions):
         self.options = options
-        self.client = FTP(timeout=options.timeout, encoding=options.encoding)  # nosec
+
+    @cached_property
+    def client(self) -> Union[FTP, FTP_TLS]:
+        if self.options.tls:
+            return FTP_TLS(timeout=self.options.timeout, encoding=self.options.encoding)
+        else:
+            return FTP(
+                timeout=self.options.timeout, encoding=self.options.encoding
+            )  # nosec
 
     @contextlib.contextmanager
     def connect(self) -> Generator[FTP, None, None]:
@@ -32,6 +42,9 @@ class FTPHandler(VBLoggerMixin):
             ftp.debugging = 3 if opts.debug else 0
             ftp.connect(opts.host, opts.port)
             ftp.login(opts.user, opts.password or "")
+
+            if self.options.tls and isinstance(ftp, FTP_TLS):
+                ftp.prot_p()
             yield ftp
 
     def download_file(self, remote_path: str, local_path: str):
