@@ -37,6 +37,7 @@ def common_options(func):
     @CliOpt.string("-u", "--user", envvar="FTP_USER")
     @CliOpt.string("-p", "--password", envvar="FTP_PASSWORD")
     @CliOpt.flag("--debug", envvar="FTP_DEBUG")
+    @CliOpt.string("--encoding", envvar="FTP_ENCODING", default="utf-8")
     @CliOpt.string(
         "-P",
         "--private-key-file",
