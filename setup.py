@@ -131,9 +131,7 @@ crypto_requires = read_requirements(os.path.join(REQ_PATH, "requirements-crypto.
 http_requires = read_requirements(os.path.join(REQ_PATH, "requirements-http.in"))
 net_requires = read_requirements(os.path.join(REQ_PATH, "requirements-net.in"))
 extra_requires = read_requirements(os.path.join(REQ_PATH, "requirements-extra.in"))
-scheduler_requires = read_requirements(
-    os.path.join(REQ_PATH, "requirements-scheduler.in")
-)
+scheduler_requires = read_requirements(os.path.join(REQ_PATH, "requirements-scheduler.in"))
 
 setup(
     name=PKG_NAME,

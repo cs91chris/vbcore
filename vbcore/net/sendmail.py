@@ -69,9 +69,7 @@ class SendMail:
             with FileHandler(filename).open_binary() as file:
                 attach = MIMEApplication(file.read())
                 filename = os.path.basename(filename)
-                attach.add_header(
-                    "Content-Disposition", f"attachment; filename={filename}"
-                )
+                attach.add_header("Content-Disposition", f"attachment; filename={filename}")
                 message.attach(attach)
 
     @classmethod

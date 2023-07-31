@@ -100,9 +100,7 @@ class MySQLDumper:
         cmdline = self.mysql_cmdline("show tables", database=database)
         return self.execute_text(cmdline)
 
-    def all_tables(
-        self, db_prefix: OptStr = None
-    ) -> t.Generator[CoupleStr, None, None]:
+    def all_tables(self, db_prefix: OptStr = None) -> t.Generator[CoupleStr, None, None]:
         for database in self.get_databases(db_prefix):
             for table in self.get_tables(database):
                 yield database, table
@@ -138,9 +136,7 @@ class MysqlBackup(VBLoggerMixin):
         for database, table in self.dumper.all_tables(db_prefix):
             self.log.info("dumping table: %s.%s ......", database, table)
             dump = self.dumper.dump_table(database, table)
-            filename = self.prepare_filename(
-                file_prefix, f"{database}.{table}", ext="sql"
-            )
+            filename = self.prepare_filename(file_prefix, f"{database}.{table}", ext="sql")
             with open(filename, mode="wb") as file:
                 file.write(dump.dump)
 

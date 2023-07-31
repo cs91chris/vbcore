@@ -6,9 +6,7 @@ from vbcore.datastruct import ObjectDict
 from vbcore.tester.fetchmail import FetchMail
 
 
-def fetch_emails(
-    subject: str, recipient: t.Optional[str] = None, **kwargs
-) -> t.List[ObjectDict]:
+def fetch_emails(subject: str, recipient: t.Optional[str] = None, **kwargs) -> t.List[ObjectDict]:
     return FetchMail(**kwargs).perform(recipient=recipient, subject=subject)
 
 

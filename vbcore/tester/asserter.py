@@ -69,9 +69,7 @@ class BaseAssert:
     def fail(cls, that: OptStr = None, error: OptStr = None):
         if not that:
             raise cls.exception(error)
-        raise cls.exception(
-            cls.fail_message.format(that=that, error=f": {error}" if error else "")
-        )
+        raise cls.exception(cls.fail_message.format(that=that, error=f": {error}" if error else ""))
 
     @classmethod
     def assert_that(
@@ -248,14 +246,10 @@ class IterablesMixin(BaseAssert):
 
 class JSONValidatorMixin(BaseAssert, JSONSchema):
     @classmethod
-    def assert_json_schema(
-        cls, data: dict, schema: t.Union[dict, str], strict: bool = True
-    ):
+    def assert_json_schema(cls, data: dict, schema: t.Union[dict, str], strict: bool = True):
         cls.assert_different(JSONSchema, object, error="you must install jsonschema")
         if strict and not schema:
-            cls.assert_that(
-                lambda a, e: a is not None, actual=schema, error="Missing schema"
-            )
+            cls.assert_that(lambda a, e: a is not None, actual=schema, error="Missing schema")
         try:
             cls.validate(data, schema, raise_exc=True)
             valid, message = True, None
@@ -323,9 +317,7 @@ class RegexMixin(BaseAssert):
             opmess = "less than"
 
         that = f"occurrences of '{expected}' in '{actual}' are {opmess} '{occurrences}'"
-        cls.assert_that(
-            find_all, error=error, that=that, actual=actual, expected=expected
-        )
+        cls.assert_that(find_all, error=error, that=that, actual=actual, expected=expected)
 
 
 class HttpAsserter(BaseAssert):
@@ -358,9 +350,7 @@ class HttpAsserter(BaseAssert):
                 message = f"{prefix_mess} one of {code}"
                 cls.assert_in(status_code, code, error=message)
             else:
-                cls.fail(
-                    error="one of (is_in, in_range) must be true if a list of codes is given"
-                )
+                cls.fail(error="one of (is_in, in_range) must be true if a list of codes is given")
         else:
             if greater is True:
                 message = f"{prefix_mess} greater than {code}"

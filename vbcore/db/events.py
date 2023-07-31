@@ -273,28 +273,18 @@ def _check_constraint_error(data: ExceptionData):
 @filters(
     "postgresql",
     sqla_exc.ProgrammingError,
-    (
-        r".* constraint \"(?P<constraint>.+)\" "
-        "of relation "
-        '"(?P<relation>.+)" does not exist'
-    ),
+    r'.* constraint \"(?P<constraint>.+)\" of relation "(?P<relation>.+)" does not exist',
 )
 @filters(
     "mysql",
     sqla_exc.InternalError,
     r".*1025,.*Error on rename of '.+/(?P<relation>.+)' to ",
-    (
-        ".*1091,.*Can't DROP (?:FOREIGN KEY )?['`](?P<constraint>.+)['`]; "
-        "check that .* exists"
-    ),
+    ".*1091,.*Can't DROP (?:FOREIGN KEY )?['`](?P<constraint>.+)['`]; check that .* exists",
 )
 @filters(
     "mysql",
     sqla_exc.OperationalError,
-    (
-        r".*1091,.*Can't DROP (?:FOREIGN KEY )?['`](?P<constraint>.+)['`]; "
-        "check that .* exists"
-    ),
+    r".*1091,.*Can't DROP (?:FOREIGN KEY )?['`](?P<constraint>.+)['`]; check that .* exists",
 )
 def _check_constraint_non_existing(data: ExceptionData):
     raise DBNonExistentConstraint(

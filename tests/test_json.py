@@ -37,9 +37,7 @@ def test_builtin_encoder():
 
 
 def test_datetime_encoder():
-    result = json.dumps(
-        {"sample": datetime.datetime(year=2020, month=1, day=1, hour=12)}
-    )
+    result = json.dumps({"sample": datetime.datetime(year=2020, month=1, day=1, hour=12)})
     Asserter.assert_equals(result, '{"sample": "2020-01-01T12:00:00"}')
 
     result = json.dumps({"sample": datetime.date(year=2020, month=1, day=1)})

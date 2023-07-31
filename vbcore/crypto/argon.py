@@ -25,9 +25,7 @@ class Argon2(Hasher[Argon2Options]):
     def hash(self, data: HashableType) -> str:
         return self.hasher.hash(data)
 
-    def verify(
-        self, given_hash: str, data: HashableType, raise_exc: bool = False
-    ) -> bool:
+    def verify(self, given_hash: str, data: HashableType, raise_exc: bool = False) -> bool:
         try:
             return self.hasher.verify(given_hash, data)
         except (Argon2Error, InvalidHash) as exc:

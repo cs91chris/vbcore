@@ -98,9 +98,7 @@ def convert_dict(obj: Any, attr_type: bool, default_item_name: str, cdata: bool)
 
 
 # pylint: disable=too-many-branches
-def convert_list(
-    items: Iterable[Any], attr_type: bool, default_item_name: str, cdata: bool
-) -> str:
+def convert_list(items: Iterable[Any], attr_type: bool, default_item_name: str, cdata: bool) -> str:
     output = []
     item_name = default_item_name
 
@@ -112,9 +110,7 @@ def convert_list(
         elif hasattr(item, "isoformat"):  # datetime
             output.append(convert_kv(item_name, item.isoformat(), attr_string, cdata))
         elif isinstance(item, bool):
-            output.append(
-                f"<{item_name}{attr_string}>{str(item).lower()}</{item_name}>"
-            )
+            output.append(f"<{item_name}{attr_string}>{str(item).lower()}</{item_name}>")
         elif isinstance(item, dict):
             content = convert_dict(item, attr_type, default_item_name, cdata)
             if not attr_type:
@@ -126,9 +122,7 @@ def convert_list(
             if not attr_type:
                 output.append(f"<{item_name} {attr_string}>{content}</{item_name}>")
             else:
-                output.append(
-                    f'<{item_name} type="list"{attr_string}>{content}</{item_name}>'
-                )
+                output.append(f'<{item_name} type="list"{attr_string}>{content}</{item_name}>')
         elif item is None:
             output.append(f"<{item_name}{attr_string}></{item_name}>")
         else:

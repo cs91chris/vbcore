@@ -102,6 +102,7 @@ autoflake:
 black:
 	black $(call check_format) \
 		-t py${PYVER} --workers $(shell nproc) \
+		--line-length 100 \
 		${PACKAGE} sandbox tests setup.py
 
 isort:

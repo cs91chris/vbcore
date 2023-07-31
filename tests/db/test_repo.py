@@ -29,9 +29,7 @@ class UserOrm(Model):
 
     id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
     name: Mapped[str] = mapped_column(sa.String(50), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        sa.DateTime, server_default=sa.func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(sa.DateTime, server_default=sa.func.now())
 
 
 class UserQuerierRepo(QuerierRepo[User]):

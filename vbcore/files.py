@@ -43,13 +43,9 @@ class VBEncodingError(VBException):
         )
         suffix = f"\nSupported encodings are {tuple(supported)}"
         if encoding:
-            super().__init__(
-                f"{prefix} file encoding '{encoding}' {extra} not supported!{suffix}"
-            )
+            super().__init__(f"{prefix} file encoding '{encoding}' {extra} not supported!{suffix}")
         else:
-            super().__init__(
-                f"{prefix} unable to detect file encoding {extra}!{suffix}"
-            )
+            super().__init__(f"{prefix} unable to detect file encoding {extra}!{suffix}")
 
 
 class FileHandler:
@@ -97,9 +93,7 @@ class FileHandler:
 
         return EncodingData(**detector.result)
 
-    def check_encoding(
-        self, filename: OptStr = None, extra_supported: t.Sequence[str] = ()
-    ):
+    def check_encoding(self, filename: OptStr = None, extra_supported: t.Sequence[str] = ()):
         encoding = self.detect_encoding(filename)
         supported_encodings = [
             self.encoding,

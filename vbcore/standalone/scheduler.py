@@ -87,9 +87,7 @@ class APScheduler(VBLoggerMixin):
         **kwargs,
     ) -> Job:
         job_id = self.get_id()
-        job = self._scheduler.add_job(
-            task, args=args, kwargs=params, id=job_id, **kwargs
-        )
+        job = self._scheduler.add_job(task, args=args, kwargs=params, id=job_id, **kwargs)
         self.log.debug("added job '%s' with id '%s'", task, job_id)
         return job
 

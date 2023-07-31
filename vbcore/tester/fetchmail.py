@@ -19,9 +19,7 @@ class FetchMail(HTTPClient):
         wait: int = 1,
         timeout: int = 3,
     ):
-        super().__init__(
-            endpoint, username=username, password=password, timeout=timeout
-        )
+        super().__init__(endpoint, username=username, password=password, timeout=timeout)
         self.retry = retry
         self.wait = wait
 
@@ -37,9 +35,7 @@ class FetchMail(HTTPClient):
 
         return response
 
-    def perform(
-        self, recipient: str, subject: str, delete: bool = True
-    ) -> t.List[ObjectDict]:
+    def perform(self, recipient: str, subject: str, delete: bool = True) -> t.List[ObjectDict]:
         for _ in range(0, self.retry):
             res = self.fetch(recipient, subject)
             if delete:

@@ -103,9 +103,7 @@ class DateHelper:
         return date.strftime(fmt or DateTimeFmt.ISO)
 
     @classmethod
-    def str_to_date(
-        cls, date: str, fmt: OptStr = None, is_iso: bool = False, **kwargs
-    ) -> datetime:
+    def str_to_date(cls, date: str, fmt: OptStr = None, is_iso: bool = False, **kwargs) -> datetime:
         """
 
         :param date: input string date
@@ -131,17 +129,13 @@ class DateHelper:
         return cls.date_to_str(date, fmt=DateTimeFmt.PRETTY)
 
     @classmethod
-    def from_iso_format(
-        cls, str_date: str, fmt: str, exc: bool = True
-    ) -> t.Optional[str]:
+    def from_iso_format(cls, str_date: str, fmt: str, exc: bool = True) -> t.Optional[str]:
         return DateHelper.change_format(
             str_date, in_fmt=DateTimeFmt.ISO, out_fmt=fmt, raise_exc=exc
         )
 
     @classmethod
-    def to_iso_format(
-        cls, str_date: str, fmt: OptStr = None, exc: bool = True
-    ) -> t.Optional[str]:
+    def to_iso_format(cls, str_date: str, fmt: OptStr = None, exc: bool = True) -> t.Optional[str]:
         return DateHelper.change_format(
             str_date, in_fmt=fmt, out_fmt=DateTimeFmt.ISO, raise_exc=exc
         )

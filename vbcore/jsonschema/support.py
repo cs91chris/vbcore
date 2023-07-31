@@ -117,9 +117,7 @@ class JSONSchema:
 
         for lineno, text in enumerate(io.StringIO(json_error)):
             # pylint: disable=consider-using-f-string
-            line_text = "{:4}: {}".format(
-                lineno + 1, ">" * 3 if lineno == err_line else " " * 3
-            )
+            line_text = "{:4}: {}".format(lineno + 1, ">" * 3 if lineno == err_line else " " * 3)
             report.append(line_text + text.rstrip("\n"))
 
         report = report[max(0, err_line - lines_before) : err_line + 1 + lines_after]
@@ -138,9 +136,7 @@ class Fields:
     boolean = ObjectDict(type="boolean")
     datetime = ObjectDict(type="string", format="date-time")
     any_object = ObjectDict(type="object", additionalProperties=True)
-    any = ObjectDict(
-        type=["integer", "string", "number", "boolean", "array", "object", "null"]
-    )
+    any = ObjectDict(type=["integer", "string", "number", "boolean", "array", "object", "null"])
 
     class Opt:
         integer = ObjectDict(type=["integer", "null"])
@@ -150,15 +146,11 @@ class Fields:
 
     @classmethod
     def oneof(cls, *args, **kwargs) -> ObjectDict:
-        return ObjectDict(
-            oneOf=list(args) if len(args) > 1 else [*args, cls.null], **kwargs
-        )
+        return ObjectDict(oneOf=list(args) if len(args) > 1 else [*args, cls.null], **kwargs)
 
     @classmethod
     def anyof(cls, *args, **kwargs) -> ObjectDict:
-        return ObjectDict(
-            anyOf=list(args) if len(args) > 1 else [*args, cls.null], **kwargs
-        )
+        return ObjectDict(anyOf=list(args) if len(args) > 1 else [*args, cls.null], **kwargs)
 
     @classmethod
     def ref(cls, path: str, **kwargs) -> ObjectDict:

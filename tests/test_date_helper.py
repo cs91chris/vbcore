@@ -28,9 +28,7 @@ def test_from_iso_format():
     res = DateHelper.from_iso_format(ISO_DATE, DateTimeFmt.PRETTY, exc=False)
     Asserter.assert_true(res)
     Asserter.assert_equals(NOT_ISO_DATE, res)
-    Asserter.assert_none(
-        DateHelper.from_iso_format("invalid_date", DateTimeFmt.PRETTY, exc=False)
-    )
+    Asserter.assert_none(DateHelper.from_iso_format("invalid_date", DateTimeFmt.PRETTY, exc=False))
 
 
 def test_to_iso_format():
@@ -40,9 +38,7 @@ def test_to_iso_format():
     res = DateHelper.to_iso_format(NOT_ISO_DATE, exc=False)
     Asserter.assert_true(res)
     Asserter.assert_equals(ISO_DATE, res)
-    Asserter.assert_none(
-        DateHelper.to_iso_format("invalid_date", DateTimeFmt.PRETTY, exc=False)
-    )
+    Asserter.assert_none(DateHelper.to_iso_format("invalid_date", DateTimeFmt.PRETTY, exc=False))
 
 
 def test_is_weekend():

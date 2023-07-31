@@ -141,9 +141,7 @@ def test_table_rendering_with_schema(metadata, engine):
     )
 
     try:
-        graph = create_schema_graph(
-            engine=engine, metadata=metadata, show_schema_name=True
-        )
+        graph = create_schema_graph(engine=engine, metadata=metadata, show_schema_name=True)
         # noinspection PyUnresolvedReferences
         graph.create_png()  # pylint: disable=no-member
     except Exception as exc:

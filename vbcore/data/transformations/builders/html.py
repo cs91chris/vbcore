@@ -70,9 +70,7 @@ class Dict2Html:
     def build(self, rows: List[dict], table_id: str | None = None) -> str:
         headers = self.prepare_headers(rows)
         tag_open_table = (
-            self.tag_open_table_id.format(id=table_id)
-            if table_id
-            else self.tag_open_table
+            self.tag_open_table_id.format(id=table_id) if table_id else self.tag_open_table
         )
         return f"{self.separator}".join(
             [
@@ -124,9 +122,7 @@ class Html2Dict:
         return parse_value("".join(elem.itertext()))
 
     def extract_header(self, head: Element) -> List[str]:
-        headers = [
-            self.extract_text(elem) for elem in head.findall(self.xpath_head_item)
-        ]
+        headers = [self.extract_text(elem) for elem in head.findall(self.xpath_head_item)]
         if not headers:
             raise ValueError("no headers found")
         return headers

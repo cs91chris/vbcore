@@ -82,9 +82,7 @@ class RuleEngine:
                 return result[0]
         return None
 
-    def perform_on_match(
-        self, rules: t.List[RuleInfo], data: dict, *args, **kwargs
-    ) -> StrDict:
+    def perform_on_match(self, rules: t.List[RuleInfo], data: dict, *args, **kwargs) -> StrDict:
         results: StrDict = {}
         for rule, result in self.apply(rules, data):
             if rule.evaluate is True or result is True:

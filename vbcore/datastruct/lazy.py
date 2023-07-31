@@ -66,8 +66,7 @@ class LazyImporter:
         instance_of: t.Optional[t.Type] = None,
     ) -> t.Tuple[t.Any, ...]:
         return tuple(
-            cls.do_import(name, package, message, subclass_of, instance_of)
-            for name in args
+            cls.do_import(name, package, message, subclass_of, instance_of) for name in args
         )
 
 
@@ -77,9 +76,7 @@ class LazyDump(Lazy):
 
 
 class Dumper(Lazy):
-    def __init__(
-        self, data: t.Any, *args, callback: t.Optional[t.Callable] = None, **kwargs
-    ):
+    def __init__(self, data: t.Any, *args, callback: t.Optional[t.Callable] = None, **kwargs):
         super().__init__(callback or str, data, *args, **kwargs)
         self.data = data
 

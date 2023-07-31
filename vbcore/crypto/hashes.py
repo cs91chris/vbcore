@@ -13,9 +13,7 @@ class BuiltinHash(Hasher[HashOptions]):
         data = self.to_bytes(data) if isinstance(data, str) else data
         return hashlib.new(self.ALGO, data=data).hexdigest()
 
-    def verify(
-        self, given_hash: str, data: HashableType, raise_exc: bool = False
-    ) -> bool:
+    def verify(self, given_hash: str, data: HashableType, raise_exc: bool = False) -> bool:
         if hmac.compare_digest(given_hash, self.hash(data)):
             return True
 

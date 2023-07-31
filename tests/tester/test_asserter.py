@@ -513,9 +513,7 @@ def test_assert_no_match(email):
     ],
 )
 def test_assert_occurrences(occurrences, greater, lesser):
-    Asserter.assert_occurrences(
-        "aabbccaad aaa", "aa", occurrences, greater=greater, lesser=lesser
-    )
+    Asserter.assert_occurrences("aabbccaad aaa", "aa", occurrences, greater=greater, lesser=lesser)
 
 
 @pytest.mark.parametrize(
@@ -604,9 +602,7 @@ def test_assert_status_type(status_ok, status_ko, expected, error):
 
     Asserter.assertion_error(
         f"Test that {error} failed: status code {status_ko} is NOT {expected.name}",
-        lambda: Asserter.assert_status_code(
-            ObjectDict(status=status_ko), status_type=expected
-        ),
+        lambda: Asserter.assert_status_code(ObjectDict(status=status_ko), status_type=expected),
     )
 
 

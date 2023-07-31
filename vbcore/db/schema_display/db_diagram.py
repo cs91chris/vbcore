@@ -45,14 +45,10 @@ def _render_table_html(  # noqa: C901
     if show_column_keys:
         if use_column_key_attr:
             # sqlalchemy > 1.0
-            fk_col_names = {
-                h for f in table.foreign_key_constraints for h in f.columns.keys()
-            }
+            fk_col_names = {h for f in table.foreign_key_constraints for h in f.columns.keys()}
         else:
             # sqlalchemy pre 1.0?
-            fk_col_names = {
-                h.name for f in table.foreign_keys for h in f.constraint.columns
-            }
+            fk_col_names = {h.name for f in table.foreign_keys for h in f.constraint.columns}
         # fk_col_names = set([h for f in table.foreign_key_constraints for h in f.columns.keys()])
         pk_col_names = set(list(table.primary_key.columns.keys()))
     else:
@@ -106,11 +102,7 @@ def _render_table_html(  # noqa: C901
             # Should color be checked?
             # Could use  /^#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/
             _color = format_dict.get("color") if "color" in format_dict else "initial"
-            _point_size = (
-                float(format_dict["fontsize"])
-                if "fontsize" in format_dict
-                else "initial"
-            )
+            _point_size = float(format_dict["fontsize"]) if "fontsize" in format_dict else "initial"
             _bold = "<B>" if format_dict.get("bold") else ""
             _italic = "<I>" if format_dict.get("italics") else ""
             _text = f'<FONT COLOR="{_color}" '
@@ -129,7 +121,8 @@ def _render_table_html(  # noqa: C901
 
     # Assemble table header
     html = '<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0"><TR><TD ALIGN="CENTER">'
-    html += f'{f".{schema_str.upper()}" if show_schema_name and schema_str else ""}{table_str.upper()}</TD></TR>'
+    schema_name = f".{schema_str.upper()}" if show_schema_name and schema_str else ""
+    html += f"{schema_name}{table_str.upper()}</TD></TR>"
     html += '<TR><TD BORDER="1" CELLPADDING="0"></TD></TR>'
 
     html += "".join(

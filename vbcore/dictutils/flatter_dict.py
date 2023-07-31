@@ -283,9 +283,7 @@ class FlatDict(MutableMapping):
 
         for key, value in self._values.items():
             if isinstance(value, (FlatDict, dict)):
-                nested = [
-                    self._delimiter.join([str(key), str(k)]) for k in value.keys()
-                ]
+                nested = [self._delimiter.join([str(key), str(k)]) for k in value.keys()]
                 keys += nested if nested else [key]
             else:
                 keys.append(key)

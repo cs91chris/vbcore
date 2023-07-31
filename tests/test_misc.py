@@ -135,9 +135,7 @@ def test_uuid_invalid(version):
     with pytest.raises(ValueError) as error:
         misc.check_uuid(invalid_uuid, ver=version, raise_exc=True)
 
-    Asserter.assert_equals(
-        error.value.args, (f"'{invalid_uuid}' is an invalid UUID{version}",)
-    )
+    Asserter.assert_equals(error.value.args, (f"'{invalid_uuid}' is an invalid UUID{version}",))
 
 
 @pytest.mark.parametrize(
@@ -150,6 +148,4 @@ def test_uuid_invalid(version):
     ],
 )
 def test_uuid_version(version, name):
-    Asserter.assert_true(
-        misc.check_uuid(misc.get_uuid(version, name=name), ver=version)
-    )
+    Asserter.assert_true(misc.check_uuid(misc.get_uuid(version, name=name), ver=version))

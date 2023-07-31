@@ -51,9 +51,7 @@ class GUnicornServer(BaseApplication):
         self.options = kwargs
         super().__init__()
 
-    def from_env_config(
-        self, conf_key: str, opt_key: str, default: t.Any = MISSING, **kwargs
-    ):
+    def from_env_config(self, conf_key: str, opt_key: str, default: t.Any = MISSING, **kwargs):
         _default = self.options.get(opt_key, default)
         if default == _default == MISSING:
             self.cfg.set(opt_key, config(conf_key, **kwargs))
@@ -77,21 +75,13 @@ class GUnicornServer(BaseApplication):
         self.from_env_config("GU_CHDIR", "chdir", util.getcwd())
         self.from_env_config("GU_USER", "user", os.geteuid())
         self.from_env_config("GU_GROUP", "group", os.getegid())
-        self.from_env_config(
-            "GU_FORWARDED_ALLOW_IPS", "forwarded_allow_ips", "127.0.0.1"
-        )
+        self.from_env_config("GU_FORWARDED_ALLOW_IPS", "forwarded_allow_ips", "127.0.0.1")
         self.from_env_config("GU_WORKER_CLASS", "worker_class", self.worker_type.value)
         self.from_env_config("GU_THREADS", "threads", cpu_count() * 2 + 1, cast=int)
         self.from_env_config("GU_WORKERS", "workers", cpu_count(), cast=int)
-        self.from_env_config(
-            "GU_WORKER_CONNECTIONS", "worker_connections", 1000, cast=int
-        )
-        self.from_env_config(
-            "GU_LOG_LEVEL", "loglevel", "info", cast=Choices(LOG_LEVELS)
-        )
-        self.from_env_config(
-            "GU_ACCESS_LOG_FORMAT", "access_log_format", self.access_log_format
-        )
+        self.from_env_config("GU_WORKER_CONNECTIONS", "worker_connections", 1000, cast=int)
+        self.from_env_config("GU_LOG_LEVEL", "loglevel", "info", cast=Choices(LOG_LEVELS))
+        self.from_env_config("GU_ACCESS_LOG_FORMAT", "access_log_format", self.access_log_format)
 
     @property
     def access_log_format(self):
@@ -198,9 +188,7 @@ class GUnicornServer(BaseApplication):
 
     @classmethod
     def _nworkers_changed(cls, server, new_value, old_value):
-        server.log.info(
-            "number of workers changed from %s to %s", old_value or 0, new_value
-        )
+        server.log.info("number of workers changed from %s to %s", old_value or 0, new_value)
         cls.nworkers_changed(server, new_value, old_value)
 
     @classmethod

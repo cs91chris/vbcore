@@ -29,9 +29,7 @@ def _mk_label(
     Returns:
         str: html string to render the orm model
     """
-    html = (
-        f'<<TABLE CELLSPACING="0" CELLPADDING="1" BORDER="0" CELLBORDER="{bordersize}" '
-    )
+    html = f'<<TABLE CELLSPACING="0" CELLPADDING="1" BORDER="0" CELLBORDER="{bordersize}" '
     html += f'ALIGN="LEFT"><TR><TD><FONT POINT-SIZE="10">{mapper.class_.__name__}</FONT></TD></TR>'
 
     def format_col(col):
@@ -51,19 +49,14 @@ def _mk_label(
             format_col(col) for col in cols
         )
     else:
-        _ = [
-            format_col(col)
-            for col in sorted(mapper.columns, key=lambda col: not col.primary_key)
-        ]
+        _ = [format_col(col) for col in sorted(mapper.columns, key=lambda col: not col.primary_key)]
     if show_operations:
 
         def zip_func(_func):
             return zip(
                 (
                     _func.func_defaults
-                    and len(_func.func_code.co_varnames)
-                    - 1
-                    - (len(_func.func_defaults) or 0)
+                    and len(_func.func_code.co_varnames) - 1 - (len(_func.func_defaults) or 0)
                     or _func.func_code.co_argcount - 1
                 )
                 * [_mk_label]
@@ -83,8 +76,7 @@ def _mk_label(
                 ),
             )
             for name, func in cast(Tuple[str, Any], mapper.class_.__dict__.items())
-            if isinstance(func, types.FunctionType)
-            and func.__module__ == mapper.class_.__module__
+            if isinstance(func, types.FunctionType) and func.__module__ == mapper.class_.__module__
         )
     html += "</TABLE>>"
     return html

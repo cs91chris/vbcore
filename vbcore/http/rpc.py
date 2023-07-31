@@ -16,9 +16,7 @@ class RPCError(VBException):
 
 class RPCParseError(RPCError):
     def __init__(self, message=None, data=None):
-        super().__init__(
-            -32700, message or "Invalid JSON was received by the server", data
-        )
+        super().__init__(-32700, message or "Invalid JSON was received by the server", data)
 
 
 class RPCInvalidRequest(RPCError):
@@ -28,17 +26,13 @@ class RPCInvalidRequest(RPCError):
         data=None,
         req_id=None,
     ):
-        super().__init__(
-            -32600, message or "The JSON sent is not a valid Request object", data
-        )
+        super().__init__(-32600, message or "The JSON sent is not a valid Request object", data)
         self.req_id = req_id
 
 
 class RPCMethodNotFound(RPCError):
     def __init__(self, message=None, data=None):
-        super().__init__(
-            -32601, message or "The method does not exist or is not available", data
-        )
+        super().__init__(-32601, message or "The method does not exist or is not available", data)
 
 
 class RPCInvalidParams(RPCError):

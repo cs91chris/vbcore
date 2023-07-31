@@ -137,9 +137,7 @@ class SFTPHandler(VBLoggerMixin):
         only: Optional[re.Pattern] = None,
         exclude: Optional[re.Pattern] = None,
     ) -> bool:
-        is_filtered = bool(
-            exclude and exclude.match(filename) or only and not only.match(filename)
-        )
+        is_filtered = bool(exclude and exclude.match(filename) or only and not only.match(filename))
         if is_filtered:
             self.log.info("file '%s' filtered", filename)
         return is_filtered

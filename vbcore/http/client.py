@@ -140,9 +140,7 @@ class HTTPClient(HTTPBase):
         headers: t.Optional[t.Dict[str, str]] = None,
         exception: t.Optional[Exception] = None,
     ) -> ResponseData:
-        return ResponseData(
-            body=body, status=status, headers=headers or {}, exception=exception
-        )
+        return ResponseData(body=body, status=status, headers=headers or {}, exception=exception)
 
     def request(
         self,
@@ -166,9 +164,7 @@ class HTTPClient(HTTPBase):
             if raise_on_exc or self._raise_on_exc:
                 raise  # pragma: no cover
 
-            return self.prepare_response(
-                status=httpcode.SERVICE_UNAVAILABLE, exception=exc
-            )
+            return self.prepare_response(status=httpcode.SERVICE_UNAVAILABLE, exception=exc)
 
         log_resp = self.dump_response(response, dump_body=dump_body[1])
         try:
@@ -225,9 +221,7 @@ class JsonRPCClient(HTTPClient):
     def request_id(self):
         return self._request_id
 
-    def request(
-        self, method, request_id=None, **kwargs
-    ):  # pylint: disable=arguments-differ
+    def request(self, method, request_id=None, **kwargs):  # pylint: disable=arguments-differ
         self._request_id = request_id or get_uuid()
         return self._request(method, **kwargs)
 

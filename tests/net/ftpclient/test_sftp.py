@@ -83,9 +83,7 @@ def test_download_dir_exclude(mock_sftp, mock_transport, sftp_handler):
         "file.bat",
     ]
 
-    Asserter.assert_equals(
-        sftp_handler.download_dir(REMOTE_DIR, exclude=re.compile(r".*\.csv")), 2
-    )
+    Asserter.assert_equals(sftp_handler.download_dir(REMOTE_DIR, exclude=re.compile(r".*\.csv")), 2)
 
     sftp_handler.sftp.listdir.assert_called_once_with(path=REMOTE_DIR)
     sftp_handler.sftp.get.has_calls(
@@ -106,9 +104,7 @@ def test_bulk_download_dir_only(mock_sftp, mock_transport, sftp_handler):
         "file_X_2.txt",
     ]
 
-    Asserter.assert_equals(
-        sftp_handler.download_dir(REMOTE_DIR, only=re.compile(r".*_X_.*")), 2
-    )
+    Asserter.assert_equals(sftp_handler.download_dir(REMOTE_DIR, only=re.compile(r".*_X_.*")), 2)
 
     sftp_handler.sftp.listdir.assert_called_once_with(path=REMOTE_DIR)
     sftp_handler.sftp.get.has_calls(

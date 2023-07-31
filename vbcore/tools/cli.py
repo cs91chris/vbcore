@@ -27,9 +27,7 @@ CliInputDir = partial(CliDir, exists=True, readable=True)
 
 
 class Cli:
-    option: t.ClassVar = partial(
-        click.option, show_default=True, show_envvar=True, default=None
-    )
+    option: t.ClassVar = partial(click.option, show_default=True, show_envvar=True, default=None)
     print: t.ClassVar = partial(click.echo, color=True)
     error: t.ClassVar = partial(click.echo, color=True, err=True)
     argument: t.ClassVar = partial(click.argument, required=True)
@@ -46,18 +44,12 @@ class CliOpt:
     date: t.ClassVar = partial(Cli.option, type=click.DateTime(DateFmt.ISO))
     datetime: t.ClassVar = partial(Cli.option, type=click.DateTime(DateTimeFmt.ISO))
     multi: t.ClassVar = partial(Cli.option, multiple=True, metavar="(multiple)")
-    flag: t.ClassVar = partial(
-        boolean, is_flag=True, default=False, help="[default: False]"
-    )
-    dict: t.ClassVar = partial(
-        multi, default={}, callback=option_as_dict, metavar="KEY[=VAL]"
-    )
+    flag: t.ClassVar = partial(boolean, is_flag=True, default=False, help="[default: False]")
+    dict: t.ClassVar = partial(multi, default={}, callback=option_as_dict, metavar="KEY[=VAL]")
     verbose: t.ClassVar = partial(Cli.option, "-v", "--verbose", count=True)
 
     @classmethod
-    def choice(
-        cls, *args, values: t.Sequence[str], case_sensitive: bool = True, **kwargs
-    ):
+    def choice(cls, *args, values: t.Sequence[str], case_sensitive: bool = True, **kwargs):
         return Cli.option(*args, type=click.Choice(values, case_sensitive), **kwargs)
 
     @classmethod

@@ -23,9 +23,7 @@ def test_hash_verify(mock_crypto_factory, runner):
     mock_instance = MagicMock()
     mock_crypto_factory.instance.return_value = mock_instance
 
-    result = runner.invoke(
-        main, ["crypto", "hash-verify", "-t", "BCRYPT", "hash-test", "test"]
-    )
+    result = runner.invoke(main, ["crypto", "hash-verify", "-t", "BCRYPT", "hash-test", "test"])
 
     Asserter.assert_none(result.exception, error=result.output)
     Asserter.assert_equals(result.exit_code, 0)

@@ -63,9 +63,7 @@ class SQLASupport:
                 return obj, False
             return obj, True
 
-    def get_or_create(
-        self, defaults: t.Optional[dict] = None, **kwargs
-    ) -> t.Tuple[t.Any, bool]:
+    def get_or_create(self, defaults: t.Optional[dict] = None, **kwargs) -> t.Tuple[t.Any, bool]:
         """
         @param defaults: attribute used to create record
         @param kwargs: filters used to fetch record or create
@@ -77,9 +75,7 @@ class SQLASupport:
             params = self._prepare_params(defaults, **kwargs)
             return self._create_object(kwargs, params)
 
-    def update_or_create(
-        self, defaults: t.Optional[dict] = None, **kwargs
-    ) -> t.Tuple[t.Any, bool]:
+    def update_or_create(self, defaults: t.Optional[dict] = None, **kwargs) -> t.Tuple[t.Any, bool]:
         """
         @param defaults: attribute used to create record
         @param kwargs: filters used to fetch record or create
@@ -108,9 +104,7 @@ class SQLASupport:
         columns = fields or (self.model,)
         return self.session.query(*columns).filter(*args).filter_by(**kwargs)
 
-    def delete(
-        self, *args, synchronize: SynchronizeSessionArgument = "evaluate", **kwargs
-    ) -> int:
+    def delete(self, *args, synchronize: SynchronizeSessionArgument = "evaluate", **kwargs) -> int:
         row_count = self.fetch(*args, **kwargs).delete(synchronize)
         if self._commit:
             self.session.commit()

@@ -110,9 +110,7 @@ class Op(metaclass=OpMeta):
         return op_in_range(value, range_, closed=closed, left=left, right=right)
 
 
-def chunk_iterator(
-    iterable: t.Iterable[T], chunk_size: int
-) -> t.Generator[t.List[T], None, None]:
+def chunk_iterator(iterable: t.Iterable[T], chunk_size: int) -> t.Generator[t.List[T], None, None]:
     _iterable = iter(iterable)
 
     while True:

@@ -168,9 +168,7 @@ class JsonRPCProxyRequest(ProxyRequest, ABC):
             headers=self.request_headers(),
         )
 
-    def prepare_response(
-        self, resp: t.Optional[ObjectDict] = None, **kwargs
-    ) -> Response:
+    def prepare_response(self, resp: t.Optional[ObjectDict] = None, **kwargs) -> Response:
         body = resp
         headers: t.Dict[str, str] = {
             HeaderEnum.CONTENT_TYPE: self.response_content_type,

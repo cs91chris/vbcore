@@ -18,15 +18,9 @@ else:
 
 class Column:
     id: t.ClassVar = partial(sa.Column, sa.Integer, primary_key=True)
-    uuid: t.ClassVar = partial(
-        sa.Column, sa.String(36), primary_key=True, default=lambda: get_uuid
-    )
-    auto: t.ClassVar = partial(
-        sa.Column, sa.Integer, primary_key=True, autoincrement=True
-    )
-    date_created: t.ClassVar = partial(
-        sa.Column, sa.DateTime, server_default=sa.func.now()
-    )
+    uuid: t.ClassVar = partial(sa.Column, sa.String(36), primary_key=True, default=lambda: get_uuid)
+    auto: t.ClassVar = partial(sa.Column, sa.Integer, primary_key=True, autoincrement=True)
+    date_created: t.ClassVar = partial(sa.Column, sa.DateTime, server_default=sa.func.now())
     date_updated: t.ClassVar = partial(sa.Column, sa.DateTime, onupdate=sa.func.now())
     description: t.ClassVar = partial(sa.Column, sa.Text(), nullable=True)
 

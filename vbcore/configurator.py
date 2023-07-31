@@ -36,9 +36,7 @@ class AutoConfig(decouple.AutoConfig):
             try:
                 return cast(env_var)
             except Exception as exc:
-                raise ValueError(
-                    f"unable to cast config key '{key}' to type: {cast}"
-                ) from exc
+                raise ValueError(f"unable to cast config key '{key}' to type: {cast}") from exc
 
         if required and not default:
             raise EnvironmentError(f"envvar '{key}' required or provide a default")

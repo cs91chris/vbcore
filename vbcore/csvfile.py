@@ -21,9 +21,7 @@ class CSVParams:
     quoting: int = csv.QUOTE_NONE
     escape_char: str = "\\"
     allow_extra_fields: bool = True
-    supported_encodings: t.List[str] = field(
-        default_factory=lambda: ["ascii", "ISO-8859-1"]
-    )
+    supported_encodings: t.List[str] = field(default_factory=lambda: ["ascii", "ISO-8859-1"])
 
 
 class CSVHandler(FileHandler):
@@ -35,9 +33,7 @@ class CSVHandler(FileHandler):
     ):
         self.fields = fields or []
         self.params = params or CSVParams()
-        super().__init__(
-            filename, self.params.encoding, self.params.supported_encodings
-        )
+        super().__init__(filename, self.params.encoding, self.params.supported_encodings)
 
     def open(self, filename: OptStr = None, **kwargs) -> t.IO:
         return super().open(
@@ -57,9 +53,7 @@ class CSVHandler(FileHandler):
             )
 
     @contextmanager
-    def reader(
-        self, filename: OptStr = None
-    ) -> t.Generator[csv.DictReader, None, None]:
+    def reader(self, filename: OptStr = None) -> t.Generator[csv.DictReader, None, None]:
         with self.open(filename) as file:
             reader = csv.DictReader(
                 file,
@@ -99,9 +93,7 @@ class CSVHandler(FileHandler):
             for record in reader:
                 yield self.after_read_hook(record)
 
-    def coroutine_writer(
-        self, filename: OptStr = None, **kwargs
-    ) -> WriterCoroutineType:
+    def coroutine_writer(self, filename: OptStr = None, **kwargs) -> WriterCoroutineType:
         with self.writer(filename, **kwargs) as writer:
             writer.writeheader()
             while True:

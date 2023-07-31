@@ -41,9 +41,7 @@ class TestHttpCall(HTTPDumper):
             password = config.get("password") or config["username"]
             self.auth = basic_auth_header(config.get("username"), password)
 
-    def assert_status_code(
-        self, code: int, in_range: bool = False, is_in: bool = False
-    ):
+    def assert_status_code(self, code: int, in_range: bool = False, is_in: bool = False):
         status_code = self.response.status_code
         if type(code) in (list, tuple):
             if in_range:
@@ -53,9 +51,7 @@ class TestHttpCall(HTTPDumper):
         else:
             Asserter.assert_equals(status_code, code)
 
-    def assert_header(
-        self, name: str, value: str, is_in: bool = False, regex: bool = False
-    ):
+    def assert_header(self, name: str, value: str, is_in: bool = False, regex: bool = False):
         header = self.response.headers.get(name)
         if is_in:
             Asserter.assert_in(value, header)
@@ -212,15 +208,11 @@ class TestRestApi(TestHttpApi):
         self.perform(req, res)
 
     def test_put(self, res_id, request=None, response=None):
-        req, res = self._normalize(
-            request, response, HttpMethod.PUT, self.resource_url(res_id)
-        )
+        req, res = self._normalize(request, response, HttpMethod.PUT, self.resource_url(res_id))
         self.perform(req, res)
 
     def test_delete(self, res_id, request=None, response=None):
-        req, res = self._normalize(
-            request, response, HttpMethod.DELETE, self.resource_url(res_id)
-        )
+        req, res = self._normalize(request, response, HttpMethod.DELETE, self.resource_url(res_id))
         res.setdefault("status", {"code": httpcode.NO_CONTENT})
         res.setdefault("headers", {})
         res["headers"][HeaderEnum.CONTENT_TYPE] = None

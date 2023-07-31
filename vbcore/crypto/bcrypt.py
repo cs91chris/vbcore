@@ -22,9 +22,7 @@ class Bcrypt(Hasher[BcryptOptions]):
         hashed = bcrypt.hashpw(self.prepare_data(data), self.salt())
         return self.to_string(hashed)
 
-    def verify(
-        self, given_hash: str, data: HashableType, raise_exc: bool = False
-    ) -> bool:
+    def verify(self, given_hash: str, data: HashableType, raise_exc: bool = False) -> bool:
         try:
             return bcrypt.checkpw(
                 self.prepare_data(data),

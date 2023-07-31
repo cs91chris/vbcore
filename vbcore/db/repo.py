@@ -108,9 +108,7 @@ class CrudRepo(Generic[C, D]):
         self.querier = QuerierRepo[D](connection, dto_class)
         self.mutator = MutatorRepo[C](connection, table)
 
-    def get(
-        self, columns: SqlColumns = (), clauses: SqlWhereClauses = (), **kwargs
-    ) -> D:
+    def get(self, columns: SqlColumns = (), clauses: SqlWhereClauses = (), **kwargs) -> D:
         return self.querier.fetch_one(self.mutator.table, columns, clauses, **kwargs)
 
     def get_all(

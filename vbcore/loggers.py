@@ -64,9 +64,7 @@ class LoggingSettings:
     listener_daemon: bool = True
     listener_port: int = DEFAULT_LISTENER_PORT
     default_date_format = "%Y-%m-%d %H:%M:%S"
-    default_format: str = (
-        "%(asctime)s.%(msecs)03d | %(levelname)-8s | %(name)s | %(message)s"
-    )
+    default_format: str = "%(asctime)s.%(msecs)03d | %(levelname)-8s | %(name)s | %(message)s"
 
 
 class SetupLoggers:

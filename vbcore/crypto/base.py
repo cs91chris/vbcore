@@ -24,9 +24,7 @@ class Hasher(Item[T], t.Generic[T]):
         """
 
     @abc.abstractmethod
-    def verify(
-        self, given_hash: str, data: HashableType, raise_exc: bool = False
-    ) -> bool:
+    def verify(self, given_hash: str, data: HashableType, raise_exc: bool = False) -> bool:
         """
         @param given_hash:
         @param data:

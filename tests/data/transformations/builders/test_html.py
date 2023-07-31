@@ -7,7 +7,12 @@ from vbcore.tester.asserter import Asserter
     "data, expected",
     [
         (
-            "<table><thead><tr><th>a</th><th>b</th></tr></thead><tbody><tr><td>1</td><td>2</td></tr></tbody></table>",
+            (
+                "<table>"
+                "<thead><tr><th>a</th><th>b</th></tr></thead>"
+                "<tbody><tr><td>1</td><td>2</td></tr></tbody>"
+                "</table>"
+            ),
             [{"a": 1, "b": 2}],
         ),
     ],
@@ -24,7 +29,12 @@ def test_build_to_dict(html_builder, data, expected):
     [
         (
             [{"a": 1, "b": 2}],
-            "<table><thead><tr><th>a</th><th>b</th></tr></thead><tbody><tr><td>1</td><td>2</td></tr></tbody></table>",
+            (
+                "<table>"
+                "<thead><tr><th>a</th><th>b</th></tr></thead>"
+                "<tbody><tr><td>1</td><td>2</td></tr></tbody>"
+                "</table>"
+            ),
         ),
     ],
     ids=[

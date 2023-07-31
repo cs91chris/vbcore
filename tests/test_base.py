@@ -45,9 +45,7 @@ def test_static_class():
     with pytest.raises(TypeError) as error:
         MyStaticClass()
 
-    Asserter.assert_equals(
-        str(error.value), "can not instantiate Static class MyStaticClass"
-    )
+    Asserter.assert_equals(str(error.value), "can not instantiate Static class MyStaticClass")
 
 
 @pytest.mark.skip("implement me")
