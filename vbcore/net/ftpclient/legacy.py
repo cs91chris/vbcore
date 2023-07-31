@@ -28,12 +28,8 @@ class FTPHandler(VBLoggerMixin):
 
     @cached_property
     def client(self) -> Union[FTP, FTP_TLS]:
-        if self.options.tls:
-            return FTP_TLS(timeout=self.options.timeout, encoding=self.options.encoding)
-        else:
-            return FTP(
-                timeout=self.options.timeout, encoding=self.options.encoding
-            )  # nosec
+        ftp_class = FTP_TLS if self.options.tls else FTP  # nosec
+        return ftp_class(timeout=self.options.timeout, encoding=self.options.encoding)
 
     @contextlib.contextmanager
     def connect(self) -> Generator[FTP, None, None]:
