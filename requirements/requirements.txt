@@ -6,7 +6,7 @@
 #
 bson==0.5.10
     # via -r requirements/requirements.in
-click==8.1.4
+click==8.1.7
     # via -r requirements/requirements.in
 psutil==5.9.5
     # via -r requirements/requirements.in
@@ -18,10 +18,9 @@ python-decouple==3.8
     # via -r requirements/requirements.in
 python-dotenv==1.0.0
     # via -r requirements/requirements.in
-pyyaml==6.0
+pyyaml==6.0.1
     # via -r requirements/requirements.in
 six==1.16.0
     # via
-    #   -c requirements/requirements-build.txt
     #   bson
     #   python-dateutil

@@ -4,16 +4,13 @@
 #
 #    pip-compile --no-emit-index-url --no-emit-trusted-host --output-file=requirements/requirements-scheduler.txt --resolver=backtracking requirements/requirements-scheduler.in
 #
-apscheduler==3.10.1
+apscheduler==3.10.4
     # via -r requirements/requirements-scheduler.in
-pytz==2023.3
+pytz==2023.3.post1
     # via apscheduler
 six==1.16.0
     # via
-    #   -c requirements/requirements-build.txt
+    #   -c requirements/requirements.txt
     #   apscheduler
 tzlocal==5.0.1
     # via apscheduler
-
-# The following packages are considered to be unsafe in a requirements file:
-# setuptools

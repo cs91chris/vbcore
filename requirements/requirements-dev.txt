@@ -4,23 +4,23 @@
 #
 #    pip-compile --no-emit-index-url --no-emit-trusted-host --output-file=requirements/requirements-dev.txt --resolver=backtracking requirements/requirements-dev.in
 #
-astroid==2.15.6
+astroid==2.15.8
     # via pylint
 attrs==23.1.0
     # via
     #   -c requirements/requirements-test.txt
     #   flake8-bugbear
-autoflake==2.2.0
+autoflake==2.2.1
     # via -r requirements/requirements-dev.in
 bandit==1.7.5
     # via -r requirements/requirements-dev.in
-black==23.3.0
+black==23.9.1
     # via -r requirements/requirements-dev.in
-build==0.10.0
+build==1.0.3
     # via pip-tools
 bump2version==1.0.1
     # via -r requirements/requirements-dev.in
-certifi==2023.5.7
+certifi==2023.7.22
     # via
     #   -c requirements/requirements-test.txt
     #   requests
@@ -32,7 +32,7 @@ charset-normalizer==2.1.1
     # via
     #   -c requirements/requirements-test.txt
     #   requests
-click==8.1.4
+click==8.1.7
     # via
     #   -c requirements/requirements-all.txt
     #   black
@@ -44,25 +44,23 @@ colorama==0.4.6
     #   radon
 coloredlogs==15.0.1
     # via -r requirements/requirements-dev.in
-configparser==6.0.0
-    # via liccheck
-cryptography==41.0.1
+cryptography==41.0.4
     # via
     #   -c requirements/requirements-build.txt
     #   types-paramiko
-dill==0.3.6
+dill==0.3.7
     # via pylint
 dparse==0.6.3
     # via safety
-flake8==6.0.0
+flake8==6.1.0
     # via
     #   -r requirements/requirements-dev.in
     #   flake8-bugbear
-flake8-bugbear==23.6.5
+flake8-bugbear==23.9.16
     # via -r requirements/requirements-dev.in
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.31
+gitpython==3.1.37
     # via bandit
 humanfriendly==10.0
     # via coloredlogs
@@ -76,7 +74,7 @@ isort==5.12.0
     #   pylint
 lazy-object-proxy==1.9.0
     # via astroid
-liccheck==0.9.1
+liccheck==0.9.2
     # via -r requirements/requirements-dev.in
 mando==0.7.1
     # via radon
@@ -105,38 +103,38 @@ packaging==23.1
     #   build
     #   dparse
     #   safety
-pathspec==0.11.1
+pathspec==0.11.2
     # via black
 pbr==5.11.1
     # via stevedore
-pip-tools==6.14.0
+pip-tools==7.3.0
     # via -r requirements/requirements-dev.in
-pipdeptree==2.9.4
+pipdeptree==2.13.0
     # via -r requirements/requirements-dev.in
-platformdirs==3.8.1
+platformdirs==3.10.0
     # via
     #   -c requirements/requirements-build.txt
     #   black
     #   pylint
-pycodestyle==2.10.0
+pycodestyle==2.11.0
     # via flake8
 pycparser==2.21
     # via
     #   -c requirements/requirements-build.txt
     #   cffi
-pyflakes==3.0.1
+pyflakes==3.1.0
     # via
     #   autoflake
     #   flake8
-pygments==2.15.1
+pygments==2.16.1
     # via
     #   -c requirements/requirements-build.txt
     #   rich
-pylint==2.17.4
+pylint==2.17.6
     # via -r requirements/requirements-dev.in
 pyproject-hooks==1.0.0
     # via build
-pyyaml==6.0
+pyyaml==6.0.1
     # via
     #   -c requirements/requirements-test.txt
     #   bandit
@@ -146,7 +144,7 @@ requests==2.31.0
     # via
     #   -c requirements/requirements-test.txt
     #   safety
-rich==13.4.2
+rich==13.5.3
     # via
     #   -c requirements/requirements-build.txt
     #   bandit
@@ -160,9 +158,9 @@ semantic-version==2.10.0
     # via liccheck
 six==1.16.0
     # via
-    #   -c requirements/requirements-build.txt
+    #   -c requirements/requirements-all.txt
     #   mando
-smmap==5.0.0
+smmap==5.0.1
     # via gitdb
 stevedore==5.1.0
     # via bandit
@@ -179,40 +177,41 @@ tomli==2.0.1
     #   pip-tools
     #   pylint
     #   pyproject-hooks
-tomlkit==0.11.8
+tomlkit==0.12.1
     # via pylint
 types-backports==0.1.3
     # via -r requirements/requirements-dev.in
 types-chardet==5.0.4.6
     # via -r requirements/requirements-dev.in
-types-paramiko==3.2.0.0
+types-paramiko==3.3.0.0
     # via -r requirements/requirements-dev.in
-types-python-dateutil==2.8.19.13
+types-python-dateutil==2.8.19.14
     # via -r requirements/requirements-dev.in
-types-pytz==2023.3.0.0
+types-pytz==2023.3.1.1
     # via -r requirements/requirements-dev.in
-types-pyyaml==6.0.12.10
+types-pyyaml==6.0.12.12
     # via -r requirements/requirements-dev.in
-types-requests==2.31.0.1
+types-requests==2.31.0.5
     # via -r requirements/requirements-dev.in
-types-setuptools==68.0.0.1
+types-setuptools==68.2.0.0
     # via -r requirements/requirements-dev.in
-types-toml==0.10.8.6
+types-toml==0.10.8.7
     # via -r requirements/requirements-dev.in
-types-urllib3==1.26.25.13
+types-urllib3==1.26.25.14
     # via types-requests
-types-xmltodict==0.13.0.2
+types-xmltodict==0.13.0.3
     # via -r requirements/requirements-dev.in
-typing-extensions==4.7.1
+typing-extensions==4.8.0
     # via
     #   -c requirements/requirements-all.txt
     #   astroid
+    #   black
     #   mypy
-urllib3==2.0.3
+urllib3==2.0.5
     # via
     #   -c requirements/requirements-test.txt
     #   requests
-wheel==0.40.0
+wheel==0.41.2
     # via
     #   -c requirements/requirements-build.txt
     #   pip-tools

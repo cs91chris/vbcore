@@ -4,7 +4,7 @@
 #
 #    pip-compile --no-emit-index-url --no-emit-trusted-host --output-file=requirements/requirements-crypto.txt --resolver=backtracking requirements/requirements-crypto.in
 #
-argon2-cffi==21.3.0
+argon2-cffi==23.1.0
     # via -r requirements/requirements-crypto.in
 argon2-cffi-bindings==21.2.0
     # via argon2-cffi

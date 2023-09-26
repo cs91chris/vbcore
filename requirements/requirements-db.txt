@@ -10,9 +10,9 @@ greenlet==2.0.2
     # via sqlalchemy
 pydot==1.4.2
     # via -r requirements/requirements-db.in
-pyparsing==3.1.0
+pyparsing==3.1.1
     # via pydot
-sqlalchemy==2.0.18
+sqlalchemy==2.0.21
     # via -r requirements/requirements-db.in
-typing-extensions==4.7.1
+typing-extensions==4.8.0
     # via sqlalchemy

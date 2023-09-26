@@ -4,21 +4,21 @@
 #
 #    pip-compile --no-emit-index-url --no-emit-trusted-host --output-file=requirements/requirements-all.txt --resolver=backtracking requirements/requirements-all.in
 #
-aiohttp==3.8.4
+aiohttp==3.8.5
     # via -r requirements/requirements-http.txt
 aiosignal==1.3.1
     # via
     #   -r requirements/requirements-http.txt
     #   aiohttp
-apscheduler==3.10.1
+apscheduler==3.10.4
     # via -r requirements/requirements-scheduler.txt
-argon2-cffi==21.3.0
+argon2-cffi==23.1.0
     # via -r requirements/requirements-crypto.txt
 argon2-cffi-bindings==21.2.0
     # via
     #   -r requirements/requirements-crypto.txt
     #   argon2-cffi
-async-timeout==4.0.2
+async-timeout==4.0.3
     # via
     #   -r requirements/requirements-http.txt
     #   aiohttp
@@ -40,7 +40,7 @@ bcrypt==4.0.1
     #   paramiko
 bson==0.5.10
     # via -r requirements/requirements.txt
-certifi==2023.5.7
+certifi==2023.7.22
     # via
     #   -r requirements/requirements-http.txt
     #   requests
@@ -51,16 +51,16 @@ cffi==1.15.1
     #   argon2-cffi-bindings
     #   cryptography
     #   pynacl
-chardet==5.1.0
+chardet==5.2.0
     # via -r requirements/requirements-extra.txt
 charset-normalizer==2.1.1
     # via
     #   -r requirements/requirements-http.txt
     #   aiohttp
     #   requests
-click==8.1.4
+click==8.1.7
     # via -r requirements/requirements.txt
-cryptography==41.0.1
+cryptography==41.0.4
     # via
     #   -r requirements/requirements-net.txt
     #   paramiko
@@ -70,7 +70,7 @@ et-xmlfile==1.1.0
     # via
     #   -r requirements/requirements-extra.txt
     #   openpyxl
-frozenlist==1.3.3
+frozenlist==1.4.0
     # via
     #   -r requirements/requirements-http.txt
     #   aiohttp
@@ -87,7 +87,7 @@ greenlet==2.0.2
     # via
     #   -r requirements/requirements-db.txt
     #   sqlalchemy
-gunicorn==20.1.0
+gunicorn==21.2.0
     # via -r requirements/requirements-extra.txt
 idna==3.4
     # via
@@ -95,9 +95,9 @@ idna==3.4
     #   -r requirements/requirements-http.txt
     #   requests
     #   yarl
-jsonschema==4.18.0
+jsonschema==4.19.1
     # via -r requirements/requirements-extra.txt
-jsonschema-specifications==2023.6.1
+jsonschema-specifications==2023.7.1
     # via
     #   -r requirements/requirements-extra.txt
     #   jsonschema
@@ -109,7 +109,11 @@ multidict==6.0.4
     #   yarl
 openpyxl==3.1.2
     # via -r requirements/requirements-extra.txt
-paramiko==3.2.0
+packaging==23.1
+    # via
+    #   -r requirements/requirements-extra.txt
+    #   gunicorn
+paramiko==3.3.1
     # via -r requirements/requirements-net.txt
 ply==3.11
     # via
@@ -128,7 +132,7 @@ pynacl==1.5.0
     # via
     #   -r requirements/requirements-net.txt
     #   paramiko
-pyparsing==3.1.0
+pyparsing==3.1.1
     # via
     #   -r requirements/requirements-db.txt
     #   pydot
@@ -144,25 +148,25 @@ python-decouple==3.8
     # via -r requirements/requirements.txt
 python-dotenv==1.0.0
     # via -r requirements/requirements.txt
-pytz==2023.3
+pytz==2023.3.post1
     # via
     #   -r requirements/requirements-scheduler.txt
     #   apscheduler
-pyyaml==6.0
+pyyaml==6.0.1
     # via -r requirements/requirements.txt
-referencing==0.29.1
+referencing==0.30.2
     # via
     #   -r requirements/requirements-extra.txt
     #   jsonschema
     #   jsonschema-specifications
 requests==2.31.0
     # via -r requirements/requirements-http.txt
-rpds-py==0.8.10
+rpds-py==0.10.3
     # via
     #   -r requirements/requirements-extra.txt
     #   jsonschema
     #   referencing
-rule-engine==3.6.0
+rule-engine==4.1.0
     # via -r requirements/requirements-extra.txt
 six==1.16.0
     # via
@@ -171,9 +175,9 @@ six==1.16.0
     #   apscheduler
     #   bson
     #   python-dateutil
-sqlalchemy==2.0.18
+sqlalchemy==2.0.21
     # via -r requirements/requirements-db.txt
-typing-extensions==4.7.1
+typing-extensions==4.8.0
     # via
     #   -r requirements/requirements-db.txt
     #   sqlalchemy
@@ -185,7 +189,7 @@ ua-parser==0.18.0
     # via
     #   -r requirements/requirements-http.txt
     #   user-agents
-urllib3==2.0.3
+urllib3==2.0.5
     # via
     #   -r requirements/requirements-http.txt
     #   requests
@@ -199,6 +203,3 @@ yarl==1.9.2
     #   -r requirements/requirements-http.txt
     #   aiohttp
     #   gql
-
-# The following packages are considered to be unsafe in a requirements file:
-# setuptools
