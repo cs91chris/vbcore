@@ -2,6 +2,7 @@ import traceback
 import typing as t
 from types import TracebackType
 
+from vbcore.misc import pretty_dict
 from vbcore.types import OptStr
 
 
@@ -32,6 +33,17 @@ class VBException(Exception):
 
     def dump_traceback(self) -> str:
         return "\n".join(traceback.format_exception(self))
+
+    @classmethod
+    def dump_args(cls, data: dict) -> str:
+        return pretty_dict(data)
+
+
+class ArgsDumperException(VBException):
+    message: t.ClassVar[str]
+
+    def __init__(self, orig: t.Optional[Exception] = None, **kwargs):
+        super().__init__(f"{self.message}: {self.dump_args(kwargs)}", orig=orig)
 
 
 class VBEmptyFileError(VBException):

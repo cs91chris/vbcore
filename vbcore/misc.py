@@ -96,6 +96,17 @@ def split_kwargs(
     return wanted, kwargs
 
 
+def pretty_dict(args: dict, value_sep: str = "=", arg_sep: str = ", ") -> str:
+    """
+
+    @param args: dict args
+    @param value_sep: key value separator (default: '=')
+    @param arg_sep: argument separator (default: ', ')
+    @return: dumped dict string
+    """
+    return arg_sep.join(f"{k}{value_sep}{v!r}" for k, v in args.items())
+
+
 def static_attr(name: str, value):
     def wrapper(func):
         setattr(func, name, value)
