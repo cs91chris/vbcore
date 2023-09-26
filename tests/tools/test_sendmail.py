@@ -28,7 +28,9 @@ def test_sendmail(mock_sendmail, runner, tmpdir, sendmail_envvar):
             "--subject",
             "subject",
             "--to",
-            "to@mail.com",
+            "to1@mail.com",
+            "--to",
+            "to2@mail.com",
             "--text",
             f"{text_file.dirname}/{text_file.basename}",
             "-a",
@@ -56,8 +58,8 @@ def test_sendmail(mock_sendmail, runner, tmpdir, sendmail_envvar):
     )
     mock_instance.send_message.assert_called_once_with(
         subject="subject",
-        to="to@mail.com",
-        cc=None,
+        to=("to1@mail.com", "to2@mail.com"),
+        cc=(),
         reply_to=None,
         text="sample message",
         html=None,
