@@ -3,7 +3,7 @@ from vbcore.tester.asserter import Asserter
 
 
 class SampleException(ArgsDumperException):
-    message = "sample error"
+    message_prefix = "sample error"
 
 
 def test_sample_exception() -> None:

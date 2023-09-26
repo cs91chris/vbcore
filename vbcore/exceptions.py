@@ -40,10 +40,10 @@ class VBException(Exception):
 
 
 class ArgsDumperException(VBException):
-    message: t.ClassVar[str]
+    message_prefix: t.ClassVar[str]
 
     def __init__(self, orig: t.Optional[Exception] = None, **kwargs):
-        super().__init__(f"{self.message}: {self.dump_args(kwargs)}", orig=orig)
+        super().__init__(f"{self.message_prefix}: {self.dump_args(kwargs)}", orig=orig)
 
 
 class VBEmptyFileError(VBException):
