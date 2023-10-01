@@ -4,7 +4,7 @@ import pytest
 import sqlalchemy as sa
 
 from vbcore.base import BaseDTO
-from vbcore.db.sqla import Model
+from vbcore.db.base import Model
 from vbcore.tester.asserter import Asserter
 
 

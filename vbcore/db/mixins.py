@@ -1,5 +1,6 @@
-import typing as t
-from functools import cached_property, partial
+from datetime import datetime
+from functools import cached_property
+from typing import Optional, TYPE_CHECKING
 
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
@@ -7,58 +8,47 @@ from sqlalchemy.orm import Mapped, mapped_column
 from vbcore import json
 from vbcore.crypto.base import Hasher
 from vbcore.crypto.factory import CryptoFactory
-from vbcore.misc import get_uuid
+from vbcore.db.base import Column, StrCol
 from vbcore.types import StrDict
 
-if t.TYPE_CHECKING:
+if TYPE_CHECKING:
     hybrid_property = property  # pylint: disable=C0103
 else:
     from sqlalchemy.ext.hybrid import hybrid_property
 
 
-class Column:
-    id: t.ClassVar = partial(sa.Column, sa.Integer, primary_key=True)
-    uuid: t.ClassVar = partial(sa.Column, sa.String(36), primary_key=True, default=lambda: get_uuid)
-    auto: t.ClassVar = partial(sa.Column, sa.Integer, primary_key=True, autoincrement=True)
-    date_created: t.ClassVar = partial(sa.Column, sa.DateTime, server_default=sa.func.now())
-    date_updated: t.ClassVar = partial(sa.Column, sa.DateTime, onupdate=sa.func.now())
-    description: t.ClassVar = partial(sa.Column, sa.Text(), nullable=True)
+class UuidMixin:
+    id: Mapped[str] = Column.uuid()
 
 
-class BaseMixin:
-    __table__: sa.Table
-
-    def __init__(self, *args, **kwargs):
-        """this is here only to remove pycharm warnings"""
+class IdAutoMixin:
+    id: Mapped[int] = Column.auto()
 
 
-class StandardMixin(BaseMixin):
-    id = Column.auto()
-    created_at = Column.date_created()
-    updated_at = Column.date_updated()
+class DateMixin:
+    created_at: Mapped[datetime] = Column.date_created()
+    updated_at: Mapped[Optional[datetime]] = Column.date_updated()
+
+    @hybrid_property
+    def last_update(self) -> datetime:
+        return self.updated_at or self.created_at
 
 
-class StandardUuidMixin(BaseMixin):
-    id = Column.uuid()
-    created_at = Column.date_created()
-    updated_at = Column.date_updated()
-
-
-class CatalogMixin(BaseMixin):
+class CatalogMixin:
     __table_args__ = (sa.UniqueConstraint("code", "type_id"),)
 
     id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
     type_id: Mapped[int] = mapped_column(sa.Integer, nullable=True)
-    code: Mapped[str] = mapped_column(sa.String(100), nullable=False)
+    code: Mapped[str] = mapped_column(StrCol.small, nullable=False)
     order_id: Mapped[str] = mapped_column(sa.Integer, nullable=True, index=True)
     description: Mapped[str] = mapped_column(sa.Text(), nullable=True)
 
 
-class UserMixin(StandardMixin):
+class UserMixin(UuidMixin, DateMixin):
     _hasher_type: str = "ARGON2"
-    _password: Mapped[str] = mapped_column("password", sa.String(128), nullable=False)
+    _password: Mapped[str] = mapped_column("password", StrCol.medium, nullable=False)
 
-    email: Mapped[str] = mapped_column(sa.String(255), unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(StrCol.medium, unique=True, nullable=False)
 
     @cached_property
     def hasher_instance(self) -> Hasher:
@@ -76,16 +66,16 @@ class UserMixin(StandardMixin):
         return self.hasher_instance.verify(self._password, password)
 
 
-class ExtraMixin(BaseMixin):
+class ExtraMixin:
     _json_class = json
     _extra: Mapped[str] = mapped_column(sa.Text())  # type: ignore
 
     @property
-    def extra(self) -> t.Dict[str, t.Any]:
+    def extra(self) -> StrDict:
         return self._json_class.loads(self._extra) if self._extra else {}
 
     @extra.setter
-    def extra(self, value: t.Optional[StrDict]):
+    def extra(self, value: Optional[StrDict]):
         self._extra = None
         if value is not None:
             self._extra = self._json_class.dumps(value)

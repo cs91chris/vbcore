@@ -1,7 +1,7 @@
 import pytest
 import sqlalchemy as sa
 
-from vbcore.db.sqla import Model, SQLAConnector
+from vbcore.db.base import Model, SQLAConnector
 from vbcore.db.support import SQLASupport
 
 

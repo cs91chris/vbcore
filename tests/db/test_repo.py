@@ -7,8 +7,8 @@ import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
 
 from vbcore.base import BaseDTO
+from vbcore.db.base import Func, Model, SQLAConnector
 from vbcore.db.repo import CrudRepo, MutatorRepo, QuerierRepo
-from vbcore.db.sqla import Model, SQLAConnector
 from vbcore.tester.asserter import Asserter
 
 
@@ -29,7 +29,7 @@ class UserOrm(Model):
 
     id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
     name: Mapped[str] = mapped_column(sa.String(50), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(sa.DateTime, server_default=sa.func.now())
+    created_at: Mapped[datetime] = mapped_column(sa.DateTime, server_default=Func.NOW())
 
 
 class UserQuerierRepo(QuerierRepo[User]):

@@ -4,8 +4,8 @@ import pytest
 import sqlalchemy as sa
 
 from vbcore.base import BaseDTO
+from vbcore.db.base import ViewModel
 from vbcore.db.exceptions import DBNonExistentTable
-from vbcore.db.sqla import ViewModel
 from vbcore.db.views import DDLCreateView
 from vbcore.tester.asserter import Asserter
 

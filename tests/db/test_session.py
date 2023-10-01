@@ -1,6 +1,6 @@
 import sqlalchemy as sa
 
-from vbcore.db.sqla import LoaderModel
+from vbcore.db.base import LoaderModel
 from vbcore.tester.asserter import Asserter
 
 

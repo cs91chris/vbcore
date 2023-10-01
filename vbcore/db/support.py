@@ -6,8 +6,8 @@ from sqlalchemy.orm import Query, Session
 from sqlalchemy.orm.exc import NoResultFound as NoResultError
 from sqlalchemy.sql import text as text_sql
 
+from vbcore.db.base import Model
 from vbcore.db.events import ErrorsHandler
-from vbcore.db.sqla import Model
 from vbcore.db.views import DDLViewCompiler
 from vbcore.files import FileHandler
 from vbcore.types import StrTuple

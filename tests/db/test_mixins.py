@@ -2,9 +2,9 @@ import pytest
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
 
+from vbcore.db.base import Model
 from vbcore.db.exceptions import DBDuplicateEntry
 from vbcore.db.mixins import CatalogMixin, ExtraMixin
-from vbcore.db.sqla import Model
 from vbcore.tester.asserter import Asserter
 
 
