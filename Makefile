@@ -170,7 +170,6 @@ bandit-report:
 
 safety:
 	safety check \
-		-i 51668 \
 		-r ${REQ_PATH}/requirements.txt \
 		-r ${REQ_PATH}/requirements-all.txt \
 		-r ${REQ_PATH}/requirements-db.txt \

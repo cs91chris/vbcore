@@ -24,9 +24,8 @@ class SampleModel(ViewModel):
     name = sa.Column(sa.String)
 
 
-def test_create_view(connector, support):
+def test_create_view(connector):
     view_name = "sample_view"
-    support.register_custom_handlers(connector.engine)
 
     select = sa.select(
         sa.literal_column("1").label("id"),

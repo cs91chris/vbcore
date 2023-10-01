@@ -7,8 +7,6 @@ from sqlalchemy.orm.exc import NoResultFound as NoResultError
 from sqlalchemy.sql import text as text_sql
 
 from vbcore.db.base import Model
-from vbcore.db.events import ErrorsHandler
-from vbcore.db.views import DDLViewCompiler
 from vbcore.files import FileHandler
 from vbcore.types import StrTuple
 
@@ -132,11 +130,6 @@ class SQLASupport:
         self.session.add_all(list(entities.values()))
         if self._commit:
             self.session.commit()
-
-    @classmethod
-    def register_custom_handlers(cls, engine) -> None:
-        ErrorsHandler.register(engine)
-        DDLViewCompiler().register()
 
     @classmethod
     def exec_from_file(
