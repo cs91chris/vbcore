@@ -1,5 +1,6 @@
 import operator as op
 import typing as t
+from decimal import Decimal
 
 from vbcore.types import CoupleAny
 
@@ -59,6 +60,16 @@ def op_in_range(
     return op.and_(opg(value, low), opl(value, high))
 
 
+def op_cmp_dec(
+    a: t.Union[Decimal, float, str],
+    b: t.Union[Decimal, float, str],
+    *,
+    precision: int = 6,
+) -> bool:
+    delta = Decimal(1) / (Decimal(10) ** precision) if precision else Decimal(0)
+    return abs(Decimal(a) - Decimal(b)) <= delta
+
+
 class OpMeta(type):
     def __getattr__(cls, item):
         return getattr(op, item)
@@ -96,6 +107,10 @@ class Op(metaclass=OpMeta):
     @classmethod
     def allin(cls, a, b, *_, **__) -> bool:
         return op_allin(a, b)
+
+    @classmethod
+    def cmp_dec(cls, a, b, *, precision: int = 6, **__) -> bool:
+        return op_cmp_dec(a, b, precision=precision)
 
     @classmethod
     def in_range(
