@@ -1,6 +1,8 @@
 from typing import Generator, Generic, NamedTuple, Optional, Sequence, Type, TypeVar
 
 import sqlalchemy as sa
+from sqlalchemy.sql.compiler import SQLCompiler
+from sqlalchemy.sql.elements import DQLDMLClauseElement
 
 from vbcore.base import BaseDTO
 from vbcore.db.types import (
@@ -18,6 +20,12 @@ D = TypeVar("D", bound=BaseDTO)
 class BaseRepo:
     def __init__(self, connection: sa.Connection):
         self.connection = connection
+
+    @classmethod
+    def compile_query(
+        cls, query: DQLDMLClauseElement, dialect: Optional[sa.Dialect] = None
+    ) -> SQLCompiler:
+        return query.compile(dialect=dialect, compile_kwargs={"literal_binds": True})
 
     def execute(
         self, statement: sa.Executable, parameters: Optional[ExecParams] = None

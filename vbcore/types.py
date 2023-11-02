@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from decimal import Decimal
 from typing import Any, Callable, Dict, List, Optional, Pattern, Tuple, Union
 
 OptAny = Optional[Any]
@@ -7,12 +8,15 @@ OptInt = Optional[int]
 OptBool = Optional[bool]
 OptFloat = Optional[float]
 OptDict = Optional[dict]
+OptDecimal = Optional[Decimal]
 OptExc = Optional[Exception]
 
 StrDict = Dict[str, Any]
 IntDict = Dict[int, Any]
+AnyList = List[Any]
 StrList = List[str]
 IntList = List[int]
+AnyTuple = Tuple[Any, ...]
 StrTuple = Tuple[str, ...]
 IntTuple = Tuple[int, ...]
 

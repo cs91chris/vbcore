@@ -219,3 +219,7 @@ def check_uuid(
         if raise_exc:
             raise ValueError(f"'{u}' is an invalid UUID{ver}") from exc
         return False
+
+
+def full_class_name(cls: type, *, sep: str = ":") -> str:
+    return f"{cls.__module__}{sep}{cls.__name__}"
