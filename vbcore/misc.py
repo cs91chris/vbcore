@@ -221,5 +221,6 @@ def check_uuid(
         return False
 
 
-def full_class_name(cls: type, *, sep: str = ":") -> str:
-    return f"{cls.__module__}{sep}{cls.__name__}"
+def full_class_name(obj: t.Any, *, sep: str = ":") -> str:
+    _cls = obj if isinstance(obj, type) else obj.__class__
+    return f"{_cls.__module__}{sep}{_cls.__name__}"

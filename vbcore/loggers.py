@@ -13,6 +13,7 @@ from functools import cached_property
 from vbcore import json
 from vbcore.base import Decorator, Static
 from vbcore.context import ContextCorrelationId, ContextMetadata
+from vbcore.datastruct.lazy import ClassDumper
 from vbcore.files import FileHandler
 from vbcore.types import OptStr
 
@@ -187,6 +188,10 @@ class LoggerMixin(ABC, t.Generic[LogClass]):
     @cached_property
     def log(self) -> LogClass:
         return self.logger()
+
+    @classmethod
+    def class_dumper(cls, obj: t.Any) -> ClassDumper:
+        return ClassDumper(obj)
 
 
 class VBLoggerMixin(LoggerMixin[VBLogger]):

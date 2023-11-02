@@ -4,7 +4,14 @@ from unittest.mock import call, MagicMock, patch
 import pytest
 
 from vbcore import misc
-from vbcore.misc import CommonRegex, MemoryUsage, Signal, split_kwargs, static_attr
+from vbcore.misc import (
+    CommonRegex,
+    full_class_name,
+    MemoryUsage,
+    Signal,
+    split_kwargs,
+    static_attr,
+)
 from vbcore.tester.asserter import Asserter
 
 
@@ -149,3 +156,13 @@ def test_uuid_invalid(version):
 )
 def test_uuid_version(version, name):
     Asserter.assert_true(misc.check_uuid(misc.get_uuid(version, name=name), ver=version))
+
+
+def test_full_class_name():
+    class Sample:
+        pass
+
+    expected = "tests.test_misc:Sample"
+    Asserter.assert_equals(full_class_name(Sample), expected)
+    Asserter.assert_equals(full_class_name(Sample()), expected)
+    Asserter.assert_equals(full_class_name(list), "builtins:list")

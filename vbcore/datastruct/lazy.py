@@ -2,6 +2,7 @@ import typing as t
 
 from vbcore.exceptions import VBException
 from vbcore.importer import Importer, ImporterError
+from vbcore.misc import full_class_name
 from vbcore.types import BytesType, OptStr
 
 
@@ -99,3 +100,8 @@ class BytesWrap(Dumper):
 
     def __repr__(self) -> str:
         return self.__str__()
+
+
+class ClassDumper(Dumper):
+    def dump(self) -> str:
+        return full_class_name(self.data, sep=self._kwargs.get("sep"))
