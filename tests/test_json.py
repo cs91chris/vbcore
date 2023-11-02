@@ -77,7 +77,7 @@ def test_object_id_encoder():
 
 
 def test_dictable_encoder() -> None:
-    @dataclass
+    @dataclass(frozen=True, kw_only=True)
     class SampleDTO(BaseDTO):
         id: int
         name: str

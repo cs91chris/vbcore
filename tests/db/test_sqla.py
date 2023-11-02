@@ -8,7 +8,7 @@ from vbcore.db.base import Model
 from vbcore.tester.asserter import Asserter
 
 
-@dataclass
+@dataclass(frozen=True, kw_only=True)
 class SampleDTO(BaseDTO):
     id: int  # pylint: disable=invalid-name
     name: str

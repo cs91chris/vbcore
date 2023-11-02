@@ -6,7 +6,7 @@ from vbcore.factory import DummyItem, Item, ItemEnumMeta, ItemEnumMixin, ItemFac
 from vbcore.tester.asserter import Asserter
 
 
-@dataclass
+@dataclass(frozen=True, kw_only=True)
 class Options(BaseDTO):
     integer: int
     string: str

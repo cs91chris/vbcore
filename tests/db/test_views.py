@@ -10,7 +10,7 @@ from vbcore.db.views import DDLCreateView
 from vbcore.tester.asserter import Asserter
 
 
-@dataclass
+@dataclass(frozen=True, kw_only=True)
 class SampleDTO(BaseDTO):
     id: int  # pylint: disable=invalid-name
     name: str

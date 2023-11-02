@@ -142,7 +142,7 @@ def test_custom_exceptions(exception, data):
         "DBNonExistentTable",
     ],
 )
-def test_register_events(statement, exception, expected, connector, support):
+def test_register_events(statement, exception, expected, support):
     with pytest.raises(exception) as error:
         support.session.execute(statement)
 

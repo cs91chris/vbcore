@@ -26,7 +26,7 @@ def test_extra_mixin(local_session, session_save):
     Asserter.assert_equals(record.extra, extra_info)
 
 
-def test_catalog_mixin_constraint(connector, support):
+def test_catalog_mixin_constraint(support):
     with pytest.raises(DBDuplicateEntry) as error:
         support.bulk_insert(
             [

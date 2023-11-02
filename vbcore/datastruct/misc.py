@@ -4,13 +4,15 @@ from dataclasses import dataclass
 from vbcore.base import BaseDTO
 
 
-@dataclass
+@dataclass(frozen=True, kw_only=True)
 class GeoJsonPoint(BaseDTO):
-    coordinates: t.List[float]
-    type: str
+    type: str = "Point"
+    lat: float = 0.0
+    lon: float = 0.0
 
-    def __init__(self, lat: float = 0.0, lon: float = 0.0):
-        self.type = "Point"
-        self.coordinates = [lon, lat]
-        self.lat = lat
-        self.lon = lon
+    @property
+    def coordinates(self) -> t.List[float]:
+        return [self.lon, self.lat]
+
+    def to_dict(self, *_, **__) -> dict:
+        return {"type": self.type, "coordinates": self.coordinates}

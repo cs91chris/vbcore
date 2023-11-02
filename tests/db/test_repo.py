@@ -12,12 +12,12 @@ from vbcore.db.repo import CrudRepo, MutatorRepo, QuerierRepo
 from vbcore.tester.asserter import Asserter
 
 
-@dataclass
+@dataclass(frozen=True, kw_only=True)
 class UserInput(BaseDTO):
     name: str
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class User(BaseDTO):
     id: int
     name: str

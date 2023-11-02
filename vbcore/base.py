@@ -4,17 +4,10 @@ import typing as t
 
 from vbcore.types import CallableDictType
 
-if t.TYPE_CHECKING:
-    # prevent mypy issue
-
-    # noinspection PyPep8Naming
-    from dataclasses import dataclass as Data
-else:
-    # TODO at the moment this is not used because pycharm issue
-    Data = dataclasses.dataclass(frozen=True, kw_only=True)
+Data = dataclasses.dataclass(frozen=True, kw_only=True)
 
 
-# noinspection PyDataclass
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class BaseDTO:
     """
     Use this class as mixin for dataclasses
