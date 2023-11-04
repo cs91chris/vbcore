@@ -4,5 +4,6 @@
 coverage
 pytest
 pytest-cov
+pytest-asyncio
 responses
 hypothesis

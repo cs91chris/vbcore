@@ -39,7 +39,7 @@ class ContextMetadata(BaseDTO):
 
     @classmethod
     def set(cls, metadata: Optional[C] = None, **kwargs) -> None:
-        cls.__context.set(metadata if metadata else cls(**kwargs))
+        cls.__context.set(metadata if metadata else cls.from_dict(**kwargs))
 
 
 @dataclass(frozen=True, kw_only=True)

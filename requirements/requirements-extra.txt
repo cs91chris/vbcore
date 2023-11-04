@@ -4,6 +4,8 @@
 #
 #    pip-compile --no-emit-index-url --no-emit-trusted-host --output-file=requirements/requirements-extra.txt requirements/requirements-extra.in
 #
+annotated-types==0.6.0
+    # via pydantic
 attrs==23.1.0
     # via
     #   jsonschema
@@ -34,6 +36,8 @@ jsonschema-specifications==2023.7.1
     # via jsonschema
 multidict==6.0.4
     # via yarl
+nats-py==2.6.0
+    # via -r requirements/requirements-extra.in
 openpyxl==3.1.2
     # via -r requirements/requirements-extra.in
 packaging==23.2
@@ -42,6 +46,10 @@ packaging==23.2
     #   gunicorn
 ply==3.11
     # via rule-engine
+pydantic==2.4.2
+    # via -r requirements/requirements-extra.in
+pydantic-core==2.10.1
+    # via pydantic
 python-dateutil==2.8.2
     # via
     #   -c requirements/requirements.txt
@@ -60,6 +68,10 @@ six==1.16.0
     # via
     #   -c requirements/requirements.txt
     #   python-dateutil
+typing-extensions==4.8.0
+    # via
+    #   pydantic
+    #   pydantic-core
 xmltodict==0.13.0
     # via -r requirements/requirements-extra.in
 yarl==1.9.2

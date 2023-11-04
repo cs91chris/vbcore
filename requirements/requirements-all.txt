@@ -10,6 +10,10 @@ aiosignal==1.3.1
     # via
     #   -r requirements/requirements-http.txt
     #   aiohttp
+annotated-types==0.6.0
+    # via
+    #   -r requirements/requirements-extra.txt
+    #   pydantic
 apscheduler==3.10.4
     # via -r requirements/requirements-scheduler.txt
 argon2-cffi==23.1.0
@@ -118,6 +122,8 @@ multidict==6.0.4
     #   -r requirements/requirements-http.txt
     #   aiohttp
     #   yarl
+nats-py==2.6.0
+    # via -r requirements/requirements-extra.txt
 openpyxl==3.1.2
     # via -r requirements/requirements-extra.txt
 packaging==23.2
@@ -141,6 +147,12 @@ pycparser==2.21
     #   -r requirements/requirements-crypto.txt
     #   -r requirements/requirements-net.txt
     #   cffi
+pydantic==2.4.2
+    # via -r requirements/requirements-extra.txt
+pydantic-core==2.10.1
+    # via
+    #   -r requirements/requirements-extra.txt
+    #   pydantic
 pydot==1.4.2
     # via -r requirements/requirements-db.txt
 pynacl==1.5.0
@@ -206,6 +218,9 @@ sqlalchemy==2.0.22
 typing-extensions==4.8.0
     # via
     #   -r requirements/requirements-db.txt
+    #   -r requirements/requirements-extra.txt
+    #   pydantic
+    #   pydantic-core
     #   sqlalchemy
 tzlocal==5.2
     # via
