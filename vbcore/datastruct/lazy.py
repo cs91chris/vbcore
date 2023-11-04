@@ -1,4 +1,5 @@
 import typing as t
+from signal import Signals, strsignal
 
 from vbcore.exceptions import VBException
 from vbcore.importer import Importer, ImporterError
@@ -104,4 +105,10 @@ class BytesWrap(Dumper):
 
 class ClassDumper(Dumper):
     def dump(self) -> str:
-        return full_class_name(self.data, sep=self._kwargs.get("sep"))
+        return full_class_name(self.data, **self._kwargs)
+
+
+class SignalDumper(Dumper):
+    def dump(self) -> str:
+        sig = Signals(self.data)
+        return f"<{sig.name}-{sig.value}-{strsignal(sig.value)}>"
