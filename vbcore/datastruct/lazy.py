@@ -1,6 +1,7 @@
 import typing as t
 from signal import Signals, strsignal
 
+from vbcore import json
 from vbcore.exceptions import VBException
 from vbcore.importer import Importer, ImporterError
 from vbcore.misc import full_class_name
@@ -112,3 +113,8 @@ class SignalDumper(Dumper):
     def dump(self) -> str:
         sig = Signals(self.data)
         return f"<{sig.name}-{sig.value}-{strsignal(sig.value)}>"
+
+
+class JsonDumper(Dumper):
+    def dump(self) -> str:
+        return json.dumps(self.data, **self._kwargs)
