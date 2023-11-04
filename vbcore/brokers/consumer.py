@@ -37,14 +37,14 @@ class Dispatcher(VBLoggerMixin):
         for callback in callbacks:
             self.callbacks[callback.schema.TOPIC] = callback
             self.log.info(
-                "registered callback <%s> on topic %s",
+                "registered: topic=%s callback=<%s>",
                 self.class_dumper(callback),
                 callback.schema.TOPIC,
             )
 
     async def dispatch(self, message: Message) -> None:
         callback = self.callbacks[message.topic]
-        self.log.debug("dispatch message to callback <%s>", self.class_dumper(callback))
+        self.log.debug("dispatch message: callback=<%s>", self.class_dumper(callback))
         await callback.perform(message)
 
 
@@ -61,7 +61,7 @@ class Consumer(VBLoggerMixin):
 
     async def run(self):
         self.log.info(
-            "start consumer <%s> on broker <%s>",
+            "start: consumer=<%s> broker=<%s>",
             self.class_dumper(self),
             self.class_dumper(self.broker),
         )
@@ -72,4 +72,4 @@ class Consumer(VBLoggerMixin):
                 await client.subscribe(topic, self.dispatcher.dispatch)
             await self.heartbeat.run_forever()
 
-        self.log.info("shutdown consumer <%s>", self.class_dumper(self))
+        self.log.info("shutdown: consumer=<%s>", self.class_dumper(self))

@@ -9,6 +9,7 @@ from typing_extensions import Self
 from vbcore.context import ContextCorrelationId, ContextMetadata
 from vbcore.loggers import VBLoggerMixin
 
+from ..datastruct.lazy import JsonDumper
 from .data import BrokerOptions, Header, Message
 
 C = TypeVar("C")
@@ -63,13 +64,19 @@ class BrokerClientAdapter(VBLoggerMixin, ABC, Generic[C, P]):
     async def publish(
         self, topic: str, message: Any, headers: Optional[Header] = None, **kwargs
     ) -> None:
-        await self._publish(topic, message, headers or Header(), **kwargs)
-        self.log.debug("successfully published to topic '%s': %s", topic, message)
+        _headers = headers or Header()
+        await self._publish(topic, message, _headers, **kwargs)
+        self.log.debug(
+            "successfully published: topic=%s header=%s message=%s",
+            topic,
+            JsonDumper(_headers),
+            message,
+        )
 
     async def subscribe(self, topic: str, callback: Callback, **kwargs) -> None:
         cb = self.acknowledge(self.wrap_message(callback))
         await self._subscribe(topic, cb, **kwargs)
-        self.log.info("successfully subscribed on topic: %s", topic)
+        self.log.info("successfully subscribed: topic=%s callback=%s", topic, callback)
 
     def wrap_message(self, callback: Callback) -> Callback:
         @functools.wraps(callback)
