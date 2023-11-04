@@ -3,6 +3,7 @@ import sys
 import click
 
 from vbcore.loggers import SetupLoggers
+from vbcore.tools.broker import main as main_broker
 from vbcore.tools.cli import Cli
 from vbcore.tools.crypto import main as main_crypto
 from vbcore.tools.database import main as main_database
@@ -32,6 +33,7 @@ main.add_command(main_scheduler)
 main.add_command(main_sendmail)
 main.add_command(main_ftpclient)
 main.add_command(main_gunicorn)
+main.add_command(main_broker)
 
 
 if __name__ == "__main__":
