@@ -1,9 +1,10 @@
 from abc import ABC
-from typing import Callable, ClassVar, List, Optional, Type
+from typing import Callable, ClassVar, List, Optional, Type, Union
 
 import backoff
 from pydantic import BaseModel
 
+from vbcore import json
 from vbcore.loggers import VBLoggerMixin
 
 from .base import BrokerClientAdapter
@@ -48,3 +49,18 @@ class Publisher(VBLoggerMixin):
 
         wrapper = self.backoff_wrapper(_publish) if self.backoff_enabled else _publish
         await wrapper()  # type: ignore
+
+    async def raw_publish(
+        self,
+        topic: str,
+        message: Union[bytes, str, dict],
+        headers: Optional[Header] = None,
+        **kwargs,
+    ) -> None:
+        async with self.broker.connect() as client:
+            if isinstance(message, dict):
+                message = json.dumps(message).encode()
+            elif isinstance(message, str):
+                message = message.encode()
+
+            await client.publish(topic, message, headers, **kwargs)

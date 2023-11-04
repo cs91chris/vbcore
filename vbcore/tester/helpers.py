@@ -60,4 +60,4 @@ class MockHelper:
 
     @classmethod
     def mock_async_with(cls, data: t.Any) -> AsyncMock:
-        return AsyncMock(WithAsyncContextManager(data))
+        return MagicMock(return_value=WithAsyncContextManager(data))

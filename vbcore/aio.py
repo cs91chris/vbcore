@@ -41,7 +41,6 @@ def execute(
     *,
     debug: bool = False,
     loop_factory: t.Optional[t.Callable[[], asyncio.AbstractEventLoop]] = None,
-    signals_handler: t.Optional[t.Callable[[asyncio.AbstractEventLoop], None]] = None,
 ) -> t.Any:
     """
     It should be used as a main entry point for asyncio programs
@@ -54,6 +53,4 @@ def execute(
     # only for py3.10
     # pylint: disable=no-member
     with asyncio.Runner(loop_factory=_loop_factory, debug=debug) as service:
-        if signals_handler is not None:
-            signals_handler(service.get_loop())
         return service.run(main)
