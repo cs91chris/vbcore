@@ -4,12 +4,20 @@
 #
 #    pip-compile --no-emit-index-url --no-emit-trusted-host --output-file=requirements/requirements.txt requirements/requirements.in
 #
+annotated-types==0.6.0
+    # via pydantic
+backoff==2.2.1
+    # via -r requirements/requirements.in
 bson==0.5.10
     # via -r requirements/requirements.in
 click==8.1.7
     # via -r requirements/requirements.in
 psutil==5.9.6
     # via -r requirements/requirements.in
+pydantic==2.4.2
+    # via -r requirements/requirements.in
+pydantic-core==2.10.1
+    # via pydantic
 python-dateutil==2.8.2
     # via
     #   -r requirements/requirements.in
@@ -24,3 +32,7 @@ six==1.16.0
     # via
     #   bson
     #   python-dateutil
+typing-extensions==4.8.0
+    # via
+    #   pydantic
+    #   pydantic-core

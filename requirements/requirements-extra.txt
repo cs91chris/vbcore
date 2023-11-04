@@ -4,14 +4,14 @@
 #
 #    pip-compile --no-emit-index-url --no-emit-trusted-host --output-file=requirements/requirements-extra.txt requirements/requirements-extra.in
 #
-annotated-types==0.6.0
-    # via pydantic
 attrs==23.1.0
     # via
     #   jsonschema
     #   referencing
 backoff==2.2.1
-    # via gql
+    # via
+    #   -c requirements/requirements.txt
+    #   gql
 chardet==5.2.0
     # via
     #   -c requirements/requirements-build.txt
@@ -46,10 +46,6 @@ packaging==23.2
     #   gunicorn
 ply==3.11
     # via rule-engine
-pydantic==2.4.2
-    # via -r requirements/requirements-extra.in
-pydantic-core==2.10.1
-    # via pydantic
 python-dateutil==2.8.2
     # via
     #   -c requirements/requirements.txt
@@ -58,7 +54,7 @@ referencing==0.30.2
     # via
     #   jsonschema
     #   jsonschema-specifications
-rpds-py==0.10.6
+rpds-py==0.12.0
     # via
     #   jsonschema
     #   referencing
@@ -68,10 +64,6 @@ six==1.16.0
     # via
     #   -c requirements/requirements.txt
     #   python-dateutil
-typing-extensions==4.8.0
-    # via
-    #   pydantic
-    #   pydantic-core
 xmltodict==0.13.0
     # via -r requirements/requirements-extra.in
 yarl==1.9.2

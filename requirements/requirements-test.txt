@@ -62,7 +62,7 @@ requests==2.31.0
     #   -c requirements/requirements-all.txt
     #   -c requirements/requirements-build.txt
     #   responses
-responses==0.23.3
+responses==0.24.0
     # via -r requirements/requirements-test.in
 sortedcontainers==2.4.0
     # via hypothesis
@@ -71,8 +71,6 @@ tomli==2.0.1
     #   -c requirements/requirements-build.txt
     #   coverage
     #   pytest
-types-pyyaml==6.0.12.12
-    # via responses
 urllib3==2.0.7
     # via
     #   -c requirements/requirements-all.txt

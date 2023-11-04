@@ -10,5 +10,4 @@ gunicorn
 defusedxml
 xmltodict
 openpyxl
-pydantic
 nats-py
