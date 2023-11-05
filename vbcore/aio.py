@@ -54,3 +54,18 @@ def execute(
     # pylint: disable=no-member
     with asyncio.Runner(loop_factory=_loop_factory, debug=debug) as service:
         return service.run(main)
+
+
+class AsyncExecutor:
+    def __init__(
+        self,
+        loop: t.Optional[asyncio.AbstractEventLoop] = None,
+        nested: bool = False,
+    ):
+        self.loop = loop or get_event_loop(nested=nested)
+
+    def execute(self, coroutine: t.Coroutine) -> t.Any:
+        """
+        Executes the coroutine (async) in a sync context
+        """
+        return self.loop.run_until_complete(coroutine)

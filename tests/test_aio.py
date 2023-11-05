@@ -5,6 +5,7 @@ from unittest.mock import ANY, AsyncMock, MagicMock, patch
 import pytest
 
 from vbcore import aio
+from vbcore.aio import AsyncExecutor
 from vbcore.tester.asserter import Asserter
 
 
@@ -130,3 +131,13 @@ def test_execute(mock_asyncio, debug, expected):
     else:
         mock_asyncio.Runner.assert_called_once_with(loop_factory=ANY, debug=debug)
         # TODO assert the context manager
+
+
+def test_async_executor() -> None:
+    async def coroutine(p):
+        return p
+
+    expected = "expected"
+    executor = AsyncExecutor()
+    result = executor.execute(coroutine(expected))
+    Asserter.assert_equals(result, expected)
