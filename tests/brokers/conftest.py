@@ -3,13 +3,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from vbcore.brokers.base import BrokerClientAdapter
+from vbcore.brokers.base import BrokerClient
 from vbcore.brokers.factory import BrokerEnum, BrokerFactory
 from vbcore.brokers.nats import NatsBrokerAdapter, NatsOptions
 
 
 @pytest.fixture
-def dummy_broker() -> BrokerClientAdapter:
+def dummy_broker() -> BrokerClient:
     return BrokerFactory.instance(BrokerEnum.DUMMY, servers="localhost")
 
 

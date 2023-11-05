@@ -1,12 +1,12 @@
 import pytest
 from pytest import LogCaptureFixture
 
-from vbcore.brokers.base import BrokerClientAdapter
+from vbcore.brokers.base import BrokerClient
 from vbcore.brokers.data import Message
 
 
 @pytest.mark.asyncio
-async def test_publish(dummy_broker: BrokerClientAdapter, caplog: LogCaptureFixture) -> None:
+async def test_publish(dummy_broker: BrokerClient, caplog: LogCaptureFixture) -> None:
     async with dummy_broker.connect() as client:
         await client.publish("TOPIC", b"MESSAGE")
 
@@ -19,7 +19,7 @@ async def test_publish(dummy_broker: BrokerClientAdapter, caplog: LogCaptureFixt
 
 
 @pytest.mark.asyncio
-async def test_subscribe(dummy_broker: BrokerClientAdapter, caplog: LogCaptureFixture) -> None:
+async def test_subscribe(dummy_broker: BrokerClient, caplog: LogCaptureFixture) -> None:
     async with dummy_broker.connect() as client:
         await client.subscribe("TOPIC", lambda x: None)
 
@@ -30,9 +30,7 @@ async def test_subscribe(dummy_broker: BrokerClientAdapter, caplog: LogCaptureFi
 
 
 @pytest.mark.asyncio
-async def test_nack_on_failure(
-    dummy_broker: BrokerClientAdapter, caplog: LogCaptureFixture
-) -> None:
+async def test_nack_on_failure(dummy_broker: BrokerClient, caplog: LogCaptureFixture) -> None:
     @dummy_broker.acknowledge
     async def raise_error(message: Message) -> None:
         raise ValueError(message.topic)

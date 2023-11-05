@@ -5,7 +5,7 @@ from typing import Generic, List, Optional, Type, TypeVar
 from vbcore.heartbeat import Heartbeat
 from vbcore.loggers import VBLoggerMixin
 
-from .base import BrokerClientAdapter
+from .base import BrokerClient
 from .data import Message
 from .publisher import EventModel
 
@@ -51,7 +51,7 @@ class Dispatcher(VBLoggerMixin):
 class Consumer(VBLoggerMixin):
     def __init__(
         self,
-        broker: BrokerClientAdapter,
+        broker: BrokerClient,
         callbacks: Sequence[BaseCallback],
         heartbeat: Optional[Heartbeat] = None,
     ):

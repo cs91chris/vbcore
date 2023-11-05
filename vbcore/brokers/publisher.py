@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from vbcore import json
 from vbcore.loggers import VBLoggerMixin
 
-from .base import BrokerClientAdapter
+from .base import BrokerClient
 from .data import Header
 
 
@@ -18,7 +18,7 @@ class EventModel(ABC, BaseModel):
 class Publisher(VBLoggerMixin):
     def __init__(
         self,
-        broker: BrokerClientAdapter,
+        broker: BrokerClient,
         backoff_enabled: bool = True,
         retryable_errors: Optional[List[Type[Exception]]] = None,
         max_tries: int = 3,

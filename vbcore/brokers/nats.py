@@ -15,7 +15,7 @@ from typing_extensions import Self
 
 from vbcore.types import OptStr
 
-from .base import BrokerClientAdapter, Callback
+from .base import BrokerClient, Callback
 from .data import BrokerOptions, Header, Message
 
 
@@ -25,7 +25,7 @@ class NatsOptions(BrokerOptions):
     nack_delay: int = 30
 
 
-class NatsBrokerAdapter(BrokerClientAdapter[NATS, NatsOptions]):
+class NatsBrokerAdapter(BrokerClient[NATS, NatsOptions]):
     retryable_errors = (
         ConnectionClosedError,
         NatsTimeoutError,

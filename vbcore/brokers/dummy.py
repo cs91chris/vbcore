@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from .base import BrokerClientAdapter, Callback
+from .base import BrokerClient, Callback
 from .data import BrokerOptions, Header, Message
 
 
@@ -12,7 +12,7 @@ class DummyClient:
         return self
 
 
-class DummyBrokerAdapter(BrokerClientAdapter[DummyClient, BrokerOptions]):
+class DummyBrokerAdapter(BrokerClient[DummyClient, BrokerOptions]):
     def instance(self) -> DummyClient:
         return DummyClient()
 

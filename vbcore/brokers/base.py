@@ -17,7 +17,7 @@ P = TypeVar("P", bound=BrokerOptions)
 Callback = Callable[[Message], Awaitable[None]]
 
 
-class BrokerClientAdapter(VBLoggerMixin, ABC, Generic[C, P]):
+class BrokerClient(VBLoggerMixin, ABC, Generic[C, P]):
     def __init__(self, options: P, context: Type[ContextMetadata] = ContextCorrelationId):
         self._client: Optional[C] = None
         self.options = options
