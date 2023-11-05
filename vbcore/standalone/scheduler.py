@@ -30,11 +30,28 @@ class APScheduler(VBLoggerMixin):
             self._scheduler.start()
 
     @classmethod
+    def default_scheduler_config(cls) -> dict:
+        return {
+            "apscheduler.timezone": "UTC",
+            "apscheduler.job_defaults.coalesce": False,
+            "apscheduler.job_defaults.max_instances": 3,
+            "apscheduler.jobstores.default": {
+                "type": "memory",
+            },
+            "apscheduler.executors.default": {
+                "class": "apscheduler.executors.pool:ThreadPoolExecutor",
+                "max_workers": 20,
+            },
+        }
+
+    @classmethod
     def factory(
-        cls, config: dict, scheduler_class: t.Optional[t.Type[BaseScheduler]] = None
+        cls, config: dict, scheduler_class: t.Optional[t.Type[BaseScheduler]] = BlockingScheduler
     ) -> "APScheduler":
-        instance = cls(scheduler=scheduler_class, **config["SCHEDULER"])
-        instance.load_jobs(config["JOBS"])
+        config_job = config.get("JOBS") or []
+        config_sch = config.get("SCHEDULER") or {"gconfig": cls.default_scheduler_config()}
+        instance = cls(scheduler=scheduler_class, **config_sch)
+        instance.load_jobs(config_job)
         instance.log.info("%s", LazyDump(instance.dump_jobs))
         return instance
 
@@ -88,11 +105,12 @@ class APScheduler(VBLoggerMixin):
     ) -> Job:
         job_id = self.get_id()
         job = self._scheduler.add_job(task, args=args, kwargs=params, id=job_id, **kwargs)
-        self.log.debug("added job '%s' with id '%s'", task, job_id)
+        self.log.info("added job '%s' with id '%s'", task, job_id)
         return job
 
     def __del__(self):
         try:
-            self._scheduler.shutdown()
+            if self._scheduler.running:
+                self._scheduler.shutdown()
         except AttributeError:
             pass  # pragma: no cover
