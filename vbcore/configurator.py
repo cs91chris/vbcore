@@ -5,6 +5,7 @@ from functools import partial
 
 import decouple
 from dotenv import load_dotenv as base_load_dotenv
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from vbcore.types import OptAny
 
@@ -51,3 +52,11 @@ load_dotenv = partial(
     dotenv_path=_conf_file_name,
     encoding=_conf_file_encoding,
 )
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=True,
+        extra="ignore",
+    )

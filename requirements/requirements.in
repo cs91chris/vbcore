@@ -9,3 +9,4 @@ python-dotenv
 pyyaml
 psutil
 pydantic
+pydantic_settings
