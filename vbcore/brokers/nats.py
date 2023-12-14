@@ -41,7 +41,9 @@ class NatsBrokerAdapter(BrokerClient[NATS, NatsOptions]):
 
     @asynccontextmanager
     async def connect(self) -> AsyncIterator[Self]:
-        await self.client.connect(self.options.servers, connect_timeout=int(self.options.timeout))
+        # force to list because nats-py raise error
+        servers = list(self.options.servers)
+        await self.client.connect(servers, connect_timeout=int(self.options.timeout))
         try:
             yield self
         finally:
