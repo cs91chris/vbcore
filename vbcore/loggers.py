@@ -68,14 +68,42 @@ class LoggingSettings:
     default_format: str = "%(asctime)s.%(msecs)03d | %(levelname)-8s | %(name)s | %(message)s"
 
 
+class LogContextFilter(logging.Filter):
+    _metadata: t.Type[ContextMetadata] = ContextCorrelationId
+
+    def __init__(
+        self,
+        name: str = "",
+        default: str = "-",
+        fields: t.Sequence[str] = (),
+    ) -> None:
+        super().__init__(name)
+        self.default = default
+        self.fields = fields or self._metadata.field_names()
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        try:
+            metadata: t.Any = self._metadata.get()
+        except LookupError:
+            metadata = object()
+
+        for field in self.fields:
+            value = getattr(metadata, field, None)
+            setattr(record, field, value or self.default)
+
+        return True
+
+
 class SetupLoggers:
     def __init__(
         self,
         config: t.Optional[LoggingSettings] = None,
         config_file: OptStr = None,
+        context_filter: t.Optional[LogContextFilter] = None,
         **kwargs,
     ):
         self.config = config or LoggingSettings()
+        self.context_filter = context_filter
         self.config_file = config_file or self.config.config_file
 
         if not self.prepare_file_config():
@@ -90,6 +118,13 @@ class SetupLoggers:
         kwargs.setdefault("format", self.config.default_format)
         kwargs.setdefault("datefmt", self.config.default_date_format)
         kwargs["level"] = os.environ.get("LOG_LEVEL") or self.config.level
+
+        if self.context_filter:
+            handler = logging.StreamHandler()
+            handler.addFilter(self.context_filter)
+            handlers = kwargs.get("handlers") or []
+            handlers.append(handler)
+
         logging.basicConfig(**kwargs)
 
     def prepare_file_config(self) -> bool:
@@ -129,32 +164,6 @@ class SetupLoggers:
         sock.send(bytes(struct.pack(">L", len(configuration))))
         sock.send(configuration)
         sock.close()
-
-
-class LogContextFilter(logging.Filter):
-    _metadata: t.Type[ContextMetadata] = ContextCorrelationId
-
-    def __init__(
-        self,
-        name: str = "",
-        default: str = "-",
-        fields: t.Sequence[str] = (),
-    ) -> None:
-        super().__init__(name)
-        self.default = default
-        self.fields = fields or self._metadata.field_names()
-
-    def filter(self, record: logging.LogRecord) -> bool:
-        try:
-            metadata: t.Any = self._metadata.get()
-        except LookupError:
-            metadata = object()
-
-        for field in self.fields:
-            value = getattr(metadata, field, None)
-            setattr(record, field, value or self.default)
-
-        return True
 
 
 class Log(metaclass=Static):
