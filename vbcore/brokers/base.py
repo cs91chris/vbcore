@@ -83,7 +83,9 @@ class BrokerClient(VBLoggerMixin, ABC, Generic[C, P]):
         async def decorator(data: Any) -> None:
             self.log.debug("received event: %s", data)
             message = self._wrap_message(data)
-            self.context.set(**message.headers.to_dict())
+            if message.headers:
+                self.context.set(**message.headers.to_dict())
+
             await self.pre_callback_hook()
             await callback(message)
             await self.post_callback_hook()
