@@ -23,6 +23,7 @@ from .data import BrokerOptions, Header, Message
 class NatsOptions(BrokerOptions):
     consumer_group: OptStr = None
     nack_delay: int = 30
+    drain: bool = True
 
 
 class NatsBrokerAdapter(BrokerClient[NATS, NatsOptions]):
@@ -41,13 +42,38 @@ class NatsBrokerAdapter(BrokerClient[NATS, NatsOptions]):
 
     @asynccontextmanager
     async def connect(self) -> AsyncIterator[Self]:
-        # force to list because nats-py raise error
-        servers = list(self.options.servers)
-        await self.client.connect(servers, connect_timeout=int(self.options.timeout))
+        servers = self.options.servers
+        if isinstance(self.options.servers, (tuple, set)):
+            # force to list because nats-py raises error
+            servers = list(self.options.servers)
+
+        await self.client.connect(
+            servers,
+            connect_timeout=int(self.options.timeout),
+            disconnected_cb=self.callback_disconnected,
+            closed_cb=self.callback_closed,
+            discovered_server_cb=self.callback_discovered,
+            reconnected_cb=self.callback_reconnected,
+        )
         try:
             yield self
         finally:
-            await self.client.close()
+            if self.options.drain:
+                await self.client.drain()
+            else:
+                await self.client.close()
+
+    async def callback_disconnected(self) -> None:
+        self.log.info("[nats-client=%s] disconnected", self.client.client_id)
+
+    async def callback_closed(self) -> None:
+        self.log.info("[nats-client=%s] closed", self.client.client_id)
+
+    async def callback_discovered(self) -> None:
+        self.log.info("[nats-client=%s] discovered server", self.client.client_id)
+
+    async def callback_reconnected(self) -> None:
+        self.log.info("[nats-client=%s] reconnected", self.client.client_id)
 
     def _wrap_message(self, message: Msg) -> Message:
         return Message(
@@ -79,9 +105,16 @@ class NatsBrokerAdapter(BrokerClient[NATS, NatsOptions]):
     async def _nak_on_failure(self, message: Msg) -> None:
         await message.nak(self.options.nack_delay)
         self.log.error(
-            "nack sent on reply %s and delayed for %ss", message.reply, self.options.nack_delay
+            "[nats-client=%s] nack sent on reply %s and delayed for %ss",
+            self.client.client_id,
+            message.reply,
+            self.options.nack_delay,
         )
 
     async def _ack_on_success(self, message: Msg) -> None:
         await message.ack()
-        self.log.debug("ack sent on reply %s", message.reply)
+        self.log.debug(
+            "[nats-client=%s] ack sent on reply %s",
+            self.client.client_id,
+            message.reply,
+        )

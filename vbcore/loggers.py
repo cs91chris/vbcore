@@ -134,8 +134,7 @@ class SetupLoggers:
         if self.context_filter:
             handler = logging.StreamHandler()
             handler.addFilter(self.context_filter)
-            handlers = kwargs.get("handlers") or []
-            handlers.append(handler)
+            kwargs["handlers"] = [handler]
 
         logging.basicConfig(**kwargs)
         self.set_logger_levels(self.config.logger_levels)
