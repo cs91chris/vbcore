@@ -6,7 +6,7 @@ import struct
 import typing as t
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from functools import cached_property
 
@@ -58,14 +58,17 @@ def patch_logging():
 
 @dataclass(frozen=True, kw_only=True)
 class LoggingSettings:
-    level: str = "INFO"
-    force: bool = True
-    config_file: OptStr = None
-    listen_for_reload: bool = False
-    listener_daemon: bool = True
-    listener_port: int = DEFAULT_LISTENER_PORT
-    default_date_format = "%Y-%m-%d %H:%M:%S"
-    default_format: str = "%(asctime)s.%(msecs)03d | %(levelname)-8s | %(name)s | %(message)s"
+    level: str = field(default="INFO")
+    force: bool = field(default=True)
+    config_file: OptStr = field(default=None)
+    listen_for_reload: bool = field(default=False)
+    listener_daemon: bool = field(default=True)
+    listener_port: int = field(default=DEFAULT_LISTENER_PORT)
+    default_date_format: str = field(default="%Y-%m-%d %H:%M:%S")
+    default_format: str = field(
+        default="%(asctime)s.%(msecs)03d | %(levelname)-8s | %(name)s | %(message)s"
+    )
+    logger_levels: t.Dict[str, str] = field(default_factory=dict)
 
 
 class LogContextFilter(logging.Filter):
@@ -87,9 +90,9 @@ class LogContextFilter(logging.Filter):
         except LookupError:
             metadata = object()
 
-        for field in self.fields:
-            value = getattr(metadata, field, None)
-            setattr(record, field, value or self.default)
+        for _field in self.fields:
+            value = getattr(metadata, _field, None)
+            setattr(record, _field, value or self.default)
 
         return True
 
@@ -103,14 +106,23 @@ class SetupLoggers:
         **kwargs,
     ):
         self.config = config or LoggingSettings()
-        self.context_filter = context_filter
         self.config_file = config_file or self.config.config_file
+        self.context_filter = context_filter
 
         if not self.prepare_file_config():
             self.prepare_basic_config(**kwargs)
 
         if self.config.listen_for_reload:
             self.prepare_listener()
+
+    @classmethod
+    def set_logger_levels(cls, logger_levels: t.Dict[str, str]) -> None:
+        """
+        It is a class method because we want the possibilities
+        to call this method anyway at anypoint
+        """
+        for name, level in logger_levels.items():
+            logging.getLogger(name).setLevel(level)
 
     def prepare_basic_config(self, **kwargs):
         kwargs.setdefault("force", self.config.force)
@@ -126,6 +138,7 @@ class SetupLoggers:
             handlers.append(handler)
 
         logging.basicConfig(**kwargs)
+        self.set_logger_levels(self.config.logger_levels)
 
     def prepare_file_config(self) -> bool:
         config_file = os.environ.get("LOG_FILE_CONFIG") or self.config_file
