@@ -52,5 +52,5 @@ def test_subscribe(mock_consumer, runner):
     Asserter.assert_none(result.exception, error=result.output)
     Asserter.assert_equals(result.exit_code, 0)
 
-    mock_consumer.assert_called_once_with(ANY, callbacks=[])
+    mock_consumer.assert_called_once_with(ANY, heartbeat=ANY, callbacks=[])
     mock_instance.run.assert_called_once_with()

@@ -7,6 +7,7 @@ from vbcore.brokers.consumer import Consumer
 from vbcore.brokers.data import Header
 from vbcore.brokers.factory import BrokerEnum, BrokerFactory
 from vbcore.brokers.publisher import Publisher
+from vbcore.heartbeat import Heartbeat
 from vbcore.importer import Importer
 from vbcore.tools.cli import CliOpt, CliReqOpt
 from vbcore.types import OptStr, StrList
@@ -41,12 +42,14 @@ def publish(
 @main.command(name="subscribe", help="subscribe and consume messages")
 @common_options
 @CliOpt.multi("callbacks", "-C", "--callback")
-def subscribe(broker: str, server: str, options: dict, callbacks: StrList):
+@CliOpt.integer("delay", "--heartbeat", default=180)
+def subscribe(broker: str, server: str, delay: int, options: dict, callbacks: StrList):
     instance = BrokerFactory.instance(broker, servers=server, **options)
     cbs = [Importer.from_module(cb, call_with=True) for cb in callbacks]
 
     async def wrapper():
-        consumer = Consumer(instance, callbacks=cbs)
+        heartbeat = Heartbeat(delay=delay or 60)
+        consumer = Consumer(instance, heartbeat=heartbeat, callbacks=cbs)
         await consumer.run()
 
     aio.execute(wrapper())
