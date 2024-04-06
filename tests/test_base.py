@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 import pytest
 
-from vbcore.base import BaseDTO, Decorator, Singleton, Static
+from vbcore.base import ABCSingleton, BaseDTO, Decorator, Singleton, Static
 from vbcore.tester.asserter import Asserter
 
 
@@ -35,6 +35,13 @@ def test_singleton():
         pass
 
     Asserter.assert_is_not(MyClass(), MyClass())
+    Asserter.assert_is(MySingletonClass(), MySingletonClass())
+
+
+def test_abc_singleton():
+    class MySingletonClass(ABCSingleton):
+        pass
+
     Asserter.assert_is(MySingletonClass(), MySingletonClass())
 
 

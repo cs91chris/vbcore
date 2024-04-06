@@ -1,6 +1,7 @@
 import dataclasses
 import functools
 import typing as t
+from abc import ABC, ABCMeta
 
 from vbcore.types import CallableDictType
 
@@ -52,7 +53,7 @@ class BaseDTO:
 
 class Singleton(type):
     """
-    Makes classes singleton, use this as metaclass, i.e.:
+    Makes classes singleton (no-thread-safe), use this as metaclass, i.e.:
 
     >>> class MyClass:
     ...     pass
@@ -73,6 +74,14 @@ class Singleton(type):
         if cls not in cls.__instances:
             cls.__instances[cls] = super().__call__(*args, **kwargs)
         return cls.__instances[cls]
+
+
+class ABCSingletonMeta(Singleton, ABCMeta):
+    """Metaclass for abstract singleton class"""
+
+
+class ABCSingleton(ABC, metaclass=ABCSingletonMeta):
+    """Same as Singleton but for abstract base class"""
 
 
 class Static(type):

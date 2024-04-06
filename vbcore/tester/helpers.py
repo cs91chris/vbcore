@@ -1,6 +1,6 @@
 import typing as t
 from base64 import b64encode
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, Mock
 
 from vbcore.datastruct import ObjectDict
 from vbcore.tester.fetchmail import FetchMail
@@ -28,7 +28,7 @@ def do_not_dump_long_string(field: str, limit: int = 20) -> str:
     return "None" if not field else field[:limit]
 
 
-class WithAsyncContextManager:
+class MockAsyncContextManager:
     def __init__(self, instance: t.Any):
         self.instance = instance
 
@@ -59,5 +59,5 @@ class MockHelper:
         return mock_instance
 
     @classmethod
-    def mock_async_with(cls, data: t.Any) -> AsyncMock:
-        return MagicMock(return_value=WithAsyncContextManager(data))
+    def mock_async_with(cls, data: t.Any, mock_class: t.Type[Mock] = MagicMock) -> Mock:
+        return mock_class(return_value=MockAsyncContextManager(data))
