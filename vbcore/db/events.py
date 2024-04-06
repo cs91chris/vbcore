@@ -47,9 +47,9 @@ ROLLBACK_CAUSE_KEY = "vbcore.db.sp_rollback_cause"
 ExcType = t.Union[t.Type[DBAPIError], t.Type[Exception]]
 FilterType = t.Callable[["ExceptionData"], None]
 
-__REGISTRY: t.Dict[
-    str, t.Dict[ExcType, t.List[t.Tuple[FilterType, re.Pattern]]]
-] = collections.defaultdict(lambda: collections.defaultdict(list))
+__REGISTRY: t.Dict[str, t.Dict[ExcType, t.List[t.Tuple[FilterType, re.Pattern]]]] = (
+    collections.defaultdict(lambda: collections.defaultdict(list))
+)
 
 
 @dataclass(frozen=True)

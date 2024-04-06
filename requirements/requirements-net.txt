@@ -4,20 +4,20 @@
 #
 #    pip-compile --no-emit-index-url --no-emit-trusted-host --output-file=requirements/requirements-net.txt requirements/requirements-net.in
 #
-bcrypt==4.0.1
+bcrypt==4.1.2
     # via paramiko
 cffi==1.16.0
     # via
     #   -c requirements/requirements-build.txt
     #   cryptography
     #   pynacl
-cryptography==41.0.5
+cryptography==42.0.5
     # via
     #   -c requirements/requirements-build.txt
     #   paramiko
-paramiko==3.3.1
+paramiko==3.4.0
     # via -r requirements/requirements-net.in
-pycparser==2.21
+pycparser==2.22
     # via
     #   -c requirements/requirements-build.txt
     #   cffi

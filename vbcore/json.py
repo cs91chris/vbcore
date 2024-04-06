@@ -138,7 +138,7 @@ class JsonObjectIdDecoder(JsonDecoderMixin):
 
 class BaseJsonDecoder(json.JSONDecoder, JsonDecoderMixin):
     def __init__(self, *args, **kwargs):
-        super().__init__(object_hook=self.custom_object_hook, *args, **kwargs)
+        super().__init__(*args, object_hook=self.custom_object_hook, **kwargs)
 
 
 class JsonDecoder(

@@ -1,4 +1,5 @@
 from asyncio import AbstractEventLoop, get_event_loop, Queue
+from functools import partial
 from signal import SIGABRT, SIGINT, Signals, SIGTERM
 from typing import Iterable, Optional, Union
 
@@ -26,7 +27,7 @@ class Heartbeat(VBLoggerMixin):
         for sig in self.stop_signals:
             try:
                 _s = Signals(sig)
-                self.loop.add_signal_handler(_s.value, lambda s=_s: handler_wrapper(s))
+                self.loop.add_signal_handler(_s.value, partial(handler_wrapper, _s))
                 self.log.info("registered shutdown handler on signal %s", SignalDumper(_s))
             except Exception as exc:  # pylint: disable=broad-except
                 self.log.exception(exc)

@@ -32,12 +32,15 @@ class HTTPBatch(HTTPBase, AsyncBatchExecutor):
 
         try:
             self.log.info("%s", self.dump_request(ObjectDict(**kwargs), dump_body[0]))
-            async with aiohttp.ClientSession(
-                timeout=aiohttp.ClientTimeout(
-                    sock_read=timeout or self._timeout,
-                    sock_connect=timeout or self._timeout,
-                )
-            ) as session, session.request(**kwargs) as resp:
+            async with (
+                aiohttp.ClientSession(
+                    timeout=aiohttp.ClientTimeout(
+                        sock_read=timeout or self._timeout,
+                        sock_connect=timeout or self._timeout,
+                    )
+                ) as session,
+                session.request(**kwargs) as resp,
+            ):
                 try:
                     body = await resp.json()
                 except (aiohttp.ContentTypeError, ValueError, TypeError):

@@ -1,6 +1,7 @@
 """
 Set of functions to generate the diagram related to the ORM models
 """
+
 import types
 from typing import Any, cast, List, Tuple
 

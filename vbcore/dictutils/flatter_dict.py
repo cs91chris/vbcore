@@ -3,6 +3,7 @@ FlatDict is a dict object that allows for single level, delimited
 key/value pair mapping of nested dictionaries.
 
 """
+
 from collections.abc import MutableMapping
 
 # taken from: https://github.com/gmr/flatdict

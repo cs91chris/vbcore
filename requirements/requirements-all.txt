@@ -4,7 +4,7 @@
 #
 #    pip-compile --no-emit-index-url --no-emit-trusted-host --output-file=requirements/requirements-all.txt requirements/requirements-all.in
 #
-aiohttp==3.8.6
+aiohttp==3.9.3
     # via -r requirements/requirements-http.txt
 aiosignal==1.3.1
     # via
@@ -15,6 +15,10 @@ annotated-types==0.6.0
     #   -c requirements/requirements.txt
     #   -r requirements/requirements.txt
     #   pydantic
+anyio==4.3.0
+    # via
+    #   -r requirements/requirements-extra.txt
+    #   gql
 apscheduler==3.10.4
     # via -r requirements/requirements-scheduler.txt
 argon2-cffi==23.1.0
@@ -27,7 +31,7 @@ async-timeout==4.0.3
     # via
     #   -r requirements/requirements-http.txt
     #   aiohttp
-attrs==23.1.0
+attrs==23.2.0
     # via
     #   -r requirements/requirements-extra.txt
     #   -r requirements/requirements-http.txt
@@ -40,7 +44,7 @@ backoff==2.2.1
     #   -r requirements/requirements-extra.txt
     #   -r requirements/requirements.txt
     #   gql
-bcrypt==4.0.1
+bcrypt==4.1.2
     # via
     #   -r requirements/requirements-crypto.txt
     #   -r requirements/requirements-net.txt
@@ -49,7 +53,7 @@ bson==0.5.10
     # via
     #   -c requirements/requirements.txt
     #   -r requirements/requirements.txt
-certifi==2023.7.22
+certifi==2024.2.2
     # via
     #   -c requirements/requirements-build.txt
     #   -r requirements/requirements-http.txt
@@ -70,13 +74,12 @@ charset-normalizer==2.1.1
     # via
     #   -c requirements/requirements-build.txt
     #   -r requirements/requirements-http.txt
-    #   aiohttp
     #   requests
 click==8.1.7
     # via
     #   -c requirements/requirements.txt
     #   -r requirements/requirements.txt
-cryptography==41.0.5
+cryptography==42.0.5
     # via
     #   -c requirements/requirements-build.txt
     #   -r requirements/requirements-net.txt
@@ -87,96 +90,101 @@ et-xmlfile==1.1.0
     # via
     #   -r requirements/requirements-extra.txt
     #   openpyxl
-frozenlist==1.4.0
+exceptiongroup==1.2.0
+    # via
+    #   -r requirements/requirements-extra.txt
+    #   anyio
+frozenlist==1.4.1
     # via
     #   -r requirements/requirements-http.txt
     #   aiohttp
     #   aiosignal
-gql==3.4.1
+gql==3.5.0
     # via -r requirements/requirements-extra.txt
 graphql-core==3.2.3
     # via
     #   -r requirements/requirements-extra.txt
     #   gql
-graphviz==0.20.1
+graphviz==0.20.3
     # via -r requirements/requirements-db.txt
-greenlet==3.0.1
+greenlet==3.0.3
     # via
     #   -r requirements/requirements-db.txt
     #   sqlalchemy
 gunicorn==21.2.0
     # via -r requirements/requirements-extra.txt
-idna==3.4
+idna==3.6
     # via
     #   -c requirements/requirements-build.txt
     #   -r requirements/requirements-extra.txt
     #   -r requirements/requirements-http.txt
+    #   anyio
     #   requests
     #   yarl
-jsonschema==4.19.2
+jsonschema==4.21.1
     # via -r requirements/requirements-extra.txt
-jsonschema-specifications==2023.7.1
+jsonschema-specifications==2023.12.1
     # via
     #   -r requirements/requirements-extra.txt
     #   jsonschema
-multidict==6.0.4
+multidict==6.0.5
     # via
     #   -r requirements/requirements-extra.txt
     #   -r requirements/requirements-http.txt
     #   aiohttp
     #   yarl
-nats-py==2.6.0
+nats-py==2.7.2
     # via -r requirements/requirements-extra.txt
 openpyxl==3.1.2
     # via -r requirements/requirements-extra.txt
-packaging==23.2
+packaging==24.0
     # via
     #   -c requirements/requirements-build.txt
     #   -r requirements/requirements-extra.txt
     #   gunicorn
-paramiko==3.3.1
+paramiko==3.4.0
     # via -r requirements/requirements-net.txt
 ply==3.11
     # via
     #   -r requirements/requirements-extra.txt
     #   rule-engine
-psutil==5.9.6
+psutil==5.9.8
     # via
     #   -c requirements/requirements.txt
     #   -r requirements/requirements.txt
-pycparser==2.21
+pycparser==2.22
     # via
     #   -c requirements/requirements-build.txt
     #   -r requirements/requirements-crypto.txt
     #   -r requirements/requirements-net.txt
     #   cffi
-pydantic==2.4.2
+pydantic==2.6.4
     # via
     #   -c requirements/requirements.txt
     #   -r requirements/requirements.txt
     #   pydantic-settings
-pydantic-core==2.10.1
+pydantic-core==2.16.3
     # via
     #   -c requirements/requirements.txt
     #   -r requirements/requirements.txt
     #   pydantic
-pydantic-settings==2.1.0
+pydantic-settings==2.2.1
     # via
     #   -c requirements/requirements.txt
     #   -r requirements/requirements.txt
-pydot==1.4.2
+pydot==2.0.0
     # via -r requirements/requirements-db.txt
 pynacl==1.5.0
     # via
     #   -r requirements/requirements-net.txt
     #   paramiko
-pyparsing==3.1.1
+pyparsing==3.1.2
     # via
     #   -r requirements/requirements-db.txt
     #   pydot
 pysocks==1.7.1
     # via -r requirements/requirements-net.txt
-python-dateutil==2.8.2
+python-dateutil==2.9.0.post0
     # via
     #   -c requirements/requirements.txt
     #   -r requirements/requirements-extra.txt
@@ -187,12 +195,12 @@ python-decouple==3.8
     # via
     #   -c requirements/requirements.txt
     #   -r requirements/requirements.txt
-python-dotenv==1.0.0
+python-dotenv==1.0.1
     # via
     #   -c requirements/requirements.txt
     #   -r requirements/requirements.txt
     #   pydantic-settings
-pytz==2023.3.post1
+pytz==2024.1
     # via
     #   -r requirements/requirements-scheduler.txt
     #   apscheduler
@@ -200,7 +208,7 @@ pyyaml==6.0.1
     # via
     #   -c requirements/requirements.txt
     #   -r requirements/requirements.txt
-referencing==0.30.2
+referencing==0.34.0
     # via
     #   -r requirements/requirements-extra.txt
     #   jsonschema
@@ -209,12 +217,12 @@ requests==2.31.0
     # via
     #   -c requirements/requirements-build.txt
     #   -r requirements/requirements-http.txt
-rpds-py==0.12.0
+rpds-py==0.18.0
     # via
     #   -r requirements/requirements-extra.txt
     #   jsonschema
     #   referencing
-rule-engine==4.1.0
+rule-engine==4.4.0
     # via -r requirements/requirements-extra.txt
 six==1.16.0
     # via
@@ -225,13 +233,19 @@ six==1.16.0
     #   apscheduler
     #   bson
     #   python-dateutil
-sqlalchemy==2.0.23
+sniffio==1.3.1
+    # via
+    #   -r requirements/requirements-extra.txt
+    #   anyio
+sqlalchemy==2.0.29
     # via -r requirements/requirements-db.txt
-typing-extensions==4.8.0
+typing-extensions==4.11.0
     # via
     #   -c requirements/requirements.txt
     #   -r requirements/requirements-db.txt
+    #   -r requirements/requirements-extra.txt
     #   -r requirements/requirements.txt
+    #   anyio
     #   pydantic
     #   pydantic-core
     #   sqlalchemy
@@ -243,7 +257,7 @@ ua-parser==0.18.0
     # via
     #   -r requirements/requirements-http.txt
     #   user-agents
-urllib3==2.0.7
+urllib3==2.2.1
     # via
     #   -c requirements/requirements-build.txt
     #   -r requirements/requirements-http.txt
@@ -252,7 +266,7 @@ user-agents==2.2.0
     # via -r requirements/requirements-http.txt
 xmltodict==0.13.0
     # via -r requirements/requirements-extra.txt
-yarl==1.9.2
+yarl==1.9.4
     # via
     #   -r requirements/requirements-extra.txt
     #   -r requirements/requirements-http.txt

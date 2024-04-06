@@ -6,7 +6,7 @@
 #
 apscheduler==3.10.4
     # via -r requirements/requirements-scheduler.in
-pytz==2023.3.post1
+pytz==2024.1
     # via apscheduler
 six==1.16.0
     # via

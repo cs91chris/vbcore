@@ -4,24 +4,24 @@
 #
 #    pip-compile --no-emit-index-url --no-emit-trusted-host --output-file=requirements/requirements-dev.txt requirements/requirements-dev.in
 #
-astroid==3.0.1
+astroid==3.1.0
     # via pylint
-attrs==23.1.0
+attrs==23.2.0
     # via
     #   -c requirements/requirements-all.txt
     #   -c requirements/requirements-test.txt
     #   flake8-bugbear
-autoflake==2.2.1
+autoflake==2.3.1
     # via -r requirements/requirements-dev.in
-bandit==1.7.5
+bandit==1.7.8
     # via -r requirements/requirements-dev.in
-black==23.10.1
+black==24.3.0
     # via -r requirements/requirements-dev.in
-build==1.0.3
+build==1.2.1
     # via pip-tools
 bump2version==1.0.1
     # via -r requirements/requirements-dev.in
-certifi==2023.7.22
+certifi==2024.2.2
     # via
     #   -c requirements/requirements-all.txt
     #   -c requirements/requirements-build.txt
@@ -50,34 +50,30 @@ colorama==0.4.6
     #   radon
 coloredlogs==15.0.1
     # via -r requirements/requirements-dev.in
-cryptography==41.0.5
+cryptography==42.0.5
     # via
     #   -c requirements/requirements-all.txt
     #   -c requirements/requirements-build.txt
     #   types-paramiko
-dill==0.3.7
+dill==0.3.8
     # via pylint
 dparse==0.6.3
     # via safety
-flake8==6.1.0
+flake8==7.0.0
     # via
     #   -r requirements/requirements-dev.in
     #   flake8-bugbear
-flake8-bugbear==23.9.16
+flake8-bugbear==24.2.6
     # via -r requirements/requirements-dev.in
-gitdb==4.0.11
-    # via gitpython
-gitpython==3.1.40
-    # via bandit
 humanfriendly==10.0
     # via coloredlogs
-idna==3.4
+idna==3.6
     # via
     #   -c requirements/requirements-all.txt
     #   -c requirements/requirements-build.txt
     #   -c requirements/requirements-test.txt
     #   requests
-isort==5.12.0
+isort==5.13.2
     # via
     #   -r requirements/requirements-dev.in
     #   pylint
@@ -97,13 +93,13 @@ mdurl==0.1.2
     # via
     #   -c requirements/requirements-build.txt
     #   markdown-it-py
-mypy==1.6.1
+mypy==1.9.0
     # via -r requirements/requirements-dev.in
 mypy-extensions==1.0.0
     # via
     #   black
     #   mypy
-packaging==23.2
+packaging==24.0
     # via
     #   -c requirements/requirements-all.txt
     #   -c requirements/requirements-build.txt
@@ -111,39 +107,42 @@ packaging==23.2
     #   black
     #   build
     #   dparse
+    #   pipdeptree
     #   safety
-pathspec==0.11.2
+pathspec==0.12.1
     # via black
-pbr==5.11.1
+pbr==6.0.0
     # via stevedore
-pip-tools==7.3.0
+pip-tools==7.4.1
     # via -r requirements/requirements-dev.in
-pipdeptree==2.13.0
+pipdeptree==2.17.0
     # via -r requirements/requirements-dev.in
-platformdirs==3.11.0
+platformdirs==4.2.0
     # via
     #   -c requirements/requirements-build.txt
     #   black
     #   pylint
 pycodestyle==2.11.1
     # via flake8
-pycparser==2.21
+pycparser==2.22
     # via
     #   -c requirements/requirements-all.txt
     #   -c requirements/requirements-build.txt
     #   cffi
-pyflakes==3.1.0
+pyflakes==3.2.0
     # via
     #   autoflake
     #   flake8
-pygments==2.16.1
+pygments==2.17.2
     # via
     #   -c requirements/requirements-build.txt
     #   rich
-pylint==3.0.2
+pylint==3.1.0
     # via -r requirements/requirements-dev.in
 pyproject-hooks==1.0.0
-    # via build
+    # via
+    #   build
+    #   pip-tools
 pyyaml==6.0.1
     # via
     #   -c requirements/requirements-all.txt
@@ -157,11 +156,11 @@ requests==2.31.0
     #   -c requirements/requirements-build.txt
     #   -c requirements/requirements-test.txt
     #   safety
-rich==13.6.0
+rich==13.7.1
     # via
     #   -c requirements/requirements-build.txt
     #   bandit
-ruamel-yaml==0.18.5
+ruamel-yaml==0.18.6
     # via safety
 ruamel-yaml-clib==0.2.8
     # via ruamel-yaml
@@ -173,9 +172,7 @@ six==1.16.0
     # via
     #   -c requirements/requirements-all.txt
     #   mando
-smmap==5.0.1
-    # via gitdb
-stevedore==5.1.0
+stevedore==5.2.0
     # via bandit
 toml==0.10.2
     # via liccheck
@@ -191,42 +188,42 @@ tomli==2.0.1
     #   pip-tools
     #   pylint
     #   pyproject-hooks
-tomlkit==0.12.2
+tomlkit==0.12.4
     # via pylint
 types-backports==0.1.3
     # via -r requirements/requirements-dev.in
 types-chardet==5.0.4.6
     # via -r requirements/requirements-dev.in
-types-paramiko==3.3.0.0
+types-paramiko==3.4.0.20240311
     # via -r requirements/requirements-dev.in
-types-python-dateutil==2.8.19.14
+types-python-dateutil==2.9.0.20240316
     # via -r requirements/requirements-dev.in
-types-pytz==2023.3.1.1
+types-pytz==2024.1.0.20240203
     # via -r requirements/requirements-dev.in
-types-pyyaml==6.0.12.12
+types-pyyaml==6.0.12.20240311
     # via -r requirements/requirements-dev.in
-types-requests==2.31.0.10
+types-requests==2.31.0.20240403
     # via -r requirements/requirements-dev.in
-types-setuptools==68.2.0.0
+types-setuptools==69.2.0.20240317
     # via -r requirements/requirements-dev.in
-types-toml==0.10.8.7
+types-toml==0.10.8.20240310
     # via -r requirements/requirements-dev.in
 types-xmltodict==0.13.0.3
     # via -r requirements/requirements-dev.in
-typing-extensions==4.8.0
+typing-extensions==4.11.0
     # via
     #   -c requirements/requirements-all.txt
     #   astroid
     #   black
     #   mypy
-urllib3==2.0.7
+urllib3==2.2.1
     # via
     #   -c requirements/requirements-all.txt
     #   -c requirements/requirements-build.txt
     #   -c requirements/requirements-test.txt
     #   requests
     #   types-requests
-wheel==0.41.3
+wheel==0.43.0
     # via
     #   -c requirements/requirements-build.txt
     #   pip-tools

@@ -4,33 +4,32 @@
 #
 #    pip-compile --no-emit-index-url --no-emit-trusted-host --output-file=requirements/requirements-http.txt requirements/requirements-http.in
 #
-aiohttp==3.8.6
+aiohttp==3.9.3
     # via -r requirements/requirements-http.in
 aiosignal==1.3.1
     # via aiohttp
 async-timeout==4.0.3
     # via aiohttp
-attrs==23.1.0
+attrs==23.2.0
     # via aiohttp
-certifi==2023.7.22
+certifi==2024.2.2
     # via
     #   -c requirements/requirements-build.txt
     #   requests
 charset-normalizer==2.1.1
     # via
     #   -c requirements/requirements-build.txt
-    #   aiohttp
     #   requests
-frozenlist==1.4.0
+frozenlist==1.4.1
     # via
     #   aiohttp
     #   aiosignal
-idna==3.4
+idna==3.6
     # via
     #   -c requirements/requirements-build.txt
     #   requests
     #   yarl
-multidict==6.0.4
+multidict==6.0.5
     # via
     #   aiohttp
     #   yarl
@@ -40,11 +39,11 @@ requests==2.31.0
     #   -r requirements/requirements-http.in
 ua-parser==0.18.0
     # via user-agents
-urllib3==2.0.7
+urllib3==2.2.1
     # via
     #   -c requirements/requirements-build.txt
     #   requests
 user-agents==2.2.0
     # via -r requirements/requirements-http.in
-yarl==1.9.2
+yarl==1.9.4
     # via aiohttp

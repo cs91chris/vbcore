@@ -1,4 +1,5 @@
 """Set of functions to generate the diagram of the actual database"""
+
 from typing import Any, Dict, List, Sequence, Union
 
 import pydot
@@ -279,12 +280,12 @@ def create_schema_graph(  # noqa: C901
                 continue
             edge = [table.name, fk.column.table.name]
             graph_edge = pydot.Edge(
+                *edge,
                 headlabel=f"1 {fk.column.name}",
                 taillabel=f"{'1' if fk.column.unique else 'N'} {fk.parent.name}",
                 arrowhead=False,
                 arrowtail=False,
                 fontname=font,
-                *edge,
                 **relation_kwargs,
             )
             graph.add_edge(graph_edge)
