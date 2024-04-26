@@ -51,3 +51,9 @@ class VBEmptyFileError(VBException):
         self.filename = filename
         _message = message or "empty file"
         super().__init__(_message, *args, **kwargs)
+
+
+class VBMissingArgumentException(VBException):
+    def __init__(self, arg: t.Any, orig: t.Optional[Exception] = None):
+        super().__init__(f"missing argument: {arg}", orig=orig)
+        self.arg = arg

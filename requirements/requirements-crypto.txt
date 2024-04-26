@@ -14,7 +14,16 @@ cffi==1.16.0
     # via
     #   -c requirements/requirements-build.txt
     #   argon2-cffi-bindings
+    #   cryptography
+cryptography==42.0.5
+    # via
+    #   -c requirements/requirements-build.txt
+    #   pyjwt
 pycparser==2.22
     # via
     #   -c requirements/requirements-build.txt
     #   cffi
+pycryptodome==3.20.0
+    # via -r requirements/requirements-crypto.in
+pyjwt[crypto]==2.8.0
+    # via -r requirements/requirements-crypto.in
