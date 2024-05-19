@@ -42,4 +42,6 @@ async def test_nats_subscribe(nats_broker: NatsBrokerAdapter) -> None:
             inspect.signature(dummy_callback),
         )
 
-        mock_subscribe.assert_called_once_with(subject=topic, queue="CONSUMER_TOPIC", cb=ANY)
+        mock_subscribe.assert_called_once_with(
+            subject=topic, queue="CONSUMER_TOPIC", manual_ack=True, cb=ANY
+        )

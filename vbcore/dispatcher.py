@@ -1,6 +1,5 @@
 import typing as t
 
-from vbcore import aio
 from vbcore.base import Static
 
 C = t.TypeVar("C", bound=t.Callable)
@@ -30,9 +29,6 @@ class AsyncDispatcher(t.Generic[A], metaclass=Static):
         callback = cls.callbacks[name]
 
         for decorator in cls.decorators:
-            if aio.is_async(decorator):
-                callback = await decorator(callback)
-            else:
-                callback = decorator(callback)
+            callback = await decorator(callback)
 
         return await callback(*args, **kwargs)

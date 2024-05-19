@@ -30,7 +30,7 @@ def test_async_dispatcher():
     async def dummy(item: str) -> str:
         return item
 
-    def upper(func):
+    async def upper(func):
         @functools.wraps(func)
         async def inner(item: str):
             return (await func(item)).upper()

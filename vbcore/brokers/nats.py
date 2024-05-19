@@ -50,18 +50,60 @@ class NatsBrokerAdapter(BrokerClient[NATS, NatsOptions]):
         await self.client.connect(
             servers,
             connect_timeout=int(self.options.timeout),
+            error_cb=self.callback_error,
             disconnected_cb=self.callback_disconnected,
             closed_cb=self.callback_closed,
             discovered_server_cb=self.callback_discovered,
             reconnected_cb=self.callback_reconnected,
         )
         try:
+            self.dump_connection_info()
             yield self
         finally:
             if self.options.drain:
                 await self.client.drain()
             else:
                 await self.client.close()
+
+    def dump_connection_info(self) -> None:
+        self.log.debug(
+            "[nats-client=%s] servers = %s",
+            self.client.client_id,
+            tuple(s.geturl() for s in self.client.servers),
+        )
+        self.log.debug(
+            "[nats-client=%s] discovered_servers = %s",
+            self.client.client_id,
+            tuple(s.geturl() for s in self.client.discovered_servers),
+        )
+        self.log.debug(
+            "[nats-client=%s] connected_url = %s",
+            self.client.client_id,
+            self.client.connected_url.geturl() if self.client.connected_url else None,
+        )
+        self.log.debug(
+            "[nats-client=%s] connected_server_version = %s",
+            self.client.client_id,
+            self.client.connected_server_version,
+        )
+        self.log.debug(
+            "[nats-client=%s] last_error = %s",
+            self.client.client_id,
+            self.client.last_error,
+        )
+        self.log.debug(
+            "[nats-client=%s] stats = %s",
+            self.client.client_id,
+            self.client.stats,
+        )
+
+    async def callback_error(self, exception: Exception) -> None:
+        self.log.error(
+            "[nats-client=%s][nats-server=%s] nats encountered error",
+            self.client.client_id,
+            self.client.connected_url.geturl() if self.client.connected_url else None,
+            exc_info=exception,
+        )
 
     async def callback_disconnected(self) -> None:
         self.log.info("[nats-client=%s] disconnected", self.client.client_id)
@@ -94,13 +136,16 @@ class NatsBrokerAdapter(BrokerClient[NATS, NatsOptions]):
             **kwargs,
         )
 
-    async def _subscribe(self, topic: str, callback: Callback, **kwargs) -> None:
-        queue = None
+    async def _subscribe(
+        self, topic: str, callback: Callback, name: OptStr = None, **kwargs
+    ) -> None:
+        name = (name or topic).replace(".", "-")
         if self.options.consumer_group:
-            queue = f"{self.options.consumer_group}_{topic.replace('.', '-')}"
+            name = f"{self.options.consumer_group}_{name}"
 
+        kwargs.setdefault("manual_ack", True)
         _callback = cast(Optional[Callable[[Msg], Awaitable[None]]], callback)
-        await self.stream.subscribe(subject=topic, queue=queue, cb=_callback, **kwargs)
+        await self.stream.subscribe(subject=topic, queue=name, cb=_callback, **kwargs)
 
     async def _nak_on_failure(self, message: Msg) -> None:
         await message.nak(self.options.nack_delay)
