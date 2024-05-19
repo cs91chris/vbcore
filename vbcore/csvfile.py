@@ -4,7 +4,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 
 from vbcore.exceptions import VBEmptyFileError
-from vbcore.files import FileHandler, OptStr
+from vbcore.files import FileHandler, FileNameType, OptStr
 from vbcore.types import OptInt, StrList
 
 RecordType = t.Union[dict, t.Iterable[dict]]
@@ -27,7 +27,7 @@ class CSVParams:
 class CSVHandler(FileHandler):
     def __init__(
         self,
-        filename: OptStr = None,
+        filename: t.Optional[FileNameType] = None,
         fields: t.Optional[StrList] = None,
         params: t.Optional[CSVParams] = None,
     ):
@@ -35,7 +35,7 @@ class CSVHandler(FileHandler):
         self.params = params or CSVParams()
         super().__init__(filename, self.params.encoding, self.params.supported_encodings)
 
-    def open(self, filename: OptStr = None, **kwargs) -> t.IO:
+    def open(self, filename: t.Optional[FileNameType] = None, **kwargs) -> t.IO:
         return super().open(
             filename,
             newline=self.params.new_line,
@@ -53,7 +53,9 @@ class CSVHandler(FileHandler):
             )
 
     @contextmanager
-    def reader(self, filename: OptStr = None) -> t.Generator[csv.DictReader, None, None]:
+    def reader(
+        self, filename: t.Optional[FileNameType] = None
+    ) -> t.Generator[csv.DictReader, None, None]:
         with self.open(filename) as file:
             reader = csv.DictReader(
                 file,
@@ -67,7 +69,7 @@ class CSVHandler(FileHandler):
     @contextmanager
     def writer(
         self,
-        filename: OptStr = None,
+        filename: t.Optional[FileNameType] = None,
         fields: t.Optional[StrList] = None,
         **kwargs,
     ) -> t.Generator[csv.DictWriter, None, None]:
@@ -88,12 +90,14 @@ class CSVHandler(FileHandler):
     def pre_write_hook(self, record: dict) -> t.Any:
         return {k: v for k, v in record.items() if k in self.fields}
 
-    def readlines(self, filename: OptStr = None) -> t.Generator[dict, None, None]:
+    def readlines(self, filename: t.Optional[FileNameType] = None) -> t.Generator[dict, None, None]:
         with self.reader(filename) as reader:
             for record in reader:
                 yield self.after_read_hook(record)
 
-    def coroutine_writer(self, filename: OptStr = None, **kwargs) -> WriterCoroutineType:
+    def coroutine_writer(
+        self, filename: t.Optional[FileNameType] = None, **kwargs
+    ) -> WriterCoroutineType:
         with self.writer(filename, **kwargs) as writer:
             writer.writeheader()
             while True:
@@ -104,7 +108,7 @@ class CSVHandler(FileHandler):
 
     @contextmanager
     def open_writer(
-        self, filename: OptStr = None, **kwargs
+        self, filename: t.Optional[FileNameType] = None, **kwargs
     ) -> t.Generator[WriterCoroutineType, None, None]:
         # pylint: disable=assignment-from-no-return
         writer = self.coroutine_writer(filename, **kwargs)
@@ -113,15 +117,15 @@ class CSVHandler(FileHandler):
         yield writer
         writer.close()
 
-    def write_all(self, records: RecordType, filename: OptStr = None, **kwargs):
+    def write_all(self, records: RecordType, filename: t.Optional[FileNameType] = None, **kwargs):
         with self.open_writer(filename, **kwargs) as writer:
             writer.send(records)
 
     def sort(
         self,
         columns: StrList,
-        filename: OptStr = None,
-        output_file: OptStr = None,
+        filename: t.Optional[FileNameType] = None,
+        output_file: t.Optional[FileNameType] = None,
         **kwargs,
     ):
         with self.reader(filename) as reader:

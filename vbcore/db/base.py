@@ -17,9 +17,9 @@ LoadersType = t.Tuple[t.Type["LoaderModel"], ...]
 
 
 class StrSize:
-    small: ClassVar[int] = 50
-    medium: ClassVar[int] = 255
-    large: ClassVar[int] = 20_000
+    small: ClassVar[int] = 128
+    medium: ClassVar[int] = 512
+    large: ClassVar[int] = 4096
 
 
 class Func:
@@ -46,7 +46,8 @@ def create_index(tablename: str, *columns: str, **kwargs) -> sa.Index:
 class StrCol:
     small: sa.String = sa.String(StrSize.small)
     medium: sa.String = sa.String(StrSize.medium)
-    large: Type[sa.Text] = sa.Text
+    large: sa.String = sa.String(StrSize.large)
+    text: Type[sa.Text] = sa.Text
 
 
 class Column:
@@ -55,7 +56,7 @@ class Column:
     uuid: ClassVar = partial(mapped_column, sa.String(36), primary_key=True, default=get_uuid)
     date_created: ClassVar = partial(mapped_column, sa.DateTime, server_default=Func.NOW())
     date_updated: ClassVar = partial(mapped_column, sa.DateTime, onupdate=Func.NOW())
-    description: ClassVar = partial(mapped_column, sa.Text(), nullable=True)
+    description: ClassVar = partial(mapped_column, StrCol.large, nullable=True)
     decimal: ClassVar = partial(mapped_column, sa.Numeric(9, 3))
 
 

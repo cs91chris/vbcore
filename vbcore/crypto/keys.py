@@ -8,6 +8,7 @@ from Crypto import Random
 from Crypto.PublicKey import ECC, RSA
 from typing_extensions import Self
 
+from vbcore.files import FileHandler
 from vbcore.stringutils.misc import random_string_ascii
 from vbcore.types import OptStr
 
@@ -23,31 +24,31 @@ K = TypeVar("K", bound=SupportsKeys)
 class Key(abc.ABC, Generic[K]):
     """Base class for ascii keys and format PEM"""
 
-    def __init__(self) -> None:
-        self.encoding = "ascii"
+    def __init__(self, private_key: OptStr = None) -> None:
         self.format = "PEM"
-        self._key: Optional[K] = None
+        self.encoding = "ascii"
+        self._key: Optional[K] = self._load_key(private_key) if private_key else None
 
     @classmethod
     def random(cls, size: int) -> bytes:
         return Random.get_random_bytes(size)
 
     @classmethod
-    def from_key(cls, secret_key: str) -> Self:
+    def from_key(cls, private_key: str) -> Self:
         instance = cls()
-        instance._load_key(secret_key)
+        instance._load_key(private_key)
         return instance
 
     @classmethod
     def from_file(cls, filename: Union[Path, str], **kwargs) -> Self:
-        with open(filename, **kwargs) as file:
+        with FileHandler(filename).open(**kwargs) as file:
             return cls.from_key(file.read())
 
     def dump_keys(self, *, path: Union[Path, str] = ".", prefix: OptStr = None) -> None:
         prefix = f"{prefix}-" if prefix else ""
         with (
-            open(Path(path, f"{prefix}private.pem"), "w") as secret_file,
-            open(Path(path, f"{prefix}public.pem"), "w") as public_file,
+            FileHandler(Path(path, f"{prefix}private.pem")).open(mode="w") as secret_file,
+            FileHandler(Path(path, f"{prefix}public.pem")).open(mode="w") as public_file,
         ):
             secret_file.write(self.private_key)
             public_file.write(self.public_key)
@@ -78,8 +79,8 @@ class Key(abc.ABC, Generic[K]):
 
 
 class RSAKey(Key[RSA.RsaKey]):
-    def __init__(self, bits: int = 2048):
-        super().__init__()
+    def __init__(self, *, private_key: OptStr = None, bits: int = 2048):
+        super().__init__(private_key)
         self.bits = bits
 
     def _generate(self) -> RSA.RsaKey:
@@ -91,8 +92,8 @@ class RSAKey(Key[RSA.RsaKey]):
 
 
 class ECCKey(Key[ECC.EccKey]):
-    def __init__(self, curve: str = "P-521"):
-        super().__init__()
+    def __init__(self, *, private_key: OptStr = None, curve: str = "P-521"):
+        super().__init__(private_key)
         self.curve = curve
 
     def _generate(self) -> ECC.EccKey:

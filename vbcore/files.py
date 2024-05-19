@@ -12,6 +12,8 @@ Detector = LazyImporter.do_import(
     message="'chardet' required, install it!",
 )
 
+FileNameType = t.Union[int, str, bytes, os.PathLike[str], os.PathLike[bytes]]
+
 
 @dataclass(frozen=True)
 class EncodingData:
@@ -23,7 +25,7 @@ class EncodingData:
 class VBEncodingError(VBException):
     def __init__(
         self,
-        filename: str,
+        filename: FileNameType,
         encoding: OptStr,
         supported: t.List[str],
         confidence: t.Optional[float] = None,
@@ -35,7 +37,7 @@ class VBEncodingError(VBException):
         self.supported = supported
         self.confidence = confidence
 
-        prefix = f"error while detecting encoding for file '{filename}':"
+        prefix = f"error while detecting encoding for file '{filename!r}':"
         extra = (
             f"(confidence: {confidence}, language: {language})"
             if language
@@ -51,7 +53,7 @@ class VBEncodingError(VBException):
 class FileHandler:
     def __init__(
         self,
-        filename: OptStr = None,
+        filename: t.Optional[FileNameType] = None,
         encoding: OptStr = None,
         supported_encodings: t.Sequence[str] = (),
     ):
@@ -59,14 +61,14 @@ class FileHandler:
         self.encoding = encoding or "utf-8"
         self.supported_encodings = supported_encodings
 
-    def open(self, filename: OptStr = None, **kwargs) -> t.IO:
+    def open(self, filename: t.Optional[FileNameType] = None, **kwargs) -> t.IO:
         encoding = kwargs.pop("encoding", self.encoding)
         return open(filename or self.filename, encoding=encoding, **kwargs)
 
-    def open_binary(self, filename: OptStr = None, **kwargs) -> t.IO:
+    def open_binary(self, filename: t.Optional[FileNameType] = None, **kwargs) -> t.IO:
         return open(filename or self.filename, mode="rb", **kwargs)
 
-    def num_lines(self, filename: OptStr = None) -> int:
+    def num_lines(self, filename: t.Optional[FileNameType] = None) -> int:
         with self.open(filename) as file:
             return sum(1 for _ in file)
 
@@ -78,11 +80,11 @@ class FileHandler:
             except StopIteration:
                 return
 
-    def read_text(self, filename: OptStr = None, **kwargs) -> str:
+    def read_text(self, filename: t.Optional[FileNameType] = None, **kwargs) -> str:
         with self.open(filename, **kwargs) as file:
             return file.read()
 
-    def detect_encoding(self, filename: OptStr = None) -> EncodingData:
+    def detect_encoding(self, filename: t.Optional[FileNameType] = None) -> EncodingData:
         detector = Detector()
         with self.open_binary(filename) as file:
             for line in file:
@@ -93,7 +95,9 @@ class FileHandler:
 
         return EncodingData(**detector.result)
 
-    def check_encoding(self, filename: OptStr = None, extra_supported: t.Sequence[str] = ()):
+    def check_encoding(
+        self, filename: t.Optional[FileNameType] = None, extra_supported: t.Sequence[str] = ()
+    ):
         encoding = self.detect_encoding(filename)
         supported_encodings = [
             self.encoding,
