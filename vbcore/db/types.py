@@ -12,6 +12,7 @@ else:
 
 SqlColumns = Sequence[_ColumnsClauseArgument[Any]]
 TableType = Union[Table, Type[Model]]
+# pytest: disable=unsubscriptable-object
 SqlWhereClause = ColumnExpressionArgument[bool]
 SqlWhereClauses = Sequence[SqlWhereClause]
 ExecParams = Union[List[Mapping[str, Any]], Mapping[str, Any]]

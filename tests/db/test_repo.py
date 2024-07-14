@@ -44,8 +44,7 @@ class UserRepo(CrudRepo[UserInput, User]):
     pass
 
 
-def test_querier_fetch() -> None:
-    connector = SQLAConnector("sqlite+pysqlite:///:memory:", echo=True)
+def test_querier_fetch(connector: SQLAConnector) -> None:
     connector.create_all()
 
     connection = connector.engine.connect()
@@ -77,9 +76,8 @@ def test_querier_fetch() -> None:
     )
 
 
-def test_crud_perform() -> None:
+def test_crud_perform(connector: SQLAConnector) -> None:
     user_t = UserOrm
-    connector = SQLAConnector("sqlite+pysqlite:///:memory:", echo=True)
     connector.create_all()
 
     connection = connector.engine.connect()

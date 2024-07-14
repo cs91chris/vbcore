@@ -240,8 +240,7 @@ class FlatDict(MutableMapping):
         :rtype: Iterator
         :raises: RuntimeError
         """
-        for item in self.items():
-            yield item
+        yield from self.items()
 
     def iterkeys(self):
         """
@@ -255,8 +254,7 @@ class FlatDict(MutableMapping):
         :rtype: Iterator
         :raises: RuntimeError
         """
-        for key in self.keys():
-            yield key
+        yield from self.keys()
 
     def itervalues(self):
         """
@@ -270,8 +268,7 @@ class FlatDict(MutableMapping):
         :rtype: Iterator
         :raises: RuntimeError
         """
-        for value in self.values():
-            yield value
+        yield from self.values()
 
     def keys(self):
         """

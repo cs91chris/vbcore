@@ -11,20 +11,35 @@ def test_load_config(mock_set_config):
     calls = mock_set_config.call_args_list
     Asserter.assert_len(calls, 33)
 
+    # pylint: disable=protected-access
     Asserter.assert_equals(calls[0], call("on_starting", server._on_starting))
+    # pylint: disable=protected-access
     Asserter.assert_equals(calls[1], call("on_reload", server._on_reload))
+    # pylint: disable=protected-access
     Asserter.assert_equals(calls[2], call("when_ready", server._when_ready))
+    # pylint: disable=protected-access
     Asserter.assert_equals(calls[3], call("pre_fork", server._pre_fork))
+    # pylint: disable=protected-access
     Asserter.assert_equals(calls[4], call("post_fork", server._post_fork))
+    # pylint: disable=protected-access
     Asserter.assert_equals(calls[5], call("post_worker_init", server._post_worker_init))
+    # pylint: disable=protected-access
     Asserter.assert_equals(calls[6], call("worker_int", server._worker_int))
+    # pylint: disable=protected-access
     Asserter.assert_equals(calls[7], call("pre_exec", server._pre_exec))
+    # pylint: disable=protected-access
     Asserter.assert_equals(calls[8], call("worker_abort", server._worker_abort))
+    # pylint: disable=protected-access
     Asserter.assert_equals(calls[9], call("pre_request", server.pre_request))
+    # pylint: disable=protected-access
     Asserter.assert_equals(calls[10], call("post_request", server.post_request))
+    # pylint: disable=protected-access
     Asserter.assert_equals(calls[11], call("child_exit", server._child_exit))
+    # pylint: disable=protected-access
     Asserter.assert_equals(calls[12], call("worker_exit", server._worker_exit))
+    # pylint: disable=protected-access
     Asserter.assert_equals(calls[13], call("nworkers_changed", server._nworkers_changed))
+    # pylint: disable=protected-access
     Asserter.assert_equals(calls[14], call("on_exit", server._on_exit))
     Asserter.assert_equals(calls[15], call("errorlog", "-"))
     Asserter.assert_equals(calls[16], call("accesslog", "-"))

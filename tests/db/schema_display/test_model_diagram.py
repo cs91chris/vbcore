@@ -14,8 +14,8 @@ def mappers(*args):
     return [class_mapper(x) for x in args]
 
 
-def test_simple_class(Base, capsys):
-    class Foo(Base):
+def test_simple_class(base_model, capsys):
+    class Foo(base_model):
         __tablename__ = "foo"
         id = Column(types.Integer, primary_key=True)
 
@@ -28,12 +28,12 @@ def test_simple_class(Base, capsys):
     assert err == ""
 
 
-def test_relation(Base):
-    class Foo(Base):
+def test_relation(base_model):
+    class Foo(base_model):
         __tablename__ = "foo"
         id = Column(types.Integer, primary_key=True)
 
-    class Bar(Base):
+    class Bar(base_model):
         __tablename__ = "bar"
         id = Column(types.Integer, primary_key=True)
         foo_id = Column(types.Integer, ForeignKey(Foo.id))
@@ -48,12 +48,12 @@ def test_relation(Base):
     assert graph.obj_dict["edges"][('"Foo"', '"Bar"')][0]["attributes"]["headlabel"] == "bars *"
 
 
-def test_backref(Base):
-    class Foo(Base):
+def test_backref(base_model):
+    class Foo(base_model):
         __tablename__ = "foo"
         id = Column(types.Integer, primary_key=True)
 
-    class Bar(Base):
+    class Bar(base_model):
         __tablename__ = "bar"
         id = Column(types.Integer, primary_key=True)
         foo_id = Column(types.Integer, ForeignKey(Foo.id))

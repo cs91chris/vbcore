@@ -10,9 +10,8 @@ from .utils import parse_graph
 def plain_result(**kw):
     if "metadata" in kw:
         kw["metadata"].create_all(kw["engine"])
-    elif "tables" in kw:
-        if len(kw["tables"]):
-            kw["tables"][0].metadata.create_all(kw["engine"])
+    elif "tables" in kw and len(kw["tables"]):
+        kw["tables"][0].metadata.create_all(kw["engine"])
     return parse_graph(create_schema_graph(**kw))
 
 

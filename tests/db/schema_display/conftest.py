@@ -17,5 +17,5 @@ def metadata(engine):  # pylint: disable=redefined-outer-name
 
 
 @pytest.fixture
-def Base(metadata):  # pylint: disable=redefined-outer-name
+def base_model(metadata):  # pylint: disable=redefined-outer-name
     return declarative_base(metadata=metadata)

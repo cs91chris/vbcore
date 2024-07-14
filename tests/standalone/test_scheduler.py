@@ -27,16 +27,14 @@ def test_dump_jobs():
 
     jobs = [
         {
-            "task": lambda a: print(a),
+            "task": print,
             "trigger": "interval",
             "minutes": 2,
             "params": {"a": "A"},
         }
     ]
     scheduler.load_jobs(jobs)
-    expected = dedent(
-        "Pending jobs:\ntest_dump_jobs.<locals>.<lambda> (trigger: interval[0:02:00], pending)\n"
-    )
+    expected = dedent("Pending jobs:\nprint (trigger: interval[0:02:00], pending)\n")
     str_jobs = scheduler.dump_jobs()
     Asserter.assert_equals(dedent(str_jobs).replace("  ", ""), expected)
 
