@@ -6,12 +6,14 @@ from typing import Optional, Union
 from typing_extensions import Self
 
 from vbcore.base import BaseDTO
+from vbcore.types import OptStr
 
 
 @dataclass(frozen=True, kw_only=True)
 class BrokerOptions(BaseDTO):
     servers: Union[str, list[str]] = field()
-    timeout: float = field(default=3)
+    timeout: int = field(default=3)
+    consumer_group: OptStr = field(default=None)
 
 
 @dataclass(frozen=True, kw_only=True)

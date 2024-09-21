@@ -1,9 +1,8 @@
 import abc
-from collections.abc import Sequence
-from typing import Generic, List, Optional, Type, TypeVar
+from typing import Generic, Optional, Sequence, Type, TypeVar
 
 from vbcore.heartbeat import Heartbeat
-from vbcore.loggers import VBLoggerMixin
+from vbcore.loggers import Log, VBLoggerMixin
 
 from .base import BrokerClient
 from .data import Message
@@ -12,9 +11,16 @@ from .publisher import EventModel
 E = TypeVar("E", bound=EventModel)
 
 
-class BaseCallback(abc.ABC, Generic[E]):
+class BaseCallback(VBLoggerMixin, abc.ABC, Generic[E]):
     def __init__(self, schema: Type[E]):
         self.schema = schema
+
+    def __str__(self) -> str:
+        return self.class_dumper(self).dump()
+
+    @property
+    def topic(self) -> str:
+        return self.schema.TOPIC
 
     def prepare_data(self, data: bytes) -> E:
         return self.schema.model_validate_json(data)
@@ -23,29 +29,21 @@ class BaseCallback(abc.ABC, Generic[E]):
     async def perform(self, message: Message) -> None:
         raise NotImplementedError
 
+    async def __call__(self, message: Message) -> None:
+        self.log.info("[%s] start execution", self)
+        with Log.execution_time(logger=__name__, message=f"[{self}] execution time"):
+            await self.perform(message)
 
-class Dispatcher(VBLoggerMixin):
-    def __init__(self, callbacks: Sequence[BaseCallback]) -> None:
-        self.callbacks: dict[str, BaseCallback] = {}
-        self.register(*callbacks)
 
-    @property
-    def topics(self) -> List[str]:
-        return list(self.callbacks)
+class DummyCallback(BaseCallback):
+    class SampleEvent(EventModel):
+        TOPIC = "TOPIC.SAMPLE"
 
-    def register(self, *callbacks: BaseCallback) -> None:
-        for callback in callbacks:
-            self.callbacks[callback.schema.TOPIC] = callback
-            self.log.info(
-                "registered: topic=%s callback=<%s>",
-                self.class_dumper(callback),
-                callback.schema.TOPIC,
-            )
+    def __init__(self, schema: type[EventModel] | None = None):
+        super().__init__(schema or DummyCallback.SampleEvent)
 
-    async def dispatch(self, message: Message) -> None:
-        callback = self.callbacks[message.topic]
-        self.log.debug("dispatch message: callback=<%s>", self.class_dumper(callback))
-        await callback.perform(message)
+    async def perform(self, message: Message) -> None:
+        self.log.info("received message: %s", message)
 
 
 class Consumer(VBLoggerMixin):
@@ -56,20 +54,20 @@ class Consumer(VBLoggerMixin):
         heartbeat: Optional[Heartbeat] = None,
     ):
         self.broker = broker
-        self.dispatcher = Dispatcher(callbacks)
         self.heartbeat = heartbeat or Heartbeat()
+        self._callbacks = list(sorted(callbacks, key=lambda c: c.topic))
 
-    async def run(self):
+    async def run(self) -> None:
         self.log.info(
-            "start: consumer=<%s> broker=<%s>",
+            "start: consumer=<%s>, broker=<%s>",
             self.class_dumper(self),
             self.class_dumper(self.broker),
         )
         self.heartbeat.start()
 
         async with self.broker.connect() as client:
-            for topic in self.dispatcher.topics:
-                await client.subscribe(topic, self.dispatcher.dispatch)
+            for callback in self._callbacks:
+                await client.subscribe(callback.topic, callback)
             await self.heartbeat.run_forever()
 
         self.log.info("shutdown: consumer=<%s>", self.class_dumper(self))

@@ -49,7 +49,7 @@ def subscribe(broker: str, server: str, delay: int, options: dict, callbacks: St
 
     async def wrapper():
         heartbeat = Heartbeat(delay=delay or 60)
-        consumer = Consumer(instance, heartbeat=heartbeat, callbacks=cbs)
+        consumer = Consumer(instance, cbs, heartbeat=heartbeat)
         await consumer.run()
 
     aio.execute(wrapper())

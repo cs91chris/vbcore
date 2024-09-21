@@ -2,7 +2,7 @@ import functools
 from abc import ABC, abstractmethod
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
-from typing import Any, Generic, Optional, Type, TypeVar
+from typing import Any, ClassVar, Generic, Optional, Tuple, Type, TypeVar
 
 from typing_extensions import Self
 
@@ -18,6 +18,8 @@ Callback = Callable[[Message], Awaitable[None]]
 
 
 class BrokerClient(VBLoggerMixin, ABC, Generic[C, P]):
+    retryable_errors: ClassVar[Tuple[Type[Exception], ...]] = ()
+
     def __init__(self, options: P, context: Type[ContextMetadata] = ContextCorrelationId):
         self._client: Optional[C] = None
         self.options = options
@@ -76,7 +78,12 @@ class BrokerClient(VBLoggerMixin, ABC, Generic[C, P]):
     async def subscribe(self, topic: str, callback: Callback, **kwargs) -> None:
         cb = self.acknowledge(self.wrap_message(callback))
         await self._subscribe(topic, cb, **kwargs)
-        self.log.info("successfully subscribed: topic=%s callback=%s", topic, callback)
+        self.log.info(
+            "successfully subscribed: consumer_group=%s, topic=%s callback=%s",
+            self.options.consumer_group,
+            topic,
+            callback,
+        )
 
     def wrap_message(self, callback: Callback) -> Callback:
         @functools.wraps(callback)

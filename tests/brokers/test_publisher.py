@@ -14,7 +14,7 @@ class SampleEvent(EventModel):
 
 @patch("vbcore.brokers.publisher.backoff")
 def test_backoff_wrapper(mock_backoff) -> None:
-    publisher = Publisher(AsyncMock(), retryable_errors=[ValueError])
+    publisher = Publisher(AsyncMock(retryable_errors=[ValueError]))
     publisher.backoff_wrapper(lambda _: _)
     mock_backoff.on_exception.assert_called_once_with(
         mock_backoff.expo,

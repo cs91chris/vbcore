@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Callable, ClassVar, List, Optional, Type, Union
+from typing import Callable, ClassVar, Optional, Union
 
 import backoff
 from pydantic import BaseModel
@@ -20,19 +20,17 @@ class Publisher(VBLoggerMixin):
         self,
         broker: BrokerClient,
         backoff_enabled: bool = True,
-        retryable_errors: Optional[List[Type[Exception]]] = None,
         max_tries: int = 3,
     ):
         self.broker = broker
         self.backoff_enabled = backoff_enabled
-        self.retryable_errors = retryable_errors or [Exception]
         self.max_tries = max_tries
 
     def backoff_wrapper(self, func: Callable) -> Callable:
         decorator = backoff.on_exception(
             backoff.expo,
             logger=self.log,
-            exception=self.retryable_errors,
+            exception=self.broker.retryable_errors,
             max_tries=self.max_tries,
         )
         return decorator(func)
